@@ -154,15 +154,15 @@ CREATE TABLE item_claims (
 **Goal**: Users can photograph receipts and have them parsed by AI.
 
 ### 3.1 Camera Integration
-- [ ] Camera screen with capture UI ([IP-34](https://calpinsw.atlassian.net/browse/IP-34))
-- [ ] Image preview and retake option ([IP-35](https://calpinsw.atlassian.net/browse/IP-35))
-- [ ] Gallery picker alternative ([IP-36](https://calpinsw.atlassian.net/browse/IP-36))
-- [ ] Image upload to Supabase Storage ([IP-37](https://calpinsw.atlassian.net/browse/IP-37))
+- [x] Camera screen with capture UI ([IP-34](https://calpinsw.atlassian.net/browse/IP-34))
+- [x] Image preview and retake option ([IP-35](https://calpinsw.atlassian.net/browse/IP-35))
+- [x] Gallery picker alternative ([IP-36](https://calpinsw.atlassian.net/browse/IP-36))
+- [x] Image upload to Supabase Storage ([IP-37](https://calpinsw.atlassian.net/browse/IP-37))
 
 ### 3.2 Gemini Edge Function
-- [ ] Create `parse-receipt` Edge Function ([IP-38](https://calpinsw.atlassian.net/browse/IP-38))
-- [ ] Implement Gemini API integration ([IP-39](https://calpinsw.atlassian.net/browse/IP-39))
-- [ ] Design prompt for structured receipt extraction ([IP-40](https://calpinsw.atlassian.net/browse/IP-40)):
+- [x] Create `parse-receipt` Edge Function ([IP-38](https://calpinsw.atlassian.net/browse/IP-38))
+- [x] Implement Gemini API integration ([IP-39](https://calpinsw.atlassian.net/browse/IP-39))
+- [x] Design prompt for structured receipt extraction ([IP-40](https://calpinsw.atlassian.net/browse/IP-40)):
 
 ```typescript
 // Expected response structure
@@ -182,13 +182,13 @@ interface ParsedReceipt {
 }
 ```
 
-- [ ] Handle parsing errors gracefully ([IP-41](https://calpinsw.atlassian.net/browse/IP-41))
-- [ ] Return structured JSON response ([IP-42](https://calpinsw.atlassian.net/browse/IP-42))
+- [x] Handle parsing errors gracefully ([IP-41](https://calpinsw.atlassian.net/browse/IP-41))
+- [x] Return structured JSON response ([IP-42](https://calpinsw.atlassian.net/browse/IP-42))
 
 ### 3.3 Receipt Review Screen
-- [ ] Display parsed items in editable list ([IP-43](https://calpinsw.atlassian.net/browse/IP-43))
-- [ ] Allow manual corrections ([IP-44](https://calpinsw.atlassian.net/browse/IP-44))
-- [ ] Add/remove items manually ([IP-45](https://calpinsw.atlassian.net/browse/IP-45))
+- [x] Display parsed items in editable list ([IP-43](https://calpinsw.atlassian.net/browse/IP-43))
+- [x] Allow manual corrections ([IP-44](https://calpinsw.atlassian.net/browse/IP-44))
+- [x] Add/remove items manually ([IP-45](https://calpinsw.atlassian.net/browse/IP-45))
 - [ ] Confirm and save receipt ([IP-46](https://calpinsw.atlassian.net/browse/IP-46))
 
 ---
