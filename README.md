@@ -79,6 +79,73 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
+## Project Management
+
+### Jira Board
+
+- **Board URL**: [calpinsw.atlassian.net/jira/software/projects/IP/boards/35](https://calpinsw.atlassian.net/jira/software/projects/IP/boards/35)
+- **Project Key**: `IP`
+
+### Jira CLI Setup
+
+Install the Jira CLI:
+```bash
+brew install ankitpokhrel/jira-cli/jira-cli
+```
+
+Generate an API token at [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens), then configure authentication:
+
+```bash
+# Add credentials to ~/.netrc
+cat >> ~/.netrc << EOF
+machine calpinsw.atlassian.net
+login your-email@example.com
+password YOUR_API_TOKEN
+EOF
+
+chmod 600 ~/.netrc
+```
+
+### Common Jira CLI Commands
+
+```bash
+# List all issues
+jira issue list
+
+# List issues by status
+jira issue list -s"To Do"
+jira issue list -s"In Progress"
+
+# View issue in browser
+jira open IP-8
+
+# Move issue to In Progress
+jira issue move IP-8 "In Progress"
+
+# Move issue to Done
+jira issue move IP-8 "Done"
+
+# View epic and its children
+jira epic list
+jira issue list -P IP-2    # List tasks under Phase 1 epic
+
+# Filter by label
+jira issue list -l"auth"
+jira issue list -l"database"
+```
+
+### Creating New Tickets
+
+Use the script to bulk-create tickets from the implementation plan:
+```bash
+./scripts/create-jira-tickets.sh
+```
+
+Or create individual issues:
+```bash
+jira issue create -tTask -s"Task summary" -P"IP-2" -l"label"
+```
+
 ## Documentation
 
 - [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Detailed development roadmap

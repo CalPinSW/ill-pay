@@ -15,15 +15,15 @@ This document outlines the phased development approach for the receipt splitting
 
 ---
 
-## Phase 1: Project Foundation
+## Phase 1: Project Foundation ([IP-2](https://calpinsw.atlassian.net/browse/IP-2))
 
 **Goal**: Set up the development environment and core infrastructure.
 
 ### 1.1 Expo Project Setup
-- [ ] Initialize Expo project with TypeScript template
-- [ ] Configure ESLint and Prettier
-- [ ] Set up path aliases (`@/components`, `@/screens`, etc.)
-- [ ] Install core dependencies:
+- [ ] Initialize Expo project with TypeScript template ([IP-8](https://calpinsw.atlassian.net/browse/IP-8))
+- [ ] Configure ESLint and Prettier ([IP-9](https://calpinsw.atlassian.net/browse/IP-9))
+- [ ] Set up path aliases (`@/components`, `@/screens`, etc.) ([IP-10](https://calpinsw.atlassian.net/browse/IP-10))
+- [ ] Install core dependencies ([IP-11](https://calpinsw.atlassian.net/browse/IP-11)):
   - `@supabase/supabase-js` - Supabase client
   - `expo-camera` - Receipt photo capture
   - `expo-image-picker` - Gallery selection
@@ -33,13 +33,13 @@ This document outlines the phased development approach for the receipt splitting
   - `react-native-qrcode-scanner` - QR code scanning
 
 ### 1.2 Supabase Project Setup
-- [ ] Create Supabase project
-- [ ] Initialize Supabase CLI locally (`supabase init`)
-- [ ] Configure local development environment
-- [ ] Set up environment variables
+- [ ] Create Supabase project ([IP-12](https://calpinsw.atlassian.net/browse/IP-12))
+- [ ] Initialize Supabase CLI locally (`supabase init`) ([IP-13](https://calpinsw.atlassian.net/browse/IP-13))
+- [ ] Configure local development environment ([IP-14](https://calpinsw.atlassian.net/browse/IP-14))
+- [ ] Set up environment variables ([IP-15](https://calpinsw.atlassian.net/browse/IP-15))
 
 ### 1.3 Database Schema Design
-- [ ] Create initial migration with core tables:
+- [ ] Create initial migration with core tables ([IP-16](https://calpinsw.atlassian.net/browse/IP-16)):
 
 ```sql
 -- Users (extends Supabase auth.users)
@@ -110,58 +110,58 @@ CREATE TABLE item_claims (
 );
 ```
 
-- [ ] Set up Row Level Security (RLS) policies
-- [ ] Create database functions for calculations
+- [ ] Set up Row Level Security (RLS) policies ([IP-17](https://calpinsw.atlassian.net/browse/IP-17))
+- [ ] Create database functions for calculations ([IP-18](https://calpinsw.atlassian.net/browse/IP-18))
 
 ### 1.4 Authentication Flow
-- [ ] Implement sign up screen
-- [ ] Implement sign in screen
-- [ ] Implement password reset flow
-- [ ] Create auth context/provider
-- [ ] Handle session persistence
+- [ ] Implement sign up screen ([IP-19](https://calpinsw.atlassian.net/browse/IP-19))
+- [ ] Implement sign in screen ([IP-20](https://calpinsw.atlassian.net/browse/IP-20))
+- [ ] Implement password reset flow ([IP-21](https://calpinsw.atlassian.net/browse/IP-21))
+- [ ] Create auth context/provider ([IP-22](https://calpinsw.atlassian.net/browse/IP-22))
+- [ ] Handle session persistence ([IP-23](https://calpinsw.atlassian.net/browse/IP-23))
 
 ---
 
-## Phase 2: Core User Features
+## Phase 2: Core User Features ([IP-3](https://calpinsw.atlassian.net/browse/IP-3))
 
 **Goal**: Users can create accounts, manage profiles, and add friends.
 
 ### 2.1 Profile Management
-- [ ] Profile creation on first sign-in
-- [ ] Profile edit screen (display name, avatar)
-- [ ] Username search functionality
+- [ ] Profile creation on first sign-in ([IP-24](https://calpinsw.atlassian.net/browse/IP-24))
+- [ ] Profile edit screen (display name, avatar) ([IP-25](https://calpinsw.atlassian.net/browse/IP-25))
+- [ ] Username search functionality ([IP-26](https://calpinsw.atlassian.net/browse/IP-26))
 
 ### 2.2 Friends System
-- [ ] Friends list screen
-- [ ] Send friend request
-- [ ] Accept/decline friend requests
-- [ ] Remove friend
-- [ ] Friend request notifications
+- [ ] Friends list screen ([IP-27](https://calpinsw.atlassian.net/browse/IP-27))
+- [ ] Send friend request ([IP-28](https://calpinsw.atlassian.net/browse/IP-28))
+- [ ] Accept/decline friend requests ([IP-29](https://calpinsw.atlassian.net/browse/IP-29))
+- [ ] Remove friend ([IP-30](https://calpinsw.atlassian.net/browse/IP-30))
+- [ ] Friend request notifications ([IP-31](https://calpinsw.atlassian.net/browse/IP-31))
 
 ### 2.3 Navigation Structure
-- [ ] Bottom tab navigator:
+- [ ] Bottom tab navigator ([IP-32](https://calpinsw.atlassian.net/browse/IP-32)):
   - Home (recent receipts)
   - Scan (new receipt)
   - Friends
   - Profile
-- [ ] Stack navigators for each tab
+- [ ] Stack navigators for each tab ([IP-33](https://calpinsw.atlassian.net/browse/IP-33))
 
 ---
 
-## Phase 3: Receipt Scanning & Parsing
+## Phase 3: Receipt Scanning & Parsing ([IP-4](https://calpinsw.atlassian.net/browse/IP-4))
 
 **Goal**: Users can photograph receipts and have them parsed by AI.
 
 ### 3.1 Camera Integration
-- [ ] Camera screen with capture UI
-- [ ] Image preview and retake option
-- [ ] Gallery picker alternative
-- [ ] Image upload to Supabase Storage
+- [ ] Camera screen with capture UI ([IP-34](https://calpinsw.atlassian.net/browse/IP-34))
+- [ ] Image preview and retake option ([IP-35](https://calpinsw.atlassian.net/browse/IP-35))
+- [ ] Gallery picker alternative ([IP-36](https://calpinsw.atlassian.net/browse/IP-36))
+- [ ] Image upload to Supabase Storage ([IP-37](https://calpinsw.atlassian.net/browse/IP-37))
 
 ### 3.2 Gemini Edge Function
-- [ ] Create `parse-receipt` Edge Function
-- [ ] Implement Gemini API integration
-- [ ] Design prompt for structured receipt extraction:
+- [ ] Create `parse-receipt` Edge Function ([IP-38](https://calpinsw.atlassian.net/browse/IP-38))
+- [ ] Implement Gemini API integration ([IP-39](https://calpinsw.atlassian.net/browse/IP-39))
+- [ ] Design prompt for structured receipt extraction ([IP-40](https://calpinsw.atlassian.net/browse/IP-40)):
 
 ```typescript
 // Expected response structure
@@ -181,97 +181,97 @@ interface ParsedReceipt {
 }
 ```
 
-- [ ] Handle parsing errors gracefully
-- [ ] Return structured JSON response
+- [ ] Handle parsing errors gracefully ([IP-41](https://calpinsw.atlassian.net/browse/IP-41))
+- [ ] Return structured JSON response ([IP-42](https://calpinsw.atlassian.net/browse/IP-42))
 
 ### 3.3 Receipt Review Screen
-- [ ] Display parsed items in editable list
-- [ ] Allow manual corrections
-- [ ] Add/remove items manually
-- [ ] Confirm and save receipt
+- [ ] Display parsed items in editable list ([IP-43](https://calpinsw.atlassian.net/browse/IP-43))
+- [ ] Allow manual corrections ([IP-44](https://calpinsw.atlassian.net/browse/IP-44))
+- [ ] Add/remove items manually ([IP-45](https://calpinsw.atlassian.net/browse/IP-45))
+- [ ] Confirm and save receipt ([IP-46](https://calpinsw.atlassian.net/browse/IP-46))
 
 ---
 
-## Phase 4: Receipt Sharing & Real-time
+## Phase 4: Receipt Sharing & Real-time ([IP-5](https://calpinsw.atlassian.net/browse/IP-5))
 
 **Goal**: Users can share receipts and see live updates.
 
 ### 4.1 Share Mechanisms
-- [ ] Generate unique share code per receipt
-- [ ] Share via friend selection (in-app)
-- [ ] Generate shareable deep link
-- [ ] Generate QR code for in-person sharing
-- [ ] QR code scanner to join receipt
+- [ ] Generate unique share code per receipt ([IP-47](https://calpinsw.atlassian.net/browse/IP-47))
+- [ ] Share via friend selection (in-app) ([IP-48](https://calpinsw.atlassian.net/browse/IP-48))
+- [ ] Generate shareable deep link ([IP-49](https://calpinsw.atlassian.net/browse/IP-49))
+- [ ] Generate QR code for in-person sharing ([IP-50](https://calpinsw.atlassian.net/browse/IP-50))
+- [ ] QR code scanner to join receipt ([IP-51](https://calpinsw.atlassian.net/browse/IP-51))
 
 ### 4.2 Real-time Subscriptions
-- [ ] Subscribe to receipt changes
-- [ ] Subscribe to participant joins
-- [ ] Subscribe to item claim changes
-- [ ] Handle optimistic updates
-- [ ] Implement conflict resolution
+- [ ] Subscribe to receipt changes ([IP-52](https://calpinsw.atlassian.net/browse/IP-52))
+- [ ] Subscribe to participant joins ([IP-53](https://calpinsw.atlassian.net/browse/IP-53))
+- [ ] Subscribe to item claim changes ([IP-54](https://calpinsw.atlassian.net/browse/IP-54))
+- [ ] Handle optimistic updates ([IP-55](https://calpinsw.atlassian.net/browse/IP-55))
+- [ ] Implement conflict resolution ([IP-56](https://calpinsw.atlassian.net/browse/IP-56))
 
 ### 4.3 Receipt Participant View
-- [ ] Join receipt via link/QR
-- [ ] View receipt items
-- [ ] Claim items (with quantity selector)
-- [ ] See other participants' claims
-- [ ] Real-time claim indicators
+- [ ] Join receipt via link/QR ([IP-57](https://calpinsw.atlassian.net/browse/IP-57))
+- [ ] View receipt items ([IP-58](https://calpinsw.atlassian.net/browse/IP-58))
+- [ ] Claim items (with quantity selector) ([IP-59](https://calpinsw.atlassian.net/browse/IP-59))
+- [ ] See other participants' claims ([IP-60](https://calpinsw.atlassian.net/browse/IP-60))
+- [ ] Real-time claim indicators ([IP-61](https://calpinsw.atlassian.net/browse/IP-61))
 
 ---
 
-## Phase 5: Bill Calculation & Settlement
+## Phase 5: Bill Calculation & Settlement ([IP-6](https://calpinsw.atlassian.net/browse/IP-6))
 
 **Goal**: Calculate and display what each person owes.
 
 ### 5.1 Calculation Logic
-- [ ] Calculate per-person item totals
-- [ ] Implement proportional tip distribution:
+- [ ] Calculate per-person item totals ([IP-62](https://calpinsw.atlassian.net/browse/IP-62))
+- [ ] Implement proportional tip distribution ([IP-63](https://calpinsw.atlassian.net/browse/IP-63)):
   ```
   user_tip = (user_items_total / receipt_subtotal) * tip_amount
   ```
-- [ ] Implement equal tip distribution (alternative)
-- [ ] Calculate tax distribution (proportional)
-- [ ] Handle unclaimed items (split equally or assign to owner)
+- [ ] Implement equal tip distribution (alternative) ([IP-64](https://calpinsw.atlassian.net/browse/IP-64))
+- [ ] Calculate tax distribution (proportional) ([IP-65](https://calpinsw.atlassian.net/browse/IP-65))
+- [ ] Handle unclaimed items (split equally or assign to owner) ([IP-66](https://calpinsw.atlassian.net/browse/IP-66))
 
 ### 5.2 Settlement Screen
-- [ ] Summary view per participant
-- [ ] Breakdown: items + tax portion + tip portion
-- [ ] Total owed per person
-- [ ] Mark receipt as settled
-- [ ] Settlement history
+- [ ] Summary view per participant ([IP-67](https://calpinsw.atlassian.net/browse/IP-67))
+- [ ] Breakdown: items + tax portion + tip portion ([IP-68](https://calpinsw.atlassian.net/browse/IP-68))
+- [ ] Total owed per person ([IP-69](https://calpinsw.atlassian.net/browse/IP-69))
+- [ ] Mark receipt as settled ([IP-70](https://calpinsw.atlassian.net/browse/IP-70))
+- [ ] Settlement history ([IP-71](https://calpinsw.atlassian.net/browse/IP-71))
 
 ### 5.3 Database Functions
-- [ ] Create PostgreSQL function for totals calculation
-- [ ] Trigger recalculation on claim changes
+- [ ] Create PostgreSQL function for totals calculation ([IP-72](https://calpinsw.atlassian.net/browse/IP-72))
+- [ ] Trigger recalculation on claim changes ([IP-73](https://calpinsw.atlassian.net/browse/IP-73))
 
 ---
 
-## Phase 6: Polish & Quality
+## Phase 6: Polish & Quality ([IP-7](https://calpinsw.atlassian.net/browse/IP-7))
 
 **Goal**: Improve UX, handle edge cases, prepare for release.
 
 ### 6.1 Error Handling
-- [ ] Network error states
-- [ ] Empty states
-- [ ] Loading skeletons
-- [ ] Retry mechanisms
+- [ ] Network error states ([IP-74](https://calpinsw.atlassian.net/browse/IP-74))
+- [ ] Empty states ([IP-75](https://calpinsw.atlassian.net/browse/IP-75))
+- [ ] Loading skeletons ([IP-76](https://calpinsw.atlassian.net/browse/IP-76))
+- [ ] Retry mechanisms ([IP-77](https://calpinsw.atlassian.net/browse/IP-77))
 
 ### 6.2 Notifications (Optional for MVP)
-- [ ] Push notification setup (Expo)
-- [ ] Friend request notifications
-- [ ] Receipt invitation notifications
-- [ ] Settlement reminders
+- [ ] Push notification setup (Expo) ([IP-78](https://calpinsw.atlassian.net/browse/IP-78))
+- [ ] Friend request notifications ([IP-79](https://calpinsw.atlassian.net/browse/IP-79))
+- [ ] Receipt invitation notifications ([IP-80](https://calpinsw.atlassian.net/browse/IP-80))
+- [ ] Settlement reminders ([IP-81](https://calpinsw.atlassian.net/browse/IP-81))
 
 ### 6.3 Testing
-- [ ] Unit tests for calculation logic
-- [ ] Integration tests for Edge Functions
-- [ ] E2E tests for critical flows
+- [ ] Unit tests for calculation logic ([IP-82](https://calpinsw.atlassian.net/browse/IP-82))
+- [ ] Integration tests for Edge Functions ([IP-83](https://calpinsw.atlassian.net/browse/IP-83))
+- [ ] E2E tests for critical flows ([IP-84](https://calpinsw.atlassian.net/browse/IP-84))
 
 ### 6.4 App Store Preparation
-- [ ] App icons and splash screen
-- [ ] App store screenshots
-- [ ] Privacy policy
-- [ ] Build and submit
+- [ ] App icons and splash screen ([IP-85](https://calpinsw.atlassian.net/browse/IP-85))
+- [ ] App store screenshots ([IP-86](https://calpinsw.atlassian.net/browse/IP-86))
+- [ ] Privacy policy ([IP-87](https://calpinsw.atlassian.net/browse/IP-87))
+- [ ] Build and submit ([IP-88](https://calpinsw.atlassian.net/browse/IP-88))
 
 ---
 
