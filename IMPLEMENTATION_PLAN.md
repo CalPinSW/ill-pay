@@ -115,11 +115,11 @@ CREATE TABLE item_claims (
 - [x] Create database functions for calculations ([IP-18](https://calpinsw.atlassian.net/browse/IP-18))
 
 ### 1.4 Authentication Flow
-- [ ] Implement sign up screen ([IP-19](https://calpinsw.atlassian.net/browse/IP-19))
-- [ ] Implement sign in screen ([IP-20](https://calpinsw.atlassian.net/browse/IP-20))
-- [ ] Implement password reset flow ([IP-21](https://calpinsw.atlassian.net/browse/IP-21))
-- [ ] Create auth context/provider ([IP-22](https://calpinsw.atlassian.net/browse/IP-22))
-- [ ] Handle session persistence ([IP-23](https://calpinsw.atlassian.net/browse/IP-23))
+- [x] Implement sign up screen ([IP-19](https://calpinsw.atlassian.net/browse/IP-19))
+- [x] Implement sign in screen ([IP-20](https://calpinsw.atlassian.net/browse/IP-20))
+- [x] Implement password reset flow ([IP-21](https://calpinsw.atlassian.net/browse/IP-21))
+- [x] Create auth context/provider ([IP-22](https://calpinsw.atlassian.net/browse/IP-22))
+- [x] Handle session persistence ([IP-23](https://calpinsw.atlassian.net/browse/IP-23))
 
 ---
 
