@@ -34,10 +34,10 @@ This document outlines the phased development approach for the receipt splitting
   - `expo-secure-store` - Secure token storage
 
 ### 1.2 Supabase Project Setup
-- [ ] Create Supabase project ([IP-12](https://calpinsw.atlassian.net/browse/IP-12))
-- [ ] Initialize Supabase CLI locally (`supabase init`) ([IP-13](https://calpinsw.atlassian.net/browse/IP-13))
-- [ ] Configure local development environment ([IP-14](https://calpinsw.atlassian.net/browse/IP-14))
-- [ ] Set up environment variables ([IP-15](https://calpinsw.atlassian.net/browse/IP-15))
+- [x] Create Supabase project ([IP-12](https://calpinsw.atlassian.net/browse/IP-12))
+- [x] Initialize Supabase CLI locally (`supabase init`) ([IP-13](https://calpinsw.atlassian.net/browse/IP-13))
+- [x] Configure local development environment ([IP-14](https://calpinsw.atlassian.net/browse/IP-14))
+- [x] Set up environment variables ([IP-15](https://calpinsw.atlassian.net/browse/IP-15))
 
 ### 1.3 Database Schema Design
 - [ ] Create initial migration with core tables ([IP-16](https://calpinsw.atlassian.net/browse/IP-16)):
