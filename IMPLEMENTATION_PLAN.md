@@ -40,7 +40,7 @@ This document outlines the phased development approach for the receipt splitting
 - [x] Set up environment variables ([IP-15](https://calpinsw.atlassian.net/browse/IP-15))
 
 ### 1.3 Database Schema Design
-- [ ] Create initial migration with core tables ([IP-16](https://calpinsw.atlassian.net/browse/IP-16)):
+- [x] Create initial migration with core tables ([IP-16](https://calpinsw.atlassian.net/browse/IP-16)):
 
 ```sql
 -- Users (extends Supabase auth.users)
@@ -111,8 +111,8 @@ CREATE TABLE item_claims (
 );
 ```
 
-- [ ] Set up Row Level Security (RLS) policies ([IP-17](https://calpinsw.atlassian.net/browse/IP-17))
-- [ ] Create database functions for calculations ([IP-18](https://calpinsw.atlassian.net/browse/IP-18))
+- [x] Set up Row Level Security (RLS) policies ([IP-17](https://calpinsw.atlassian.net/browse/IP-17))
+- [x] Create database functions for calculations ([IP-18](https://calpinsw.atlassian.net/browse/IP-18))
 
 ### 1.4 Authentication Flow
 - [ ] Implement sign up screen ([IP-19](https://calpinsw.atlassian.net/browse/IP-19))
