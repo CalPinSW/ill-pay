@@ -20,17 +20,18 @@ This document outlines the phased development approach for the receipt splitting
 **Goal**: Set up the development environment and core infrastructure.
 
 ### 1.1 Expo Project Setup
-- [ ] Initialize Expo project with TypeScript template ([IP-8](https://calpinsw.atlassian.net/browse/IP-8))
-- [ ] Configure ESLint and Prettier ([IP-9](https://calpinsw.atlassian.net/browse/IP-9))
-- [ ] Set up path aliases (`@/components`, `@/screens`, etc.) ([IP-10](https://calpinsw.atlassian.net/browse/IP-10))
-- [ ] Install core dependencies ([IP-11](https://calpinsw.atlassian.net/browse/IP-11)):
+- [x] Initialize Expo project with TypeScript template ([IP-8](https://calpinsw.atlassian.net/browse/IP-8))
+- [x] Configure ESLint and Prettier ([IP-9](https://calpinsw.atlassian.net/browse/IP-9))
+- [x] Set up path aliases (`@/components`, `@/screens`, etc.) ([IP-10](https://calpinsw.atlassian.net/browse/IP-10))
+- [x] Install core dependencies ([IP-11](https://calpinsw.atlassian.net/browse/IP-11)):
   - `@supabase/supabase-js` - Supabase client
   - `expo-camera` - Receipt photo capture
   - `expo-image-picker` - Gallery selection
-  - `react-navigation` - Navigation
+  - `@react-navigation/native`, `@react-navigation/native-stack`, `@react-navigation/bottom-tabs` - Navigation
   - `zustand` - State management
   - `react-native-qrcode-svg` - QR code generation
-  - `react-native-qrcode-scanner` - QR code scanning
+  - `expo-barcode-scanner` - QR code scanning
+  - `expo-secure-store` - Secure token storage
 
 ### 1.2 Supabase Project Setup
 - [ ] Create Supabase project ([IP-12](https://calpinsw.atlassian.net/browse/IP-12))
