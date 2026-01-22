@@ -128,24 +128,24 @@ CREATE TABLE item_claims (
 **Goal**: Users can create accounts, manage profiles, and add friends.
 
 ### 2.1 Profile Management
-- [ ] Profile creation on first sign-in ([IP-24](https://calpinsw.atlassian.net/browse/IP-24))
-- [ ] Profile edit screen (display name, avatar) ([IP-25](https://calpinsw.atlassian.net/browse/IP-25))
-- [ ] Username search functionality ([IP-26](https://calpinsw.atlassian.net/browse/IP-26))
+- [x] Profile creation on first sign-in ([IP-24](https://calpinsw.atlassian.net/browse/IP-24))
+- [x] Profile edit screen (display name, avatar) ([IP-25](https://calpinsw.atlassian.net/browse/IP-25))
+- [x] Username search functionality ([IP-26](https://calpinsw.atlassian.net/browse/IP-26))
 
 ### 2.2 Friends System
-- [ ] Friends list screen ([IP-27](https://calpinsw.atlassian.net/browse/IP-27))
-- [ ] Send friend request ([IP-28](https://calpinsw.atlassian.net/browse/IP-28))
-- [ ] Accept/decline friend requests ([IP-29](https://calpinsw.atlassian.net/browse/IP-29))
+- [x] Friends list screen ([IP-27](https://calpinsw.atlassian.net/browse/IP-27))
+- [x] Send friend request ([IP-28](https://calpinsw.atlassian.net/browse/IP-28))
+- [x] Accept/decline friend requests ([IP-29](https://calpinsw.atlassian.net/browse/IP-29))
 - [ ] Remove friend ([IP-30](https://calpinsw.atlassian.net/browse/IP-30))
 - [ ] Friend request notifications ([IP-31](https://calpinsw.atlassian.net/browse/IP-31))
 
 ### 2.3 Navigation Structure
-- [ ] Bottom tab navigator ([IP-32](https://calpinsw.atlassian.net/browse/IP-32)):
+- [x] Bottom tab navigator ([IP-32](https://calpinsw.atlassian.net/browse/IP-32)):
   - Home (recent receipts)
   - Scan (new receipt)
   - Friends
   - Profile
-- [ ] Stack navigators for each tab ([IP-33](https://calpinsw.atlassian.net/browse/IP-33))
+- [x] Stack navigators for each tab ([IP-33](https://calpinsw.atlassian.net/browse/IP-33))
 
 ---
 

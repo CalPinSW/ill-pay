@@ -1,29 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Text } from 'react-native';
+
+import { HomeScreen } from '@/screens/home';
+import { ScanScreen } from '@/screens/scan';
+import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
+import { ProfileScreen, EditProfileScreen } from '@/screens/profile';
 
 export type MainTabParamList = {
-  Home: undefined;
-  Scan: undefined;
-  Friends: undefined;
-  Profile: undefined;
+  HomeTab: undefined;
+  ScanTab: undefined;
+  FriendsTab: undefined;
+  ProfileTab: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-function PlaceholderScreen({ title }: { title: string }) {
+function HomeStack() {
+  return <HomeScreen />;
+}
+
+function ScanStack() {
+  return <ScanScreen />;
+}
+
+function FriendsStack() {
+  const [screen, setScreen] = useState<'list' | 'search' | 'requests'>('list');
+
+  if (screen === 'search') {
+    return <SearchUsersScreen onGoBack={() => setScreen('list')} />;
+  }
+
+  if (screen === 'requests') {
+    return <FriendRequestsScreen onGoBack={() => setScreen('list')} />;
+  }
+
   return (
-    <View style={styles.placeholder}>
-      <Text style={styles.placeholderText}>{title}</Text>
-      <Text style={styles.placeholderSubtext}>Coming soon</Text>
-    </View>
+    <FriendsScreen
+      onNavigateToSearch={() => setScreen('search')}
+      onNavigateToRequests={() => setScreen('requests')}
+    />
   );
+}
+
+function ProfileStack() {
+  const [screen, setScreen] = useState<'profile' | 'edit'>('profile');
+
+  if (screen === 'edit') {
+    return <EditProfileScreen onGoBack={() => setScreen('profile')} />;
+  }
+
+  return <ProfileScreen />;
 }
 
 export function MainNavigator() {
   return (
     <Tab.Navigator
       screenOptions={{
+        headerShown: false,
         tabBarActiveTintColor: '#4F46E5',
         tabBarInactiveTintColor: '#999',
         tabBarStyle: {
@@ -33,60 +68,37 @@ export function MainNavigator() {
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="HomeTab"
+        component={HomeStack}
         options={{
-          title: 'Receipts',
           tabBarLabel: 'Home',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🏠</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Receipts" />}
-      </Tab.Screen>
+      />
       <Tab.Screen
-        name="Scan"
+        name="ScanTab"
+        component={ScanStack}
         options={{
-          title: 'Scan Receipt',
           tabBarLabel: 'Scan',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📷</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Scan Receipt" />}
-      </Tab.Screen>
+      />
       <Tab.Screen
-        name="Friends"
+        name="FriendsTab"
+        component={FriendsStack}
         options={{
-          title: 'Friends',
           tabBarLabel: 'Friends',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>👥</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Friends" />}
-      </Tab.Screen>
+      />
       <Tab.Screen
-        name="Profile"
+        name="ProfileTab"
+        component={ProfileStack}
         options={{
-          title: 'Profile',
           tabBarLabel: 'Profile',
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>👤</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Profile" />}
-      </Tab.Screen>
+      />
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  placeholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  placeholderText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 8,
-  },
-  placeholderSubtext: {
-    fontSize: 16,
-    color: '#999',
-  },
-});
