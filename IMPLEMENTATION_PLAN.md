@@ -332,7 +332,7 @@ interface ParsedReceipt {
 ### Mobile App (`app/.env`)
 ```
 EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=  # New format: sb_publishable_xxx
 ```
 
 ### Supabase Edge Functions (`supabase/.env`)

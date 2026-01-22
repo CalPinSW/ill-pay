@@ -72,12 +72,15 @@ Create `.env` files with your credentials:
 
 ```bash
 # app/.env
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Get publishable key from: Dashboard → Settings → API Keys → New API Keys
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
 
 # supabase/.env
 GEMINI_API_KEY=your_gemini_api_key
 ```
+
+> **Note:** We use the new `sb_publishable_` key format instead of the legacy `anon` key. See [Supabase API Keys documentation](https://supabase.com/docs/guides/api/api-keys) for details.
 
 ## Project Management
 
