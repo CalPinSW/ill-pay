@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { Profile } from '@/types/auth';
+import { NotificationTemplates } from '@/services/notificationService';
 
 interface SearchUsersScreenProps {
   onGoBack: () => void;
@@ -78,6 +79,25 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
       } else {
         setSentRequests((prev) => new Set(prev).add(friendId));
         Alert.alert('Success', 'Friend request sent!');
+
+        // Send push notification to the friend
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('username, display_name')
+          .eq('id', user.id)
+          .single();
+
+        const senderName = profile?.display_name || profile?.username || 'Someone';
+        const notification = NotificationTemplates.friendRequest(senderName);
+
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            userId: friendId,
+            title: notification.title,
+            body: notification.body,
+            data: notification.data,
+          },
+        });
       }
     } catch (error) {
       console.error('Send request error:', error);
