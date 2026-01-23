@@ -400,7 +400,9 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
         <Text style={styles.headerTitle} numberOfLines={1}>
           {receipt?.restaurant_name || 'Receipt'}
         </Text>
-        <View style={styles.headerButton} />
+        <TouchableOpacity onPress={onBack} style={styles.headerButton}>
+          <Text style={styles.doneButtonText}>Done</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -550,6 +552,12 @@ const styles = StyleSheet.create({
   headerButtonText: {
     fontSize: 16,
     color: '#007AFF',
+  },
+  doneButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#007AFF',
+    textAlign: 'right',
   },
   headerTitle: {
     flex: 1,
