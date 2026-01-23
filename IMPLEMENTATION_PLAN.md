@@ -189,7 +189,7 @@ interface ParsedReceipt {
 - [x] Display parsed items in editable list ([IP-43](https://calpinsw.atlassian.net/browse/IP-43))
 - [x] Allow manual corrections ([IP-44](https://calpinsw.atlassian.net/browse/IP-44))
 - [x] Add/remove items manually ([IP-45](https://calpinsw.atlassian.net/browse/IP-45))
-- [ ] Confirm and save receipt ([IP-46](https://calpinsw.atlassian.net/browse/IP-46))
+- [x] Confirm and save receipt ([IP-46](https://calpinsw.atlassian.net/browse/IP-46))
 
 ---
 

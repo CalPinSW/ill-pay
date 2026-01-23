@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from 'react-native';
+import { Text, Alert, ActivityIndicator, View, StyleSheet } from 'react-native';
 
 import { HomeScreen } from '@/screens/home';
-import { ScanScreen } from '@/screens/scan';
+import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
 import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
 import { ProfileScreen, EditProfileScreen } from '@/screens/profile';
+import { parseReceiptImage, createReceipt, uploadReceiptImage } from '@/services/receiptService';
+import { ParsedReceipt } from '@/types/receipt';
 
 export type MainTabParamList = {
   HomeTab: undefined;
@@ -22,8 +24,119 @@ function HomeStack() {
 }
 
 function ScanStack() {
-  return <ScanScreen />;
+  const [screen, setScreen] = useState<'camera' | 'parsing' | 'review'>('camera');
+  const [capturedImageUri, setCapturedImageUri] = useState<string | null>(null);
+  const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleImageCaptured = async (uri: string) => {
+    setCapturedImageUri(uri);
+    setScreen('parsing');
+
+    try {
+      const parsed = await parseReceiptImage(uri);
+      setParsedReceipt(parsed);
+      setScreen('review');
+    } catch (error) {
+      console.error('Error parsing receipt:', error);
+      Alert.alert(
+        'Parsing Failed',
+        'Could not parse the receipt. You can add items manually.',
+        [
+          {
+            text: 'Add Manually',
+            onPress: () => {
+              setParsedReceipt({ items: [] });
+              setScreen('review');
+            },
+          },
+          {
+            text: 'Retake Photo',
+            onPress: () => {
+              setCapturedImageUri(null);
+              setScreen('camera');
+            },
+          },
+        ]
+      );
+    }
+  };
+
+  const handleConfirmReceipt = async (receipt: ParsedReceipt) => {
+    setIsSubmitting(true);
+    try {
+      let imageUrl: string | undefined;
+      if (capturedImageUri) {
+        try {
+          imageUrl = await uploadReceiptImage(capturedImageUri);
+        } catch (uploadError) {
+          console.warn('Image upload failed, continuing without image:', uploadError);
+        }
+      }
+
+      await createReceipt(receipt, imageUrl);
+      Alert.alert('Success', 'Receipt created successfully!');
+      
+      setCapturedImageUri(null);
+      setParsedReceipt(null);
+      setScreen('camera');
+    } catch (error) {
+      console.error('Error creating receipt:', error);
+      Alert.alert('Error', 'Failed to save receipt. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setCapturedImageUri(null);
+    setParsedReceipt(null);
+    setScreen('camera');
+  };
+
+  if (screen === 'parsing') {
+    return (
+      <View style={scanStyles.loadingContainer}>
+        <ActivityIndicator size="large" color="#4F46E5" />
+        <Text style={scanStyles.loadingText}>Analyzing receipt...</Text>
+        <Text style={scanStyles.loadingSubtext}>This may take a few seconds</Text>
+      </View>
+    );
+  }
+
+  if (screen === 'review' && parsedReceipt) {
+    return (
+      <ReceiptReviewScreen
+        parsedReceipt={parsedReceipt}
+        onConfirm={handleConfirmReceipt}
+        onCancel={handleCancel}
+        isSubmitting={isSubmitting}
+      />
+    );
+  }
+
+  return <ScanScreen onImageCaptured={handleImageCaptured} />;
 }
+
+const scanStyles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+  loadingSubtext: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+  },
+});
 
 function FriendsStack() {
   const [screen, setScreen] = useState<'list' | 'search' | 'requests'>('list');
