@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  TextInput,
   ActivityIndicator,
   RefreshControl,
   Image,
@@ -14,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { Profile } from '@/types/auth';
+import { EmptyState } from '@/components';
 
 interface Friendship {
   id: string;
@@ -130,15 +130,13 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
   );
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No friends yet</Text>
-      <Text style={styles.emptySubtext}>
-        Search for users to add them as friends
-      </Text>
-      <TouchableOpacity style={styles.addButton} onPress={onNavigateToSearch}>
-        <Text style={styles.addButtonText}>Find Friends</Text>
-      </TouchableOpacity>
-    </View>
+    <EmptyState
+      icon="👥"
+      title="No friends yet"
+      message="Search for users to add them as friends"
+      actionLabel="Find Friends"
+      onAction={onNavigateToSearch}
+    />
   );
 
   if (isLoading) {

@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { useFocusEffect } from '@react-navigation/native';
+import { EmptyState } from '@/components';
 
 interface Receipt {
   id: string;
@@ -169,13 +170,11 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
   );
 
   const renderEmpty = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyIcon}>🧾</Text>
-      <Text style={styles.emptyText}>No receipts yet</Text>
-      <Text style={styles.emptySubtext}>
-        Scan a receipt to get started splitting bills with friends
-      </Text>
-    </View>
+    <EmptyState
+      icon="🧾"
+      title="No receipts yet"
+      message="Scan a receipt to get started splitting bills with friends"
+    />
   );
 
   return (
