@@ -78,7 +78,7 @@ We may update this privacy policy from time to time. We will notify users of sig
 ## Contact Us
 
 For privacy-related questions or concerns, please contact:
-- Email: privacy@illpay.app
+- Email: calpinsw@gmail.com
 
 ## Third-Party Services
 
