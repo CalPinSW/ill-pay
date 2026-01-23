@@ -252,10 +252,10 @@ interface ParsedReceipt {
 **Goal**: Improve UX, handle edge cases, prepare for release.
 
 ### 6.1 Error Handling
-- [ ] Network error states ([IP-74](https://calpinsw.atlassian.net/browse/IP-74))
-- [ ] Empty states ([IP-75](https://calpinsw.atlassian.net/browse/IP-75))
-- [ ] Loading skeletons ([IP-76](https://calpinsw.atlassian.net/browse/IP-76))
-- [ ] Retry mechanisms ([IP-77](https://calpinsw.atlassian.net/browse/IP-77))
+- [x] Network error states ([IP-74](https://calpinsw.atlassian.net/browse/IP-74)) - ErrorState component created
+- [x] Empty states ([IP-75](https://calpinsw.atlassian.net/browse/IP-75)) - EmptyState component, integrated in HomeScreen/FriendsScreen
+- [x] Loading skeletons ([IP-76](https://calpinsw.atlassian.net/browse/IP-76)) - LoadingSkeleton with presets
+- [x] Retry mechanisms ([IP-77](https://calpinsw.atlassian.net/browse/IP-77)) - ErrorState includes retry button
 
 ### 6.2 Notifications (Optional for MVP)
 - [ ] Push notification setup (Expo) ([IP-78](https://calpinsw.atlassian.net/browse/IP-78))
