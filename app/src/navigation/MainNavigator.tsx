@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { Text, Alert, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
@@ -22,9 +23,25 @@ export type MainTabParamList = {
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
+// Context to share newly created receipt ID between tabs
+const NewReceiptContext = createContext<{
+  newReceiptId: string | null;
+  setNewReceiptId: (id: string | null) => void;
+}>({ newReceiptId: null, setNewReceiptId: () => {} });
+
 function HomeStack() {
   const [screen, setScreen] = useState<'list' | 'detail' | 'invite' | 'join' | 'scan' | 'participant' | 'settlement'>('list');
   const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
+  const { newReceiptId, setNewReceiptId } = useContext(NewReceiptContext);
+
+  // Navigate to receipt detail when a new receipt is created from scan
+  useEffect(() => {
+    if (newReceiptId) {
+      setSelectedReceiptId(newReceiptId);
+      setScreen('detail');
+      setNewReceiptId(null);
+    }
+  }, [newReceiptId, setNewReceiptId]);
 
   const handleSelectReceipt = (receiptId: string, isShared?: boolean) => {
     setSelectedReceiptId(receiptId);
@@ -132,6 +149,8 @@ function ScanStack() {
   const [capturedImageUri, setCapturedImageUri] = useState<string | null>(null);
   const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigation<any>();
+  const { setNewReceiptId } = useContext(NewReceiptContext);
 
   const handleImageCaptured = async (uri: string) => {
     setCapturedImageUri(uri);
@@ -178,12 +197,15 @@ function ScanStack() {
         }
       }
 
-      await createReceipt(receipt, imageUrl);
-      Alert.alert('Success', 'Receipt created successfully!');
+      const createdReceipt = await createReceipt(receipt, imageUrl);
       
       setCapturedImageUri(null);
       setParsedReceipt(null);
       setScreen('camera');
+      
+      // Navigate to the receipt detail on the Home tab
+      setNewReceiptId(createdReceipt.id);
+      navigation.navigate('HomeTab');
     } catch (error) {
       console.error('Error creating receipt:', error);
       Alert.alert('Error', 'Failed to save receipt. Please try again.');
@@ -326,6 +348,7 @@ const badgeStyles = StyleSheet.create({
 export function MainNavigator() {
   const user = useAuthStore((state) => state.user);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
+  const [newReceiptId, setNewReceiptId] = useState<string | null>(null);
 
   const fetchPendingCount = useCallback(async () => {
     if (!user) return;
@@ -366,49 +389,51 @@ export function MainNavigator() {
   }, [fetchPendingCount]);
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#4F46E5',
-        tabBarInactiveTintColor: '#999',
-        tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: '#eee',
-        },
-      }}
-    >
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeStack}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🏠</Text>,
+    <NewReceiptContext.Provider value={{ newReceiptId, setNewReceiptId }}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: '#4F46E5',
+          tabBarInactiveTintColor: '#999',
+          tabBarStyle: {
+            borderTopWidth: 1,
+            borderTopColor: '#eee',
+          },
         }}
-      />
-      <Tab.Screen
-        name="ScanTab"
-        component={ScanStack}
-        options={{
-          tabBarLabel: 'Scan',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📷</Text>,
-        }}
-      />
-      <Tab.Screen
-        name="FriendsTab"
-        component={FriendsStack}
-        options={{
-          tabBarLabel: 'Friends',
-          tabBarIcon: () => <FriendsTabIcon pendingCount={pendingRequestCount} />,
-        }}
-      />
-      <Tab.Screen
-        name="ProfileTab"
-        component={ProfileStack}
-        options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>👤</Text>,
-        }}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen
+          name="HomeTab"
+          component={HomeStack}
+          options={{
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🏠</Text>,
+          }}
+        />
+        <Tab.Screen
+          name="ScanTab"
+          component={ScanStack}
+          options={{
+            tabBarLabel: 'Scan',
+            tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📷</Text>,
+          }}
+        />
+        <Tab.Screen
+          name="FriendsTab"
+          component={FriendsStack}
+          options={{
+            tabBarLabel: 'Friends',
+            tabBarIcon: () => <FriendsTabIcon pendingCount={pendingRequestCount} />,
+          }}
+        />
+        <Tab.Screen
+          name="ProfileTab"
+          component={ProfileStack}
+          options={{
+            tabBarLabel: 'Profile',
+            tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>👤</Text>,
+          }}
+        />
+      </Tab.Navigator>
+    </NewReceiptContext.Provider>
   );
 }
