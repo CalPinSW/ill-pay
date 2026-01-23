@@ -276,6 +276,19 @@ interface ParsedReceipt {
 - [x] Privacy policy ([IP-87](https://calpinsw.atlassian.net/browse/IP-87)) - PRIVACY_POLICY.md created
 - [x] Build and submit ([IP-88](https://calpinsw.atlassian.net/browse/IP-88)) - EAS config and BUILD.md guide added
 
+### Development Build Status (In Progress)
+
+**Completed:**
+1. ✅ EAS project configured and linked
+2. ✅ iOS development build created on EAS cloud
+3. ✅ Apple Developer account created (enrollment pending)
+
+**Next Steps (when Apple enrollment is active):**
+1. Link Apple Developer account: `eas credentials --platform ios`
+2. Register physical device: `eas device:create`
+3. Rebuild with device provisioning: `eas build --profile development --platform ios`
+4. Install on device and test push notifications
+
 ---
 
 ## Database Diagram
