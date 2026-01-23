@@ -3,6 +3,7 @@
     "name": "I'll Pay",
     "slug": "ill-pay",
     "version": "1.0.0",
+    "scheme": "illpay",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -36,7 +37,8 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {

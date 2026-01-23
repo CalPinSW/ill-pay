@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
+import { signInWithGoogle, signInWithApple } from '@/services/socialAuthService';
 
 interface SignUpScreenProps {
   onNavigateToSignIn: () => void;
@@ -26,6 +27,7 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
 
   const signUp = useAuthStore((state) => state.signUp);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null);
 
   const handleSignUp = async () => {
     if (!email || !password || !username) {
@@ -149,7 +151,7 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           <TouchableOpacity
             style={[styles.button, isLoading && styles.buttonDisabled]}
             onPress={handleSignUp}
-            disabled={isLoading}
+            disabled={isLoading || socialLoading !== null}
           >
             {isLoading ? (
               <ActivityIndicator color="#fff" />
@@ -157,6 +159,50 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
               <Text style={styles.buttonText}>Sign Up</Text>
             )}
           </TouchableOpacity>
+
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or sign up with</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <View style={styles.socialButtons}>
+            <TouchableOpacity
+              style={[styles.socialButton, socialLoading === 'google' && styles.buttonDisabled]}
+              onPress={async () => {
+                setSocialLoading('google');
+                const { error } = await signInWithGoogle();
+                setSocialLoading(null);
+                if (error) Alert.alert('Error', error.message);
+              }}
+              disabled={isLoading || socialLoading !== null}
+            >
+              {socialLoading === 'google' ? (
+                <ActivityIndicator color="#1a1a1a" />
+              ) : (
+                <Text style={styles.socialButtonText}>Google</Text>
+              )}
+            </TouchableOpacity>
+
+            {Platform.OS === 'ios' && (
+              <TouchableOpacity
+                style={[styles.socialButton, styles.appleButton, socialLoading === 'apple' && styles.buttonDisabled]}
+                onPress={async () => {
+                  setSocialLoading('apple');
+                  const { error } = await signInWithApple();
+                  setSocialLoading(null);
+                  if (error) Alert.alert('Error', error.message);
+                }}
+                disabled={isLoading || socialLoading !== null}
+              >
+                {socialLoading === 'apple' ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.appleButtonText}> Apple</Text>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <View style={styles.footer}>
@@ -242,5 +288,47 @@ const styles = StyleSheet.create({
     color: '#4F46E5',
     fontSize: 14,
     fontWeight: '600',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#999',
+  },
+  socialButtons: {
+    gap: 12,
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+  },
+  socialButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+  },
+  appleButton: {
+    backgroundColor: '#000',
+    borderColor: '#000',
+  },
+  appleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
