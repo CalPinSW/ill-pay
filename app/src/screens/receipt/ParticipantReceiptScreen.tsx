@@ -211,8 +211,14 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
   const openSplitModal = (item: ReceiptItem) => {
     setSplitItem(item);
-    // Pre-select current user
-    setSelectedSplitUsers(currentUserId ? [currentUserId] : []);
+    // Pre-select users who already have claims on this item
+    const existingClaimUserIds = getClaimsForItem(item.id).map(c => c.user_id);
+    if (existingClaimUserIds.length > 0) {
+      setSelectedSplitUsers(existingClaimUserIds);
+    } else {
+      // Default to current user if no existing claims
+      setSelectedSplitUsers(currentUserId ? [currentUserId] : []);
+    }
     setSplitModalVisible(true);
   };
 
