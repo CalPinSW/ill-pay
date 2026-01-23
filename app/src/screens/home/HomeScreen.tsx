@@ -19,11 +19,14 @@ interface Receipt {
   total: number | null;
   image_url: string | null;
   created_at: string;
+  owner_id: string;
   item_count?: number;
+  isShared?: boolean;
+  ownerName?: string;
 }
 
 interface HomeScreenProps {
-  onSelectReceipt?: (receiptId: string) => void;
+  onSelectReceipt?: (receiptId: string, isShared?: boolean) => void;
   onJoinReceipt?: () => void;
   onScanQR?: () => void;
 }
@@ -38,7 +41,8 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) return;
 
-      const { data, error } = await supabase
+      // Get receipts user owns
+      const { data: ownedReceipts, error: ownedError } = await supabase
         .from('receipts')
         .select(`
           id,
@@ -47,14 +51,57 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
           total,
           image_url,
           created_at,
+          owner_id,
           receipt_items(count)
         `)
-        .eq('owner_id', userData.user.id)
-        .order('created_at', { ascending: false });
+        .eq('owner_id', userData.user.id);
 
-      if (error) throw error;
+      if (ownedError) throw ownedError;
 
-      const receiptsWithCount = (data || []).map((r: any) => ({
+      // Get receipts user participates in
+      const { data: participations } = await supabase
+        .from('receipt_participants')
+        .select('receipt_id')
+        .eq('user_id', userData.user.id);
+
+      const participantReceiptIds = (participations || []).map(p => p.receipt_id);
+      
+      let sharedReceipts: any[] = [];
+      if (participantReceiptIds.length > 0) {
+        const { data: shared } = await supabase
+          .from('receipts')
+          .select(`
+            id,
+            restaurant_name,
+            receipt_date,
+            total,
+            image_url,
+            created_at,
+            owner_id,
+            receipt_items(count),
+            owner:profiles!receipts_owner_id_fkey(display_name, username)
+          `)
+          .in('id', participantReceiptIds)
+          .neq('owner_id', userData.user.id);
+        
+        sharedReceipts = (shared || []).map((r: any) => ({
+          ...r,
+          isShared: true,
+          ownerName: r.owner?.display_name || r.owner?.username || 'Someone',
+        }));
+      }
+
+      // Mark owned receipts
+      const ownedWithFlag = (ownedReceipts || []).map((r: any) => ({
+        ...r,
+        isShared: false,
+      }));
+
+      // Combine and sort
+      const allReceipts = [...ownedWithFlag, ...sharedReceipts];
+      allReceipts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      const receiptsWithCount = allReceipts.map((r: any) => ({
         ...r,
         item_count: r.receipt_items?.[0]?.count || 0,
       }));
@@ -97,7 +144,7 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
   const renderReceipt = ({ item }: { item: Receipt }) => (
     <TouchableOpacity 
       style={styles.receiptCard}
-      onPress={() => onSelectReceipt?.(item.id)}
+      onPress={() => onSelectReceipt?.(item.id, item.isShared)}
     >
       {item.image_url && (
         <Image source={{ uri: item.image_url }} style={styles.receiptImage} />
@@ -107,9 +154,13 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
           {item.restaurant_name || 'Unknown Restaurant'}
         </Text>
         <Text style={styles.receiptDate}>{formatDate(item.receipt_date)}</Text>
-        <Text style={styles.itemCount}>
-          {item.item_count} item{item.item_count !== 1 ? 's' : ''}
-        </Text>
+        {item.isShared ? (
+          <Text style={styles.sharedBy}>Shared by {item.ownerName}</Text>
+        ) : (
+          <Text style={styles.itemCount}>
+            {item.item_count} item{item.item_count !== 1 ? 's' : ''}
+          </Text>
+        )}
       </View>
       <View style={styles.receiptTotal}>
         <Text style={styles.totalAmount}>{formatCurrency(item.total)}</Text>
@@ -260,6 +311,11 @@ const styles = StyleSheet.create({
   itemCount: {
     fontSize: 12,
     color: '#999',
+  },
+  sharedBy: {
+    fontSize: 12,
+    color: '#007AFF',
+    fontStyle: 'italic',
   },
   receiptTotal: {
     alignItems: 'flex-end',

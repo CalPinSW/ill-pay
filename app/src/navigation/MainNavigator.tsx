@@ -24,9 +24,14 @@ function HomeStack() {
   const [screen, setScreen] = useState<'list' | 'detail' | 'invite' | 'join' | 'scan' | 'participant'>('list');
   const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
 
-  const handleSelectReceipt = (receiptId: string) => {
+  const handleSelectReceipt = (receiptId: string, isShared?: boolean) => {
     setSelectedReceiptId(receiptId);
     setScreen('detail');
+  };
+
+  const handleClaimItems = (receiptId: string) => {
+    setSelectedReceiptId(receiptId);
+    setScreen('participant');
   };
 
   const handleInviteFriends = (receiptId: string) => {
@@ -45,7 +50,7 @@ function HomeStack() {
 
   const handleJoinSuccess = (receiptId: string) => {
     setSelectedReceiptId(receiptId);
-    setScreen('participant');
+    setScreen('detail');
   };
 
   if (screen === 'scan') {
@@ -90,6 +95,7 @@ function HomeStack() {
         receiptId={selectedReceiptId}
         onBack={handleBack}
         onInviteFriends={handleInviteFriends}
+        onClaimItems={handleClaimItems}
       />
     );
   }

@@ -21,15 +21,20 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
     setIsProcessing(true);
 
     try {
-      let shareCode = data;
+      let shareCode = data.trim();
       
-      if (data.includes('illpay://join/')) {
-        shareCode = data.split('illpay://join/')[1];
+      // Extract share code from deep link
+      if (shareCode.includes('illpay://join/')) {
+        shareCode = shareCode.split('illpay://join/')[1];
       }
+      
+      // Clean up share code - remove any trailing slashes or whitespace
+      shareCode = shareCode.replace(/[\/\s]/g, '').toUpperCase();
 
-      if (!shareCode || shareCode.length !== 6) {
-        Alert.alert('Invalid Code', 'This QR code is not a valid receipt share code.');
-        setScanned(false);
+      if (!shareCode || shareCode.length < 4 || shareCode.length > 10) {
+        Alert.alert('Invalid Code', 'This QR code is not a valid receipt share code.', [
+          { text: 'OK', onPress: () => setScanned(false) }
+        ]);
         setIsProcessing(false);
         return;
       }
@@ -37,8 +42,9 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
       const receipt = await getReceiptByShareCode(shareCode);
       
       if (!receipt) {
-        Alert.alert('Not Found', 'No receipt found with that share code.');
-        setScanned(false);
+        Alert.alert('Not Found', 'No receipt found with that share code.', [
+          { text: 'OK', onPress: () => setScanned(false) }
+        ]);
         setIsProcessing(false);
         return;
       }
@@ -47,13 +53,12 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
       onJoinSuccess(receipt.id);
     } catch (error: any) {
       console.error('Error joining receipt:', error);
-      if (error.code === 'PGRST116') {
-        Alert.alert('Not Found', 'No receipt found with that share code.');
-      } else {
-        Alert.alert('Error', 'Failed to join receipt. Please try again.');
-      }
-      setScanned(false);
-    } finally {
+      const message = error.code === 'PGRST116' 
+        ? 'No receipt found with that share code.'
+        : 'Failed to join receipt. Please try again.';
+      Alert.alert('Error', message, [
+        { text: 'OK', onPress: () => setScanned(false) }
+      ]);
       setIsProcessing(false);
     }
   };

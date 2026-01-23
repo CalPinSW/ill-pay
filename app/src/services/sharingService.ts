@@ -50,16 +50,31 @@ export async function joinReceipt(receiptId: string): Promise<void> {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) throw new Error('Not authenticated');
 
+  // Check if already a participant
+  const { data: existing } = await supabase
+    .from('receipt_participants')
+    .select('user_id')
+    .eq('receipt_id', receiptId)
+    .eq('user_id', userData.user.id)
+    .single();
+
+  // Already a participant - just return successfully
+  if (existing) {
+    return;
+  }
+
+  // Not a participant yet - add them
   const { error } = await supabase
     .from('receipt_participants')
-    .upsert({
+    .insert({
       receipt_id: receiptId,
       user_id: userData.user.id,
-    }, {
-      onConflict: 'receipt_id,user_id'
     });
 
-  if (error) throw error;
+  // Ignore duplicate key errors (race condition)
+  if (error && error.code !== '23505') {
+    throw error;
+  }
 }
 
 export async function inviteFriendToReceipt(receiptId: string, friendId: string): Promise<void> {

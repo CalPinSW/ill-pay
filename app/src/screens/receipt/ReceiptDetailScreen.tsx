@@ -13,11 +13,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { activateAndShareReceipt, getReceiptParticipants } from '@/services/sharingService';
+import { QRCodeShare } from '@/components/QRCodeShare';
 
 interface ReceiptDetailScreenProps {
   receiptId: string;
   onBack: () => void;
   onInviteFriends: (receiptId: string) => void;
+  onClaimItems: (receiptId: string) => void;
 }
 
 interface ReceiptItem {
@@ -36,7 +38,8 @@ interface Participant {
     username: string;
     display_name: string | null;
     avatar_url: string | null;
-  };
+  } | null;
+  isOwner?: boolean;
 }
 
 interface Receipt {
@@ -52,13 +55,14 @@ interface Receipt {
   owner_id: string;
 }
 
-export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends }: ReceiptDetailScreenProps) {
+export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClaimItems }: ReceiptDetailScreenProps) {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   const fetchReceipt = useCallback(async () => {
     try {
@@ -83,13 +87,32 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends }: Rece
       if (itemsError) throw itemsError;
       setItems(itemsData || []);
 
+      // Get owner profile
+      const { data: ownerProfile } = await supabase
+        .from('profiles')
+        .select('id, username, display_name, avatar_url')
+        .eq('id', receiptData.owner_id)
+        .single();
+
       const participantsData = await getReceiptParticipants(receiptId);
       const mappedParticipants = (participantsData || []).map((p: any) => ({
         user_id: p.user_id,
         joined_at: p.joined_at,
         profile: Array.isArray(p.profile) ? p.profile[0] : p.profile,
+        isOwner: false,
       }));
-      setParticipants(mappedParticipants);
+
+      // Add owner as first participant
+      const allParticipants = [
+        {
+          user_id: receiptData.owner_id,
+          joined_at: receiptData.created_at,
+          profile: ownerProfile,
+          isOwner: true,
+        },
+        ...mappedParticipants.filter((p: any) => p.user_id !== receiptData.owner_id),
+      ];
+      setParticipants(allParticipants);
     } catch (error) {
       console.error('Error fetching receipt:', error);
       Alert.alert('Error', 'Failed to load receipt');
@@ -114,10 +137,7 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends }: Rece
         setReceipt({ ...receipt, share_code: shareCode, status: 'active' });
       }
 
-      await Share.share({
-        message: `Join my receipt split! Use code: ${shareCode}\n\nOr open: illpay://join/${shareCode}`,
-        title: 'Share Receipt',
-      });
+      setShowQRCode(true);
     } catch (error) {
       console.error('Error sharing:', error);
       Alert.alert('Error', 'Failed to share receipt');
@@ -242,31 +262,41 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends }: Rece
             <Text style={styles.sectionTitle}>Participants</Text>
             {participants.map((p) => (
               <View key={p.user_id} style={styles.participantRow}>
-                <View style={styles.avatar}>
+                <View style={[styles.avatar, p.isOwner && styles.ownerAvatar]}>
                   <Text style={styles.avatarText}>
-                    {(p.profile.display_name || p.profile.username || '?')[0].toUpperCase()}
+                    {(p.profile?.display_name || p.profile?.username || '?')[0].toUpperCase()}
                   </Text>
                 </View>
-                <Text style={styles.participantName}>
-                  {p.profile.display_name || p.profile.username}
-                </Text>
+                <View style={styles.participantInfo}>
+                  <Text style={styles.participantName}>
+                    {p.profile?.display_name || p.profile?.username || 'Unknown'}
+                  </Text>
+                  {p.isOwner && <Text style={styles.ownerBadge}>Owner</Text>}
+                </View>
               </View>
             ))}
           </View>
         )}
 
         <View style={styles.actionsSection}>
+          <TouchableOpacity
+            style={styles.primaryButton}
+            onPress={() => onClaimItems(receiptId)}
+          >
+            <Text style={styles.primaryButtonText}>Claim Items</Text>
+          </TouchableOpacity>
+
           {isOwner && (
             <>
               <TouchableOpacity
-                style={styles.primaryButton}
+                style={styles.secondaryButton}
                 onPress={handleShare}
                 disabled={isSharing}
               >
                 {isSharing ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color="#007AFF" />
                 ) : (
-                  <Text style={styles.primaryButtonText}>
+                  <Text style={styles.secondaryButtonText}>
                     {receipt.share_code ? 'Share Again' : 'Share Receipt'}
                   </Text>
                 )}
@@ -282,6 +312,13 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends }: Rece
           )}
         </View>
       </ScrollView>
+
+      {showQRCode && receipt?.share_code && (
+        <QRCodeShare
+          shareCode={receipt.share_code}
+          onClose={() => setShowQRCode(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -455,9 +492,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
+  participantInfo: {
+    flex: 1,
+  },
   participantName: {
     fontSize: 16,
     color: '#1a1a1a',
+  },
+  ownerAvatar: {
+    backgroundColor: '#4caf50',
+  },
+  ownerBadge: {
+    fontSize: 12,
+    color: '#4caf50',
+    fontWeight: '500',
   },
   actionsSection: {
     padding: 20,
