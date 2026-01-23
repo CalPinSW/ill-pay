@@ -20,6 +20,7 @@ interface ReceiptDetailScreenProps {
   onBack: () => void;
   onInviteFriends: (receiptId: string) => void;
   onClaimItems: (receiptId: string) => void;
+  onViewSettlement: (receiptId: string) => void;
 }
 
 interface ReceiptItem {
@@ -55,7 +56,7 @@ interface Receipt {
   owner_id: string;
 }
 
-export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClaimItems }: ReceiptDetailScreenProps) {
+export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClaimItems, onViewSettlement }: ReceiptDetailScreenProps) {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -284,6 +285,13 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
             onPress={() => onClaimItems(receiptId)}
           >
             <Text style={styles.primaryButtonText}>Claim Items</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={() => onViewSettlement(receiptId)}
+          >
+            <Text style={styles.secondaryButtonText}>View Settlement</Text>
           </TouchableOpacity>
 
           {isOwner && (

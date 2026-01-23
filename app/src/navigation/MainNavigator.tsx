@@ -7,7 +7,7 @@ import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
 import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
 import { ProfileScreen, EditProfileScreen } from '@/screens/profile';
-import { ReceiptDetailScreen, InviteFriendsScreen, JoinReceiptScreen, ParticipantReceiptScreen, QRScannerScreen } from '@/screens/receipt';
+import { ReceiptDetailScreen, InviteFriendsScreen, JoinReceiptScreen, ParticipantReceiptScreen, QRScannerScreen, SettlementScreen } from '@/screens/receipt';
 import { parseReceiptImage, createReceipt, uploadReceiptImage } from '@/services/receiptService';
 import { ParsedReceipt } from '@/types/receipt';
 
@@ -21,7 +21,7 @@ export type MainTabParamList = {
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function HomeStack() {
-  const [screen, setScreen] = useState<'list' | 'detail' | 'invite' | 'join' | 'scan' | 'participant'>('list');
+  const [screen, setScreen] = useState<'list' | 'detail' | 'invite' | 'join' | 'scan' | 'participant' | 'settlement'>('list');
   const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
 
   const handleSelectReceipt = (receiptId: string, isShared?: boolean) => {
@@ -37,6 +37,11 @@ function HomeStack() {
   const handleInviteFriends = (receiptId: string) => {
     setSelectedReceiptId(receiptId);
     setScreen('invite');
+  };
+
+  const handleViewSettlement = (receiptId: string) => {
+    setSelectedReceiptId(receiptId);
+    setScreen('settlement');
   };
 
   const handleBack = () => {
@@ -71,11 +76,20 @@ function HomeStack() {
     );
   }
 
+  if (screen === 'settlement' && selectedReceiptId) {
+    return (
+      <SettlementScreen
+        receiptId={selectedReceiptId}
+        onBack={handleBackToDetail}
+      />
+    );
+  }
+
   if (screen === 'participant' && selectedReceiptId) {
     return (
       <ParticipantReceiptScreen
         receiptId={selectedReceiptId}
-        onBack={handleBack}
+        onBack={handleBackToDetail}
       />
     );
   }
@@ -96,6 +110,7 @@ function HomeStack() {
         onBack={handleBack}
         onInviteFriends={handleInviteFriends}
         onClaimItems={handleClaimItems}
+        onViewSettlement={handleViewSettlement}
       />
     );
   }
