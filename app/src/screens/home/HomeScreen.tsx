@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,17 +6,107 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { supabase } from '@/services/supabase';
+import { useFocusEffect } from '@react-navigation/native';
+
+interface Receipt {
+  id: string;
+  restaurant_name: string | null;
+  receipt_date: string | null;
+  total: number | null;
+  image_url: string | null;
+  created_at: string;
+  item_count?: number;
+}
 
 export function HomeScreen() {
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
+  const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchReceipts = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { data, error } = await supabase
+        .from('receipts')
+        .select(`
+          id,
+          restaurant_name,
+          receipt_date,
+          total,
+          image_url,
+          created_at,
+          receipt_items(count)
+        `)
+        .eq('owner_id', userData.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const receiptsWithCount = (data || []).map((r: any) => ({
+        ...r,
+        item_count: r.receipt_items?.[0]?.count || 0,
+      }));
+
+      setReceipts(receiptsWithCount);
+    } catch (error) {
+      console.error('Error fetching receipts:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchReceipts();
+    }, [])
+  );
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    // TODO: Fetch receipts
-    setTimeout(() => setIsRefreshing(false), 1000);
+    await fetchReceipts();
+    setIsRefreshing(false);
   };
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return 'No date';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
+
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return '—';
+    return `£${amount.toFixed(2)}`;
+  };
+
+  const renderReceipt = ({ item }: { item: Receipt }) => (
+    <TouchableOpacity style={styles.receiptCard}>
+      {item.image_url && (
+        <Image source={{ uri: item.image_url }} style={styles.receiptImage} />
+      )}
+      <View style={styles.receiptInfo}>
+        <Text style={styles.restaurantName} numberOfLines={1}>
+          {item.restaurant_name || 'Unknown Restaurant'}
+        </Text>
+        <Text style={styles.receiptDate}>{formatDate(item.receipt_date)}</Text>
+        <Text style={styles.itemCount}>
+          {item.item_count} item{item.item_count !== 1 ? 's' : ''}
+        </Text>
+      </View>
+      <View style={styles.receiptTotal}>
+        <Text style={styles.totalAmount}>{formatCurrency(item.total)}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
@@ -35,11 +125,11 @@ export function HomeScreen() {
       </View>
 
       <FlatList
-        data={[]}
-        keyExtractor={(item: any) => item.id}
-        renderItem={() => null}
-        ListEmptyComponent={renderEmpty}
-        contentContainerStyle={styles.emptyList}
+        data={receipts}
+        keyExtractor={(item) => item.id}
+        renderItem={renderReceipt}
+        ListEmptyComponent={!isLoading ? renderEmpty : null}
+        contentContainerStyle={receipts.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
@@ -62,6 +152,9 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1a1a1a',
+  },
+  list: {
+    padding: 16,
   },
   emptyList: {
     flex: 1,
@@ -87,5 +180,45 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     lineHeight: 20,
+  },
+  receiptCard: {
+    flexDirection: 'row',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 12,
+    alignItems: 'center',
+  },
+  receiptImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  receiptInfo: {
+    flex: 1,
+  },
+  restaurantName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 4,
+  },
+  receiptDate: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 2,
+  },
+  itemCount: {
+    fontSize: 12,
+    color: '#999',
+  },
+  receiptTotal: {
+    alignItems: 'flex-end',
+  },
+  totalAmount: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#007AFF',
   },
 });

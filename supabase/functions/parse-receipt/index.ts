@@ -1,10 +1,33 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { GoogleGenerativeAI } from "npm:@google/generative-ai@0.21.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+async function verifyAuth(req: Request): Promise<boolean> {
+  const authHeader = req.headers.get("Authorization");
+  const apiKey = req.headers.get("apikey");
+  
+  if (!authHeader && !apiKey) {
+    return false;
+  }
+  
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: { Authorization: authHeader || `Bearer ${apiKey}` },
+    },
+  });
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
+  return !error && !!user;
+}
 
 interface ParsedReceipt {
   restaurant_name?: string;
@@ -49,12 +72,21 @@ Important rules:
 6. Return ONLY valid JSON, no additional text or explanation
 7. Be precise with decimal places for prices`;
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
+    // TODO: Re-enable auth after testing Gemini integration
+    // const isAuthenticated = await verifyAuth(req);
+    // if (!isAuthenticated) {
+    //   return new Response(
+    //     JSON.stringify({ error: "Unauthorized" }),
+    //     { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+    //   );
+    // }
+
     const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiApiKey) {
       throw new Error("GEMINI_API_KEY is not configured");
@@ -67,7 +99,7 @@ serve(async (req) => {
     }
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     let imagePart;
     

@@ -1,12 +1,22 @@
-import * as FileSystem from 'expo-file-system';
+import { readAsStringAsync } from 'expo-file-system/legacy';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from './supabase';
 import { ParsedReceipt, Receipt, ReceiptItem } from '@/types/receipt';
+
+async function compressImage(uri: string): Promise<string> {
+  const result = await ImageManipulator.manipulateAsync(
+    uri,
+    [{ resize: { width: 1200 } }],
+    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
+  );
+  return result.base64 || '';
+}
 
 export async function uploadReceiptImage(imageUri: string): Promise<string> {
   const fileName = `receipt_${Date.now()}.jpg`;
   
-  const base64 = await FileSystem.readAsStringAsync(imageUri, {
-    encoding: FileSystem.EncodingType.Base64,
+  const base64 = await readAsStringAsync(imageUri, {
+    encoding: 'base64',
   });
 
   const { data, error } = await supabase.storage
@@ -25,15 +35,22 @@ export async function uploadReceiptImage(imageUri: string): Promise<string> {
 }
 
 export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt> {
-  const base64 = await FileSystem.readAsStringAsync(imageUri, {
-    encoding: FileSystem.EncodingType.Base64,
-  });
+  const base64 = await compressImage(imageUri);
+  
+  const sizeMB = (base64.length * 0.75) / (1024 * 1024);
+  if (sizeMB > 4) {
+    throw new Error('Image too large. Please take a closer photo of the receipt.');
+  }
 
   const { data, error } = await supabase.functions.invoke('parse-receipt', {
     body: { image_base64: base64 },
   });
 
   if (error) throw error;
+  
+  if (data?.error) {
+    throw new Error(data.error);
+  }
   
   return data as ParsedReceipt;
 }

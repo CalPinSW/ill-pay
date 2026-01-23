@@ -137,12 +137,11 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
           ref={cameraRef}
           style={styles.camera}
           facing={facing}
-        >
-          <View style={styles.cameraOverlay}>
-            <View style={styles.scanFrame} />
-            <Text style={styles.scanHint}>Position receipt within the frame</Text>
-          </View>
-        </CameraView>
+        />
+        <View style={styles.cameraOverlay}>
+          <View style={styles.scanFrame} />
+          <Text style={styles.scanHint}>Position receipt within the frame</Text>
+        </View>
         
         <View style={styles.cameraControls}>
           <TouchableOpacity style={styles.galleryButton} onPress={pickImage}>
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cameraOverlay: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
   },
