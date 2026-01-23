@@ -74,6 +74,7 @@ function HomeStack() {
       <JoinReceiptScreen
         onBack={handleBack}
         onJoinSuccess={handleJoinSuccess}
+        onScanQR={() => setScreen('scan')}
       />
     );
   }

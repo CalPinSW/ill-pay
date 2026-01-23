@@ -16,10 +16,11 @@ import { getReceiptByShareCode, joinReceipt } from '@/services/sharingService';
 interface JoinReceiptScreenProps {
   onBack: () => void;
   onJoinSuccess: (receiptId: string) => void;
+  onScanQR?: () => void;
   initialCode?: string;
 }
 
-export function JoinReceiptScreen({ onBack, onJoinSuccess, initialCode = '' }: JoinReceiptScreenProps) {
+export function JoinReceiptScreen({ onBack, onJoinSuccess, onScanQR, initialCode = '' }: JoinReceiptScreenProps) {
   const [shareCode, setShareCode] = useState(initialCode);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -93,6 +94,21 @@ export function JoinReceiptScreen({ onBack, onJoinSuccess, initialCode = '' }: J
               <Text style={styles.joinButtonText}>Join Receipt</Text>
             )}
           </TouchableOpacity>
+
+          {onScanQR && (
+            <>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <TouchableOpacity style={styles.scanButton} onPress={onScanQR}>
+                <Text style={styles.scanButtonIcon}>📷</Text>
+                <Text style={styles.scanButtonText}>Scan QR Code</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -174,5 +190,42 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     color: '#fff',
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 24,
+    marginBottom: 24,
+    width: '100%',
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    color: '#999',
+  },
+  scanButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    backgroundColor: '#fff',
+  },
+  scanButtonIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  scanButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#007AFF',
   },
 });

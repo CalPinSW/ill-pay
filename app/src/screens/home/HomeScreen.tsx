@@ -181,18 +181,11 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Receipts</Text>
-        <View style={styles.headerActions}>
-          {onScanQR && (
-            <TouchableOpacity style={styles.scanButton} onPress={onScanQR}>
-              <Text style={styles.scanButtonText}>📷</Text>
-            </TouchableOpacity>
-          )}
-          {onJoinReceipt && (
-            <TouchableOpacity style={styles.joinButton} onPress={onJoinReceipt}>
-              <Text style={styles.joinButtonText}>Join</Text>
-            </TouchableOpacity>
-          )}
-        </View>
+        {onJoinReceipt && (
+          <TouchableOpacity style={styles.joinButton} onPress={onJoinReceipt}>
+            <Text style={styles.joinButtonText}>Join</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <FlatList
