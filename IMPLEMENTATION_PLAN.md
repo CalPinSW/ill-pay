@@ -272,7 +272,7 @@ interface ParsedReceipt {
 
 ### 6.4 App Store Preparation
 - [x] App icons and splash screen ([IP-85](https://calpinsw.atlassian.net/browse/IP-85)) - Branded icons with receipt/split design
-- [ ] App store screenshots ([IP-86](https://calpinsw.atlassian.net/browse/IP-86))
+- [x] App store screenshots ([IP-86](https://calpinsw.atlassian.net/browse/IP-86)) - 5 screens captured
 - [x] Privacy policy ([IP-87](https://calpinsw.atlassian.net/browse/IP-87)) - PRIVACY_POLICY.md created
 - [ ] Build and submit ([IP-88](https://calpinsw.atlassian.net/browse/IP-88))
 
