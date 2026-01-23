@@ -78,14 +78,13 @@ serve(async (req: Request) => {
   }
 
   try {
-    // TODO: Re-enable auth after testing Gemini integration
-    // const isAuthenticated = await verifyAuth(req);
-    // if (!isAuthenticated) {
-    //   return new Response(
-    //     JSON.stringify({ error: "Unauthorized" }),
-    //     { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
-    //   );
-    // }
+    const isAuthenticated = await verifyAuth(req);
+    if (!isAuthenticated) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
 
     const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiApiKey) {
