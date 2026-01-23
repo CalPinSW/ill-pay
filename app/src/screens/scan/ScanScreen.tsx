@@ -228,6 +228,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingBottom: 140,
   },
   scanFrame: {
     width: '80%',
