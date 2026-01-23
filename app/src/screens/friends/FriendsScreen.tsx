@@ -42,7 +42,8 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      // Query friendships where I am the user_id (I sent the request)
+      const { data: sentData, error: sentError } = await supabase
         .from('friendships')
         .select(`
           id,
@@ -55,14 +56,43 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
         .eq('user_id', user.id)
         .eq('status', 'accepted');
 
-      if (error) throw error;
-      
-      const formattedData = (data || []).map((item: any) => ({
+      if (sentError) throw sentError;
+
+      // Query friendships where I am the friend_id (I received/accepted the request)
+      const { data: receivedData, error: receivedError } = await supabase
+        .from('friendships')
+        .select(`
+          id,
+          user_id,
+          friend_id,
+          status,
+          created_at,
+          friend:profiles!friendships_user_id_fkey(*)
+        `)
+        .eq('friend_id', user.id)
+        .eq('status', 'accepted');
+
+      if (receivedError) throw receivedError;
+
+      // Format sent friendships (friend is in friend_id)
+      const sentFormatted = (sentData || []).map((item: any) => ({
         ...item,
         friend: Array.isArray(item.friend) ? item.friend[0] : item.friend,
       }));
+
+      // Format received friendships (friend is in user_id, so we use the 'friend' field which points to user_id)
+      const receivedFormatted = (receivedData || []).map((item: any) => ({
+        ...item,
+        friend: Array.isArray(item.friend) ? item.friend[0] : item.friend,
+      }));
+
+      // Combine and deduplicate by friend id
+      const allFriends = [...sentFormatted, ...receivedFormatted];
+      const uniqueFriends = allFriends.filter((friend, index, self) =>
+        index === self.findIndex((f) => f.friend?.id === friend.friend?.id)
+      );
       
-      setFriends(formattedData as Friendship[]);
+      setFriends(uniqueFriends as Friendship[]);
     } catch (error) {
       console.error('Error fetching friends:', error);
     }
