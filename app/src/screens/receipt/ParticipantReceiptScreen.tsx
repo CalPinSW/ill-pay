@@ -302,13 +302,14 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
     const totalClaimed = getTotalClaimedForItem(item.id);
     const isFullyClaimed = totalClaimed >= item.quantity;
     const isClaiming = claimingItemId === item.id;
+    const isClaimedByOthersOnly = isFullyClaimed && !myClaim;
 
     return (
-      <View key={item.id} style={styles.itemCard}>
+      <View key={item.id} style={[styles.itemCard, isClaimedByOthersOnly && styles.itemCardDimmed]}>
         <View style={styles.itemHeader}>
           <View style={styles.itemInfo}>
-            <Text style={styles.itemName}>{item.name}</Text>
-            <Text style={styles.itemPrice}>
+            <Text style={[styles.itemName, isClaimedByOthersOnly && styles.itemNameDimmed]}>{item.name}</Text>
+            <Text style={[styles.itemPrice, isClaimedByOthersOnly && styles.itemPriceDimmed]}>
               {item.quantity} × {formatCurrency(item.unit_price)} = {formatCurrency(item.total_price)}
             </Text>
           </View>
@@ -587,6 +588,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#eee',
+  },
+  itemCardDimmed: {
+    opacity: 0.5,
+    backgroundColor: '#f8f8f8',
+  },
+  itemNameDimmed: {
+    color: '#999',
+  },
+  itemPriceDimmed: {
+    color: '#bbb',
   },
   itemHeader: {
     flexDirection: 'row',
