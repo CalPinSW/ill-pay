@@ -11,9 +11,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActionSheetIOS,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/services/supabase';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import { decode } from 'base64-arraybuffer';
 
 interface EditProfileScreenProps {
   onGoBack: () => void;
@@ -26,6 +31,7 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
 
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
+  const [isUploading, setIsUploading] = useState(false);
 
   const getInitials = () => {
     if (displayName) {
@@ -54,6 +60,93 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
     }
   };
 
+  const uploadAvatar = async (uri: string) => {
+    if (!profile?.id) return;
+
+    setIsUploading(true);
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: 'base64',
+      });
+
+      const fileExt = uri.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
+      const contentType = `image/${fileExt === 'jpg' ? 'jpeg' : fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, decode(base64), {
+          contentType,
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      setAvatarUrl(urlData.publicUrl);
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      Alert.alert('Upload Failed', error.message || 'Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const pickImage = async (useCamera: boolean) => {
+    const permissionResult = useCamera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Required', `Please grant ${useCamera ? 'camera' : 'photo library'} access.`);
+      return;
+    }
+
+    const result = useCamera
+      ? await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        })
+      : await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+
+    if (!result.canceled && result.assets[0]) {
+      await uploadAvatar(result.assets[0].uri);
+    }
+  };
+
+  const handleChangePhoto = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Take Photo', 'Choose from Library', 'Remove Photo'],
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: 3,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) pickImage(true);
+          else if (buttonIndex === 2) pickImage(false);
+          else if (buttonIndex === 3) setAvatarUrl('');
+        }
+      );
+    } else {
+      Alert.alert('Change Photo', 'Choose an option', [
+        { text: 'Take Photo', onPress: () => pickImage(true) },
+        { text: 'Choose from Library', onPress: () => pickImage(false) },
+        { text: 'Remove Photo', onPress: () => setAvatarUrl(''), style: 'destructive' },
+        { text: 'Cancel', style: 'cancel' },
+      ]);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <KeyboardAvoidingView
@@ -77,8 +170,12 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
                 <Text style={styles.avatarText}>{getInitials()}</Text>
               </View>
             )}
-            <TouchableOpacity style={styles.changePhotoButton}>
-              <Text style={styles.changePhotoText}>Change Photo</Text>
+            <TouchableOpacity style={styles.changePhotoButton} onPress={handleChangePhoto} disabled={isUploading}>
+              {isUploading ? (
+                <ActivityIndicator color="#4F46E5" />
+              ) : (
+                <Text style={styles.changePhotoText}>Change Photo</Text>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -105,19 +202,6 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
               />
             </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Avatar URL</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="https://example.com/avatar.jpg"
-                placeholderTextColor="#999"
-                value={avatarUrl}
-                onChangeText={setAvatarUrl}
-                autoCapitalize="none"
-                keyboardType="url"
-              />
-              <Text style={styles.hint}>Enter a URL to your profile picture</Text>
-            </View>
           </View>
 
           <TouchableOpacity
