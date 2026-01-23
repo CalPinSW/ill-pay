@@ -18,6 +18,7 @@ export interface ParticipantTotal {
   user_id: string;
   username: string;
   display_name: string | null;
+  avatar_url: string | null;
   items_total: number;
   tax_portion: number;
   tip_portion: number;
@@ -76,7 +77,7 @@ export async function calculateBillBreakdown(
       item_id,
       user_id,
       quantity,
-      profile:profiles(id, username, display_name)
+      profile:profiles(id, username, display_name, avatar_url)
     `)
     .in('item_id', itemIds);
 
@@ -85,7 +86,7 @@ export async function calculateBillBreakdown(
   // Fetch owner profile
   const { data: ownerProfile } = await supabase
     .from('profiles')
-    .select('id, username, display_name')
+    .select('id, username, display_name, avatar_url')
     .eq('id', receipt.owner_id)
     .single();
 
@@ -105,7 +106,7 @@ export async function calculateBillBreakdown(
   const userTotals = new Map<string, {
     items_total: number;
     claimed_items: { name: string; quantity: number; amount: number }[];
-    profile: { id: string; username: string; display_name: string | null } | null;
+    profile: { id: string; username: string; display_name: string | null; avatar_url: string | null } | null;
   }>();
 
   // Process claims
@@ -182,6 +183,7 @@ export async function calculateBillBreakdown(
       user_id: userId,
       username: data.profile?.username || 'Unknown',
       display_name: data.profile?.display_name || null,
+      avatar_url: data.profile?.avatar_url || null,
       items_total: itemsWithUnclaimed,
       tax_portion: taxPortion,
       tip_portion: tipPortion,

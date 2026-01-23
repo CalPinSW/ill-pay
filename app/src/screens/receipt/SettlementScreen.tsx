@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
@@ -257,6 +258,18 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
               ]}
             >
               <View style={styles.participantHeader}>
+                {participant.avatar_url ? (
+                  <Image 
+                    source={{ uri: participant.avatar_url }} 
+                    style={styles.participantAvatar} 
+                  />
+                ) : (
+                  <View style={styles.participantAvatarPlaceholder}>
+                    <Text style={styles.participantAvatarText}>
+                      {(participant.display_name || participant.username || '?')[0].toUpperCase()}
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.participantInfo}>
                   <Text style={styles.participantName}>
                     {participant.display_name || participant.username}
@@ -538,6 +551,26 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,
+  },
+  participantAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  participantAvatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  participantAvatarText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
   participantInfo: {
     flex: 1,

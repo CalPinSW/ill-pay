@@ -9,6 +9,7 @@ import {
   Share,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
@@ -263,11 +264,18 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
             <Text style={styles.sectionTitle}>Participants</Text>
             {participants.map((p) => (
               <View key={p.user_id} style={styles.participantRow}>
-                <View style={[styles.avatar, p.isOwner && styles.ownerAvatar]}>
-                  <Text style={styles.avatarText}>
-                    {(p.profile?.display_name || p.profile?.username || '?')[0].toUpperCase()}
-                  </Text>
-                </View>
+                {p.profile?.avatar_url ? (
+                  <Image 
+                    source={{ uri: p.profile.avatar_url }} 
+                    style={[styles.avatarImage, p.isOwner && styles.ownerAvatarBorder]} 
+                  />
+                ) : (
+                  <View style={[styles.avatar, p.isOwner && styles.ownerAvatar]}>
+                    <Text style={styles.avatarText}>
+                      {(p.profile?.display_name || p.profile?.username || '?')[0].toUpperCase()}
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.participantInfo}>
                   <Text style={styles.participantName}>
                     {p.profile?.display_name || p.profile?.username || 'Unknown'}
@@ -495,10 +503,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
+  avatarImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+  },
   avatarText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  ownerAvatarBorder: {
+    borderWidth: 2,
+    borderColor: '#4caf50',
   },
   participantInfo: {
     flex: 1,
