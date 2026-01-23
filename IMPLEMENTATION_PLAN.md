@@ -288,6 +288,7 @@ interface ParsedReceipt {
 2. Register physical device: `eas device:create`
 3. Rebuild with device provisioning: `eas build --profile development --platform ios`
 4. Install on device and test push notifications
+5. Test social sign-in (Google/Apple OAuth) - requires development build for custom URL scheme
 
 ---
 
