@@ -1,0 +1,25 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" rx="224" fill="#4F46E5"/>
+  
+  <!-- Receipt shape -->
+  <path d="M312 192h400c22 0 40 18 40 40v560c0 22-18 40-40 40H312c-22 0-40-18-40-40V232c0-22 18-40 40-40z" fill="white"/>
+  
+  <!-- Receipt lines -->
+  <rect x="352" y="280" width="200" height="24" rx="12" fill="#4F46E5" opacity="0.3"/>
+  <rect x="352" y="340" width="320" height="24" rx="12" fill="#4F46E5" opacity="0.3"/>
+  <rect x="352" y="400" width="280" height="24" rx="12" fill="#4F46E5" opacity="0.3"/>
+  <rect x="352" y="460" width="240" height="24" rx="12" fill="#4F46E5" opacity="0.3"/>
+  
+  <!-- Divider line -->
+  <rect x="352" y="520" width="320" height="4" fill="#4F46E5" opacity="0.5"/>
+  
+  <!-- Total -->
+  <rect x="352" y="560" width="120" height="32" rx="8" fill="#4F46E5"/>
+  <rect x="520" y="560" width="152" height="32" rx="8" fill="#4F46E5"/>
+  
+  <!-- Split indicator (two people) -->
+  <circle cx="400" cy="700" r="40" fill="#4F46E5"/>
+  <circle cx="480" cy="700" r="40" fill="#10B981"/>
+  <path d="M440 700l20-20 20 20" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

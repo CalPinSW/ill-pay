@@ -1,0 +1,31 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1284" height="2778" fill="#4F46E5"/>
+  
+  <!-- Centered logo -->
+  <g transform="translate(442, 1089)">
+    <!-- Receipt shape -->
+    <path d="M100 0h200c15 0 28 13 28 28v344c0 15-13 28-28 28H100c-15 0-28-13-28-28V28c0-15 13-28 28-28z" fill="white"/>
+    
+    <!-- Receipt lines -->
+    <rect x="120" y="50" width="100" height="16" rx="8" fill="#4F46E5" opacity="0.3"/>
+    <rect x="120" y="85" width="160" height="16" rx="8" fill="#4F46E5" opacity="0.3"/>
+    <rect x="120" y="120" width="140" height="16" rx="8" fill="#4F46E5" opacity="0.3"/>
+    <rect x="120" y="155" width="120" height="16" rx="8" fill="#4F46E5" opacity="0.3"/>
+    
+    <!-- Divider -->
+    <rect x="120" y="190" width="160" height="3" fill="#4F46E5" opacity="0.5"/>
+    
+    <!-- Total -->
+    <rect x="120" y="210" width="60" height="20" rx="4" fill="#4F46E5"/>
+    <rect x="200" y="210" width="80" height="20" rx="4" fill="#4F46E5"/>
+    
+    <!-- Split circles -->
+    <circle cx="150" cy="300" r="28" fill="#4F46E5"/>
+    <circle cx="200" cy="300" r="28" fill="#10B981"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="642" y="1550" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="white" text-anchor="middle">I'll Pay</text>
+  <text x="642" y="1620" font-family="system-ui, -apple-system, sans-serif" font-size="32" fill="white" opacity="0.8" text-anchor="middle">Split bills with friends</text>
+</svg>
