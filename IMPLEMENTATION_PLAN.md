@@ -258,9 +258,9 @@ interface ParsedReceipt {
 - [x] Retry mechanisms ([IP-77](https://calpinsw.atlassian.net/browse/IP-77)) - ErrorState includes retry button
 
 ### 6.2 Notifications (Optional for MVP)
-- [ ] Push notification setup (Expo) ([IP-78](https://calpinsw.atlassian.net/browse/IP-78))
-- [ ] Friend request notifications ([IP-79](https://calpinsw.atlassian.net/browse/IP-79))
-- [ ] Receipt invitation notifications ([IP-80](https://calpinsw.atlassian.net/browse/IP-80))
+- [x] Push notification setup (Expo) ([IP-78](https://calpinsw.atlassian.net/browse/IP-78)) - notificationService, useNotifications hook
+- [x] Friend request notifications ([IP-79](https://calpinsw.atlassian.net/browse/IP-79)) - send-notification Edge Function
+- [x] Receipt invitation notifications ([IP-80](https://calpinsw.atlassian.net/browse/IP-80)) - send-notification Edge Function
 - [ ] Settlement reminders ([IP-81](https://calpinsw.atlassian.net/browse/IP-81))
 
 ### 6.3 Testing
