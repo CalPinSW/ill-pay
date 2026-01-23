@@ -271,7 +271,7 @@ interface ParsedReceipt {
 - [ ] E2E tests for critical flows ([IP-84](https://calpinsw.atlassian.net/browse/IP-84))
 
 ### 6.4 App Store Preparation
-- [ ] App icons and splash screen ([IP-85](https://calpinsw.atlassian.net/browse/IP-85))
+- [x] App icons and splash screen ([IP-85](https://calpinsw.atlassian.net/browse/IP-85)) - Branded icons with receipt/split design
 - [ ] App store screenshots ([IP-86](https://calpinsw.atlassian.net/browse/IP-86))
 - [x] Privacy policy ([IP-87](https://calpinsw.atlassian.net/browse/IP-87)) - PRIVACY_POLICY.md created
 - [ ] Build and submit ([IP-88](https://calpinsw.atlassian.net/browse/IP-88))
