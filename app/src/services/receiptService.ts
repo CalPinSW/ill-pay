@@ -52,7 +52,27 @@ export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt
     throw new Error(data.error);
   }
   
-  return data as ParsedReceipt;
+  // Combine items with the same name and unit price
+  const parsedData = data as ParsedReceipt;
+  if (parsedData.items && parsedData.items.length > 0) {
+    const itemMap = new Map<string, typeof parsedData.items[0]>();
+    
+    for (const item of parsedData.items) {
+      const key = `${item.name.toLowerCase().trim()}|${item.unit_price}`;
+      const existing = itemMap.get(key);
+      
+      if (existing) {
+        existing.quantity += item.quantity;
+        existing.total_price += item.total_price;
+      } else {
+        itemMap.set(key, { ...item });
+      }
+    }
+    
+    parsedData.items = Array.from(itemMap.values());
+  }
+  
+  return parsedData;
 }
 
 export async function createReceipt(
