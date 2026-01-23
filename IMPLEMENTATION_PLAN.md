@@ -261,7 +261,9 @@ interface ParsedReceipt {
 - [x] Push notification setup (Expo) ([IP-78](https://calpinsw.atlassian.net/browse/IP-78)) - notificationService, useNotifications hook
 - [x] Friend request notifications ([IP-79](https://calpinsw.atlassian.net/browse/IP-79)) - send-notification Edge Function
 - [x] Receipt invitation notifications ([IP-80](https://calpinsw.atlassian.net/browse/IP-80)) - send-notification Edge Function
-- [ ] Settlement reminders ([IP-81](https://calpinsw.atlassian.net/browse/IP-81))
+- [ ] Settlement reminders ([IP-81](https://calpinsw.atlassian.net/browse/IP-81)) - deferred
+
+*Note: Push notifications require a development build to test (Expo Go limitation since SDK 53)*
 
 ### 6.3 Testing
 - [x] Unit tests for calculation logic ([IP-82](https://calpinsw.atlassian.net/browse/IP-82)) - 8 tests covering all distribution modes
