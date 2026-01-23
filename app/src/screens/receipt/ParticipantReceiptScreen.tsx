@@ -316,23 +316,24 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
             <Text style={styles.splitButtonText}>Split</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity
-            style={[
-              styles.claimButton,
-              myClaim && styles.claimButtonActive,
-              isFullyClaimed && !myClaim && styles.claimButtonDisabled,
-            ]}
-            onPress={() => handleClaim(item)}
-            disabled={isClaiming || (isFullyClaimed && !myClaim)}
-          >
-            {isClaiming ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.claimButtonText}>
-                {myClaim ? `+` : 'Claim'}
-              </Text>
-            )}
-          </TouchableOpacity>
+          {!isFullyClaimed && (
+            <TouchableOpacity
+              style={[
+                styles.claimButton,
+                myClaim && styles.claimButtonActive,
+              ]}
+              onPress={() => handleClaim(item)}
+              disabled={isClaiming}
+            >
+              {isClaiming ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.claimButtonText}>
+                  {myClaim ? `+` : 'Claim'}
+                </Text>
+              )}
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
