@@ -149,11 +149,67 @@ Or create individual issues:
 jira issue create -tTask -s"Task summary" -P"IP-2" -l"label"
 ```
 
+## Testing
+
+### Unit Tests (Jest)
+
+Tests for bill calculation logic and utilities.
+
+```bash
+cd app
+npm test
+```
+
+### Integration Tests (Deno)
+
+Tests for Supabase Edge Functions. Requires Docker and local Supabase.
+
+```bash
+# Start local Supabase
+supabase start
+
+# Run tests
+cd supabase
+deno task test
+```
+
+> **Note:** If `deno` is not in your PATH, install it with:
+> ```bash
+> curl -fsSL https://deno.land/install.sh | bash
+> ```
+
+### E2E Tests (Maestro)
+
+End-to-end tests for critical user flows. Requires Maestro CLI.
+
+```bash
+# Install Maestro (first time only)
+curl -Ls "https://get.maestro.mobile.dev" | bash
+
+# Start the app
+cd app
+npx expo start --go --ios
+
+# In another terminal, run tests
+cd app
+maestro test .maestro/
+```
+
+> **Note:** Maestro requires Java 17+. Install with `brew install openjdk@17`.
+
+### Test Summary
+
+| Type | Location | Command |
+|------|----------|---------|
+| Unit | `app/src/__tests__/` | `npm test` |
+| Integration | `supabase/tests/` | `deno task test` |
+| E2E | `app/.maestro/` | `maestro test .maestro/` |
+
 ## Documentation
 
 - [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Detailed development roadmap
-- [Database Schema](./docs/DATABASE_SCHEMA.md) - Database design (coming soon)
-- [API Documentation](./docs/API.md) - Edge function endpoints (coming soon)
+- [Build Guide](./app/BUILD.md) - Building and submitting to app stores
+- [Privacy Policy](./PRIVACY_POLICY.md) - App privacy policy
 
 ## License
 
