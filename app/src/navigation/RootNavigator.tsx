@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
 import { useNotifications } from '@/hooks/useNotifications';
+import { navigationRef, navigateFromNotification, NotificationScreen } from '@/services/navigationService';
 
 export function RootNavigator() {
   const user = useAuthStore((state) => state.user);
@@ -18,6 +19,10 @@ export function RootNavigator() {
     },
     onNotificationResponse: (response) => {
       console.log('Notification tapped:', response);
+      const screen = response.notification.request.content.data?.screen as NotificationScreen;
+      if (screen) {
+        navigateFromNotification(screen);
+      }
     },
   });
 
@@ -30,7 +35,7 @@ export function RootNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       {user ? <MainNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );

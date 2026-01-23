@@ -16,7 +16,7 @@ import { ParsedReceipt } from '@/types/receipt';
 export type MainTabParamList = {
   HomeTab: undefined;
   ScanTab: undefined;
-  FriendsTab: undefined;
+  FriendsTab: { screen?: 'list' | 'search' | 'requests' } | undefined;
   ProfileTab: undefined;
 };
 
@@ -241,8 +241,16 @@ const scanStyles = StyleSheet.create({
   },
 });
 
-function FriendsStack() {
-  const [screen, setScreen] = useState<'list' | 'search' | 'requests'>('list');
+function FriendsStack({ route }: { route?: { params?: { screen?: 'list' | 'search' | 'requests' } } }) {
+  const initialScreen = route?.params?.screen || 'list';
+  const [screen, setScreen] = useState<'list' | 'search' | 'requests'>(initialScreen);
+
+  // Update screen when route params change (e.g., from notification)
+  useEffect(() => {
+    if (route?.params?.screen) {
+      setScreen(route.params.screen);
+    }
+  }, [route?.params?.screen]);
 
   if (screen === 'search') {
     return <SearchUsersScreen onGoBack={() => setScreen('list')} />;
