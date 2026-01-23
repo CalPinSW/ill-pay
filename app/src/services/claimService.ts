@@ -4,7 +4,7 @@ export interface ItemClaim {
   id: string;
   item_id: string;
   user_id: string;
-  quantity: number;
+  quantity: number; // Can be fractional for split items (e.g., 0.5 for 50% share)
   created_at: string;
 }
 
@@ -112,4 +112,39 @@ export async function getMyClaimsForReceipt(receiptId: string) {
 
   if (error) throw error;
   return data || [];
+}
+
+/**
+ * Split an item equally between multiple users.
+ * Each user gets 1/N share of one unit of the item.
+ */
+export async function splitItemBetweenUsers(
+  itemId: string,
+  userIds: string[]
+): Promise<void> {
+  if (userIds.length === 0) return;
+
+  const sharePerUser = 1 / userIds.length;
+
+  // Delete existing claims for this item from these users
+  for (const userId of userIds) {
+    await supabase
+      .from('item_claims')
+      .delete()
+      .eq('item_id', itemId)
+      .eq('user_id', userId);
+  }
+
+  // Create new claims with equal shares
+  const claims = userIds.map(userId => ({
+    item_id: itemId,
+    user_id: userId,
+    quantity: sharePerUser,
+  }));
+
+  const { error } = await supabase
+    .from('item_claims')
+    .insert(claims);
+
+  if (error) throw error;
 }

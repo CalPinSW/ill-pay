@@ -8,10 +8,11 @@ import {
   Alert,
   ActivityIndicator,
   RefreshControl,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
-import { claimItem, unclaimItem, getItemClaims } from '@/services/claimService';
+import { claimItem, unclaimItem, getItemClaims, splitItemBetweenUsers } from '@/services/claimService';
 
 interface ParticipantReceiptScreenProps {
   receiptId: string;
@@ -47,6 +48,15 @@ interface Receipt {
   owner_id: string;
 }
 
+interface Participant {
+  user_id: string;
+  profile: {
+    id: string;
+    username: string;
+    display_name: string | null;
+  } | null;
+}
+
 export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantReceiptScreenProps) {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [items, setItems] = useState<ReceiptItem[]>([]);
@@ -54,6 +64,10 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [claimingItemId, setClaimingItemId] = useState<string | null>(null);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [splitModalVisible, setSplitModalVisible] = useState(false);
+  const [splitItem, setSplitItem] = useState<ReceiptItem | null>(null);
+  const [selectedSplitUsers, setSelectedSplitUsers] = useState<string[]>([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -76,6 +90,34 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
       const claimsData = await getItemClaims(receiptId);
       setClaims(claimsData);
+
+      // Fetch participants
+      const { data: participantsData } = await supabase
+        .from('receipt_participants')
+        .select(`
+          user_id,
+          profile:profiles(id, username, display_name)
+        `)
+        .eq('receipt_id', receiptId);
+      
+      // Also include the owner
+      const { data: ownerData } = await supabase
+        .from('profiles')
+        .select('id, username, display_name')
+        .eq('id', receiptData?.owner_id)
+        .single();
+
+      const allParticipants: Participant[] = [];
+      if (ownerData) {
+        allParticipants.push({ user_id: ownerData.id, profile: ownerData });
+      }
+      (participantsData || []).forEach((p: any) => {
+        const profile = Array.isArray(p.profile) ? p.profile[0] : p.profile;
+        if (profile && !allParticipants.find(ap => ap.user_id === p.user_id)) {
+          allParticipants.push({ user_id: p.user_id, profile });
+        }
+      });
+      setParticipants(allParticipants);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -167,6 +209,52 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
   const formatCurrency = (amount: number) => `£${amount.toFixed(2)}`;
 
+  const openSplitModal = (item: ReceiptItem) => {
+    setSplitItem(item);
+    // Pre-select current user
+    setSelectedSplitUsers(currentUserId ? [currentUserId] : []);
+    setSplitModalVisible(true);
+  };
+
+  const handleSplit = async () => {
+    if (!splitItem || selectedSplitUsers.length < 2) {
+      Alert.alert('Select Friends', 'Please select at least 2 people to split with.');
+      return;
+    }
+
+    setClaimingItemId(splitItem.id);
+    setSplitModalVisible(false);
+    
+    try {
+      await splitItemBetweenUsers(splitItem.id, selectedSplitUsers);
+      await fetchData();
+    } catch (error) {
+      console.error('Error splitting item:', error);
+      Alert.alert('Error', 'Failed to split item');
+    } finally {
+      setClaimingItemId(null);
+      setSplitItem(null);
+      setSelectedSplitUsers([]);
+    }
+  };
+
+  const toggleSplitUser = (userId: string) => {
+    setSelectedSplitUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const formatQuantity = (qty: number) => {
+    if (qty === 1) return '';
+    if (qty === 0.5) return '½';
+    if (qty === 0.25) return '¼';
+    if (qty === 0.333 || qty.toFixed(2) === '0.33') return '⅓';
+    if (Number.isInteger(qty)) return `(${qty})`;
+    return `(${(qty * 100).toFixed(0)}%)`;
+  };
+
   const renderItem = (item: ReceiptItem) => {
     const itemClaims = getClaimsForItem(item.id);
     const myClaim = getMyClaimForItem(item.id);
@@ -202,7 +290,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
                   claim.user_id === currentUserId && styles.myClaimBadgeText
                 ]}>
                   {claim.profile?.display_name || claim.profile?.username || 'Unknown'}
-                  {claim.quantity > 1 && ` (${claim.quantity})`}
+                  {claim.quantity !== 1 && ` ${formatQuantity(claim.quantity)}`}
                 </Text>
               </View>
             ))}
@@ -219,6 +307,14 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
               <Text style={styles.unclaimButtonText}>−</Text>
             </TouchableOpacity>
           )}
+
+          <TouchableOpacity
+            style={styles.splitButton}
+            onPress={() => openSplitModal(item)}
+            disabled={isClaiming}
+          >
+            <Text style={styles.splitButtonText}>Split</Text>
+          </TouchableOpacity>
           
           <TouchableOpacity
             style={[
@@ -302,6 +398,73 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
           )}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={splitModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setSplitModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Split Item</Text>
+            <Text style={styles.modalSubtitle}>
+              {splitItem?.name} - {splitItem && formatCurrency(splitItem.unit_price)}
+            </Text>
+            
+            <Text style={styles.modalLabel}>Select who to split with:</Text>
+            
+            <ScrollView style={styles.participantList}>
+              {participants.map(p => (
+                <TouchableOpacity
+                  key={p.user_id}
+                  style={[
+                    styles.participantItem,
+                    selectedSplitUsers.includes(p.user_id) && styles.participantItemSelected
+                  ]}
+                  onPress={() => toggleSplitUser(p.user_id)}
+                >
+                  <Text style={[
+                    styles.participantName,
+                    selectedSplitUsers.includes(p.user_id) && styles.participantNameSelected
+                  ]}>
+                    {p.profile?.display_name || p.profile?.username}
+                    {p.user_id === currentUserId && ' (You)'}
+                  </Text>
+                  {selectedSplitUsers.includes(p.user_id) && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {selectedSplitUsers.length >= 2 && splitItem && (
+              <Text style={styles.splitPreview}>
+                Each person pays: {formatCurrency(splitItem.unit_price / selectedSplitUsers.length)}
+              </Text>
+            )}
+
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={() => setSplitModalVisible(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modalConfirmButton,
+                  selectedSplitUsers.length < 2 && styles.modalConfirmDisabled
+                ]}
+                onPress={handleSplit}
+                disabled={selectedSplitUsers.length < 2}
+              >
+                <Text style={styles.modalConfirmText}>Split</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -473,5 +636,118 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#007AFF',
+  },
+  splitButton: {
+    backgroundColor: '#9c27b0',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  splitButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
+    maxHeight: '70%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginBottom: 12,
+  },
+  participantList: {
+    maxHeight: 200,
+  },
+  participantItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f8f9fa',
+    marginBottom: 8,
+  },
+  participantItemSelected: {
+    backgroundColor: '#e8f5e9',
+    borderWidth: 2,
+    borderColor: '#4caf50',
+  },
+  participantName: {
+    fontSize: 16,
+    color: '#1a1a1a',
+  },
+  participantNameSelected: {
+    fontWeight: '600',
+    color: '#2e7d32',
+  },
+  checkmark: {
+    fontSize: 18,
+    color: '#4caf50',
+    fontWeight: 'bold',
+  },
+  splitPreview: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#9c27b0',
+    textAlign: 'center',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16,
+  },
+  modalCancelButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#f0f0f0',
+    alignItems: 'center',
+  },
+  modalCancelText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  modalConfirmButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: '#9c27b0',
+    alignItems: 'center',
+  },
+  modalConfirmDisabled: {
+    backgroundColor: '#ccc',
+  },
+  modalConfirmText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
