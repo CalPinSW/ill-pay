@@ -198,22 +198,22 @@ interface ParsedReceipt {
 **Goal**: Users can share receipts and see live updates.
 
 ### 4.1 Share Mechanisms
-- [ ] Generate unique share code per receipt ([IP-47](https://calpinsw.atlassian.net/browse/IP-47))
-- [ ] Share via friend selection (in-app) ([IP-48](https://calpinsw.atlassian.net/browse/IP-48))
+- [x] Generate unique share code per receipt ([IP-47](https://calpinsw.atlassian.net/browse/IP-47))
+- [x] Share via friend selection (in-app) ([IP-48](https://calpinsw.atlassian.net/browse/IP-48))
 - [ ] Generate shareable deep link ([IP-49](https://calpinsw.atlassian.net/browse/IP-49))
 - [ ] Generate QR code for in-person sharing ([IP-50](https://calpinsw.atlassian.net/browse/IP-50))
 - [ ] QR code scanner to join receipt ([IP-51](https://calpinsw.atlassian.net/browse/IP-51))
 
 ### 4.2 Real-time Subscriptions
-- [ ] Subscribe to receipt changes ([IP-52](https://calpinsw.atlassian.net/browse/IP-52))
-- [ ] Subscribe to participant joins ([IP-53](https://calpinsw.atlassian.net/browse/IP-53))
-- [ ] Subscribe to item claim changes ([IP-54](https://calpinsw.atlassian.net/browse/IP-54))
+- [x] Subscribe to receipt changes ([IP-52](https://calpinsw.atlassian.net/browse/IP-52))
+- [x] Subscribe to participant joins ([IP-53](https://calpinsw.atlassian.net/browse/IP-53))
+- [x] Subscribe to item claim changes ([IP-54](https://calpinsw.atlassian.net/browse/IP-54))
 - [ ] Handle optimistic updates ([IP-55](https://calpinsw.atlassian.net/browse/IP-55))
 - [ ] Implement conflict resolution ([IP-56](https://calpinsw.atlassian.net/browse/IP-56))
 
 ### 4.3 Receipt Participant View
-- [ ] Join receipt via link/QR ([IP-57](https://calpinsw.atlassian.net/browse/IP-57))
-- [ ] View receipt items ([IP-58](https://calpinsw.atlassian.net/browse/IP-58))
+- [x] Join receipt via link/QR ([IP-57](https://calpinsw.atlassian.net/browse/IP-57))
+- [x] View receipt items ([IP-58](https://calpinsw.atlassian.net/browse/IP-58))
 - [ ] Claim items (with quantity selector) ([IP-59](https://calpinsw.atlassian.net/browse/IP-59))
 - [ ] See other participants' claims ([IP-60](https://calpinsw.atlassian.net/browse/IP-60))
 - [ ] Real-time claim indicators ([IP-61](https://calpinsw.atlassian.net/browse/IP-61))

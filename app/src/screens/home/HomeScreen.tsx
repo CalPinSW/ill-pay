@@ -22,7 +22,12 @@ interface Receipt {
   item_count?: number;
 }
 
-export function HomeScreen() {
+interface HomeScreenProps {
+  onSelectReceipt?: (receiptId: string) => void;
+  onJoinReceipt?: () => void;
+}
+
+export function HomeScreen({ onSelectReceipt, onJoinReceipt }: HomeScreenProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +94,10 @@ export function HomeScreen() {
   };
 
   const renderReceipt = ({ item }: { item: Receipt }) => (
-    <TouchableOpacity style={styles.receiptCard}>
+    <TouchableOpacity 
+      style={styles.receiptCard}
+      onPress={() => onSelectReceipt?.(item.id)}
+    >
       {item.image_url && (
         <Image source={{ uri: item.image_url }} style={styles.receiptImage} />
       )}
@@ -122,6 +130,11 @@ export function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Receipts</Text>
+        {onJoinReceipt && (
+          <TouchableOpacity style={styles.joinButton} onPress={onJoinReceipt}>
+            <Text style={styles.joinButtonText}>Join</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <FlatList
@@ -144,6 +157,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
@@ -152,6 +168,17 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1a1a1a',
+  },
+  joinButton: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  joinButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
   },
   list: {
     padding: 16,

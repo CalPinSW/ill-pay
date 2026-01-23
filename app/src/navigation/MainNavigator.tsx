@@ -7,6 +7,7 @@ import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
 import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
 import { ProfileScreen, EditProfileScreen } from '@/screens/profile';
+import { ReceiptDetailScreen, InviteFriendsScreen, JoinReceiptScreen } from '@/screens/receipt';
 import { parseReceiptImage, createReceipt, uploadReceiptImage } from '@/services/receiptService';
 import { ParsedReceipt } from '@/types/receipt';
 
@@ -20,7 +21,67 @@ export type MainTabParamList = {
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function HomeStack() {
-  return <HomeScreen />;
+  const [screen, setScreen] = useState<'list' | 'detail' | 'invite' | 'join'>('list');
+  const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
+
+  const handleSelectReceipt = (receiptId: string) => {
+    setSelectedReceiptId(receiptId);
+    setScreen('detail');
+  };
+
+  const handleInviteFriends = (receiptId: string) => {
+    setSelectedReceiptId(receiptId);
+    setScreen('invite');
+  };
+
+  const handleBack = () => {
+    setScreen('list');
+    setSelectedReceiptId(null);
+  };
+
+  const handleBackToDetail = () => {
+    setScreen('detail');
+  };
+
+  const handleJoinSuccess = (receiptId: string) => {
+    setSelectedReceiptId(receiptId);
+    setScreen('detail');
+  };
+
+  if (screen === 'join') {
+    return (
+      <JoinReceiptScreen
+        onBack={handleBack}
+        onJoinSuccess={handleJoinSuccess}
+      />
+    );
+  }
+
+  if (screen === 'invite' && selectedReceiptId) {
+    return (
+      <InviteFriendsScreen
+        receiptId={selectedReceiptId}
+        onBack={handleBackToDetail}
+      />
+    );
+  }
+
+  if (screen === 'detail' && selectedReceiptId) {
+    return (
+      <ReceiptDetailScreen
+        receiptId={selectedReceiptId}
+        onBack={handleBack}
+        onInviteFriends={handleInviteFriends}
+      />
+    );
+  }
+
+  return (
+    <HomeScreen 
+      onSelectReceipt={handleSelectReceipt}
+      onJoinReceipt={() => setScreen('join')}
+    />
+  );
 }
 
 function ScanStack() {
