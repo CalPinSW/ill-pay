@@ -225,25 +225,25 @@ interface ParsedReceipt {
 **Goal**: Calculate and display what each person owes.
 
 ### 5.1 Calculation Logic
-- [ ] Calculate per-person item totals ([IP-62](https://calpinsw.atlassian.net/browse/IP-62))
-- [ ] Implement proportional tip distribution ([IP-63](https://calpinsw.atlassian.net/browse/IP-63)):
+- [x] Calculate per-person item totals ([IP-62](https://calpinsw.atlassian.net/browse/IP-62))
+- [x] Implement proportional tip distribution ([IP-63](https://calpinsw.atlassian.net/browse/IP-63)):
   ```
   user_tip = (user_items_total / receipt_subtotal) * tip_amount
   ```
-- [ ] Implement equal tip distribution (alternative) ([IP-64](https://calpinsw.atlassian.net/browse/IP-64))
-- [ ] Calculate tax distribution (proportional) ([IP-65](https://calpinsw.atlassian.net/browse/IP-65))
-- [ ] Handle unclaimed items (split equally or assign to owner) ([IP-66](https://calpinsw.atlassian.net/browse/IP-66))
+- [x] Implement equal tip distribution (alternative) ([IP-64](https://calpinsw.atlassian.net/browse/IP-64))
+- [x] Calculate tax distribution (proportional + equal) ([IP-65](https://calpinsw.atlassian.net/browse/IP-65))
+- [x] Handle unclaimed items (split equally among participants) ([IP-66](https://calpinsw.atlassian.net/browse/IP-66))
 
 ### 5.2 Settlement Screen
-- [ ] Summary view per participant ([IP-67](https://calpinsw.atlassian.net/browse/IP-67))
-- [ ] Breakdown: items + tax portion + tip portion ([IP-68](https://calpinsw.atlassian.net/browse/IP-68))
-- [ ] Total owed per person ([IP-69](https://calpinsw.atlassian.net/browse/IP-69))
-- [ ] Mark receipt as settled ([IP-70](https://calpinsw.atlassian.net/browse/IP-70))
-- [ ] Settlement history ([IP-71](https://calpinsw.atlassian.net/browse/IP-71))
+- [x] Summary view per participant ([IP-67](https://calpinsw.atlassian.net/browse/IP-67))
+- [x] Breakdown: items + tax portion + tip portion ([IP-68](https://calpinsw.atlassian.net/browse/IP-68))
+- [x] Total owed per person ([IP-69](https://calpinsw.atlassian.net/browse/IP-69))
+- [x] Mark receipt as settled (owner only) ([IP-70](https://calpinsw.atlassian.net/browse/IP-70))
+- [ ] Settlement history ([IP-71](https://calpinsw.atlassian.net/browse/IP-71)) - deferred to [IP-92](https://calpinsw.atlassian.net/browse/IP-92)
 
 ### 5.3 Database Functions
-- [ ] Create PostgreSQL function for totals calculation ([IP-72](https://calpinsw.atlassian.net/browse/IP-72))
-- [ ] Trigger recalculation on claim changes ([IP-73](https://calpinsw.atlassian.net/browse/IP-73))
+- [ ] Create PostgreSQL function for totals calculation ([IP-72](https://calpinsw.atlassian.net/browse/IP-72)) - deferred (client-side calc sufficient)
+- [ ] Trigger recalculation on claim changes ([IP-73](https://calpinsw.atlassian.net/browse/IP-73)) - deferred (real-time approach used)
 
 ---
 
