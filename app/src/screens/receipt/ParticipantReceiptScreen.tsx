@@ -209,6 +209,41 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
   const formatCurrency = (amount: number) => `£${amount.toFixed(2)}`;
 
+  const getUnclaimedItems = () => {
+    return items.filter(item => {
+      const totalClaimed = getTotalClaimedForItem(item.id);
+      return totalClaimed < item.quantity;
+    });
+  };
+
+  const handleClaimTheRest = async () => {
+    const unclaimedItems = getUnclaimedItems();
+    if (unclaimedItems.length === 0) {
+      Alert.alert('All Claimed', 'All items have already been claimed.');
+      return;
+    }
+
+    setClaimingItemId('all');
+    try {
+      for (const item of unclaimedItems) {
+        const totalClaimed = getTotalClaimedForItem(item.id);
+        const myClaim = getMyClaimForItem(item.id);
+        const remaining = item.quantity - totalClaimed;
+        
+        if (remaining > 0) {
+          const newQuantity = (myClaim?.quantity || 0) + remaining;
+          await claimItem(item.id, newQuantity);
+        }
+      }
+      await fetchData();
+    } catch (error) {
+      console.error('Error claiming items:', error);
+      Alert.alert('Error', 'Failed to claim items');
+    } finally {
+      setClaimingItemId(null);
+    }
+  };
+
   const openSplitModal = (item: ReceiptItem) => {
     setSplitItem(item);
     // Pre-select users who already have claims on this item
@@ -377,6 +412,20 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
           Tap items to claim what you ordered
         </Text>
 
+        {getUnclaimedItems().length > 0 && (
+          <TouchableOpacity
+            style={styles.claimRestButton}
+            onPress={handleClaimTheRest}
+            disabled={claimingItemId === 'all'}
+          >
+            {claimingItemId === 'all' ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.claimRestButtonText}>Claim All Remaining Items</Text>
+            )}
+          </TouchableOpacity>
+        )}
+
         {items.map(renderItem)}
 
         <View style={styles.summarySection}>
@@ -510,6 +559,19 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  claimRestButton: {
+    backgroundColor: '#4caf50',
+    marginHorizontal: 12,
+    marginTop: 12,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  claimRestButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
   instructions: {
     textAlign: 'center',
