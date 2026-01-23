@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,14 +7,23 @@ import {
   Image,
   ScrollView,
   Alert,
+  Switch,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
+import * as Notifications from 'expo-notifications';
 
-export function ProfileScreen() {
+interface ProfileScreenProps {
+  onEditProfile?: () => void;
+  onAbout?: () => void;
+}
+
+export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
   const profile = useAuthStore((state) => state.profile);
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const handleSignOut = () => {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -56,18 +65,31 @@ export function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={onEditProfile}>
             <Text style={styles.menuItemText}>Edit Profile</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuItemText}>Notifications</Text>
-            <Text style={styles.menuItemArrow}>›</Text>
-          </TouchableOpacity>
+          <View style={styles.menuItem}>
+            <Text style={styles.menuItemText}>Push Notifications</Text>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={async (value) => {
+                setNotificationsEnabled(value);
+                if (!value) {
+                  await Notifications.setBadgeCountAsync(0);
+                }
+              }}
+              trackColor={{ false: '#e0e0e0', true: '#4F46E5' }}
+              thumbColor="#fff"
+            />
+          </View>
 
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuItemText}>Privacy</Text>
+          <TouchableOpacity 
+            style={styles.menuItem} 
+            onPress={() => Linking.openURL('https://github.com/CalPinSW/ill-pay/blob/main/PRIVACY_POLICY.md')}
+          >
+            <Text style={styles.menuItemText}>Privacy Policy</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </TouchableOpacity>
         </View>
@@ -75,12 +97,15 @@ export function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
 
-          <TouchableOpacity style={styles.menuItem}>
-            <Text style={styles.menuItemText}>Help Center</Text>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => Linking.openURL('mailto:support@illpay.app?subject=Help%20Request')}
+          >
+            <Text style={styles.menuItemText}>Contact Support</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={onAbout}>
             <Text style={styles.menuItemText}>About</Text>
             <Text style={styles.menuItemArrow}>›</Text>
           </TouchableOpacity>

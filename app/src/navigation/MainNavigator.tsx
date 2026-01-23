@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
 import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
-import { ProfileScreen, EditProfileScreen } from '@/screens/profile';
+import { ProfileScreen, EditProfileScreen, AboutScreen } from '@/screens/profile';
 import { ReceiptDetailScreen, InviteFriendsScreen, JoinReceiptScreen, ParticipantReceiptScreen, QRScannerScreen, SettlementScreen } from '@/screens/receipt';
 import { parseReceiptImage, createReceipt, uploadReceiptImage } from '@/services/receiptService';
 import { ParsedReceipt } from '@/types/receipt';
@@ -270,13 +270,22 @@ function FriendsStack({ route }: { route?: { params?: { screen?: 'list' | 'searc
 }
 
 function ProfileStack() {
-  const [screen, setScreen] = useState<'profile' | 'edit'>('profile');
+  const [screen, setScreen] = useState<'profile' | 'edit' | 'about'>('profile');
 
   if (screen === 'edit') {
     return <EditProfileScreen onGoBack={() => setScreen('profile')} />;
   }
 
-  return <ProfileScreen />;
+  if (screen === 'about') {
+    return <AboutScreen onGoBack={() => setScreen('profile')} />;
+  }
+
+  return (
+    <ProfileScreen 
+      onEditProfile={() => setScreen('edit')}
+      onAbout={() => setScreen('about')}
+    />
+  );
 }
 
 function FriendsTabIcon({ pendingCount }: { pendingCount: number }) {
