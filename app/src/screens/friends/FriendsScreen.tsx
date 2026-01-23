@@ -8,12 +8,14 @@ import {
   ActivityIndicator,
   RefreshControl,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { Profile } from '@/types/auth';
 import { EmptyState } from '@/components';
+import { removeFriend } from '@/services/friendshipService';
 
 interface Friendship {
   id: string;
@@ -95,6 +97,29 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
     setIsRefreshing(false);
   };
 
+  const handleRemoveFriend = (friendship: Friendship) => {
+    Alert.alert(
+      'Remove Friend',
+      `Are you sure you want to remove ${friendship.friend.display_name || friendship.friend.username} as a friend?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await removeFriend(user!.id, friendship.friend_id);
+              setFriends((prev) => prev.filter((f) => f.id !== friendship.id));
+            } catch (error) {
+              console.error('Error removing friend:', error);
+              Alert.alert('Error', 'Failed to remove friend. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   useEffect(() => {
     loadData();
   }, [loadData]);
@@ -112,7 +137,11 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
   };
 
   const renderFriend = ({ item }: { item: Friendship }) => (
-    <TouchableOpacity style={styles.friendItem}>
+    <TouchableOpacity 
+      style={styles.friendItem}
+      onLongPress={() => handleRemoveFriend(item)}
+      delayLongPress={500}
+    >
       {item.friend.avatar_url ? (
         <Image source={{ uri: item.friend.avatar_url }} style={styles.avatar} />
       ) : (
@@ -126,6 +155,12 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
         </Text>
         <Text style={styles.friendUsername}>@{item.friend.username}</Text>
       </View>
+      <TouchableOpacity 
+        style={styles.removeButton}
+        onPress={() => handleRemoveFriend(item)}
+      >
+        <Text style={styles.removeButtonText}>✕</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
   );
 
@@ -301,5 +336,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
+  },
+  removeButton: {
+    padding: 8,
+  },
+  removeButtonText: {
+    color: '#999',
+    fontSize: 18,
   },
 });

@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text, Alert, ActivityIndicator, View, StyleSheet } from 'react-native';
+import { supabase } from '@/services/supabase';
+import { useAuthStore } from '@/store/authStore';
 
 import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
@@ -268,7 +270,83 @@ function ProfileStack() {
   return <ProfileScreen />;
 }
 
+function FriendsTabIcon({ pendingCount }: { pendingCount: number }) {
+  return (
+    <View style={{ position: 'relative' }}>
+      <Text style={{ fontSize: 20 }}>👥</Text>
+      {pendingCount > 0 && (
+        <View style={badgeStyles.badge}>
+          <Text style={badgeStyles.badgeText}>
+            {pendingCount > 9 ? '9+' : pendingCount}
+          </Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const badgeStyles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    backgroundColor: '#EF4444',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+});
+
 export function MainNavigator() {
+  const user = useAuthStore((state) => state.user);
+  const [pendingRequestCount, setPendingRequestCount] = useState(0);
+
+  const fetchPendingCount = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { count } = await supabase
+        .from('friendships')
+        .select('*', { count: 'exact', head: true })
+        .eq('friend_id', user.id)
+        .eq('status', 'pending');
+      setPendingRequestCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching pending count:', error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchPendingCount();
+
+    // Subscribe to friendship changes for real-time badge updates
+    const channel = supabase
+      .channel('friend-requests-badge')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'friendships',
+        },
+        () => {
+          fetchPendingCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchPendingCount]);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -302,7 +380,7 @@ export function MainNavigator() {
         component={FriendsStack}
         options={{
           tabBarLabel: 'Friends',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>👥</Text>,
+          tabBarIcon: () => <FriendsTabIcon pendingCount={pendingRequestCount} />,
         }}
       />
       <Tab.Screen
