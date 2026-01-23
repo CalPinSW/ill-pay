@@ -12,6 +12,8 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
@@ -166,7 +168,10 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
         transparent={true}
         onRequestClose={() => setPasswordModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView 
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Change Password</Text>
             
@@ -220,7 +225,7 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );
