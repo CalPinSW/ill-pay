@@ -136,8 +136,8 @@ CREATE TABLE item_claims (
 - [x] Friends list screen ([IP-27](https://calpinsw.atlassian.net/browse/IP-27))
 - [x] Send friend request ([IP-28](https://calpinsw.atlassian.net/browse/IP-28))
 - [x] Accept/decline friend requests ([IP-29](https://calpinsw.atlassian.net/browse/IP-29))
-- [ ] Remove friend ([IP-30](https://calpinsw.atlassian.net/browse/IP-30))
-- [ ] Friend request notifications ([IP-31](https://calpinsw.atlassian.net/browse/IP-31))
+- [x] Remove friend ([IP-30](https://calpinsw.atlassian.net/browse/IP-30)) - Confirmation dialog, removes both directions
+- [x] Friend request notifications ([IP-31](https://calpinsw.atlassian.net/browse/IP-31)) - Badge on Friends tab with real-time updates
 
 ### 2.3 Navigation Structure
 - [x] Bottom tab navigator ([IP-32](https://calpinsw.atlassian.net/browse/IP-32)):
