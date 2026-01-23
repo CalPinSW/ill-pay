@@ -264,7 +264,7 @@ interface ParsedReceipt {
 - [ ] Settlement reminders ([IP-81](https://calpinsw.atlassian.net/browse/IP-81))
 
 ### 6.3 Testing
-- [ ] Unit tests for calculation logic ([IP-82](https://calpinsw.atlassian.net/browse/IP-82))
+- [x] Unit tests for calculation logic ([IP-82](https://calpinsw.atlassian.net/browse/IP-82)) - 8 tests covering all distribution modes
 - [ ] Integration tests for Edge Functions ([IP-83](https://calpinsw.atlassian.net/browse/IP-83))
 - [ ] E2E tests for critical flows ([IP-84](https://calpinsw.atlassian.net/browse/IP-84))
 
