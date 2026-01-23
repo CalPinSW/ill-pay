@@ -1,5 +1,6 @@
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
+import * as Linking from 'expo-linking';
 import { supabase } from './supabase';
 import { Platform } from 'react-native';
 
@@ -7,10 +8,10 @@ WebBrowser.maybeCompleteAuthSession();
 
 type Provider = 'google' | 'apple';
 
-const redirectUri = AuthSession.makeRedirectUri({
-  scheme: 'illpay',
-  path: 'auth/callback',
-});
+// Use Expo Linking to create proper deep link redirect
+const redirectUri = Linking.createURL('auth/callback');
+
+console.log('OAuth Redirect URI:', redirectUri);
 
 export async function signInWithProvider(provider: Provider) {
   try {
