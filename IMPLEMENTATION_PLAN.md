@@ -274,7 +274,7 @@ interface ParsedReceipt {
 - [x] App icons and splash screen ([IP-85](https://calpinsw.atlassian.net/browse/IP-85)) - Branded icons with receipt/split design
 - [x] App store screenshots ([IP-86](https://calpinsw.atlassian.net/browse/IP-86)) - 5 screens captured
 - [x] Privacy policy ([IP-87](https://calpinsw.atlassian.net/browse/IP-87)) - PRIVACY_POLICY.md created
-- [ ] Build and submit ([IP-88](https://calpinsw.atlassian.net/browse/IP-88))
+- [x] Build and submit ([IP-88](https://calpinsw.atlassian.net/browse/IP-88)) - EAS config and BUILD.md guide added
 
 ---
 
