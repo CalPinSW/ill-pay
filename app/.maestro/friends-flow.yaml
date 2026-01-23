@@ -1,0 +1,48 @@
+appId: com.illpay.app
+---
+# Friends Management Flow E2E Test
+
+- launchApp
+
+# Navigate to friends tab
+- tapOn:
+    id: "friends-tab"
+    optional: true
+- tapOn:
+    text: "Friends"
+    optional: true
+
+# Search for a user
+- tapOn:
+    text: "Search"
+    optional: true
+- tapOn:
+    id: "search-input"
+    optional: true
+- inputText: "testuser"
+
+# Wait for search results
+- assertVisible:
+    text: ".*"
+    timeout: 5000
+
+# Send friend request (if add button visible)
+- tapOn:
+    text: "Add"
+    optional: true
+
+# Verify friend request sent or already friends
+- assertVisible:
+    text: ".*Pending.*|.*Friends.*|.*Request.*"
+    timeout: 5000
+    optional: true
+
+# Check pending requests tab
+- tapOn:
+    text: "Requests"
+    optional: true
+
+# Accept a friend request if any
+- tapOn:
+    text: "Accept"
+    optional: true

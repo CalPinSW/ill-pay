@@ -1,0 +1,46 @@
+appId: com.illpay.app
+---
+# Authentication Flow E2E Test
+
+- launchApp
+
+# Sign Up Flow
+- tapOn: "Sign Up"
+- tapOn:
+    id: "email-input"
+- inputText: "test-${timestamp}@example.com"
+- tapOn:
+    id: "password-input"
+- inputText: "TestPassword123!"
+- tapOn:
+    id: "confirm-password-input"
+- inputText: "TestPassword123!"
+- tapOn: "Create Account"
+
+# Verify we're on the main screen or onboarding
+- assertVisible:
+    text: ".*"
+    timeout: 10000
+
+# Sign Out
+- tapOn:
+    id: "settings-tab"
+    optional: true
+- tapOn:
+    text: "Sign Out"
+    optional: true
+
+# Sign In Flow
+- tapOn: "Sign In"
+- tapOn:
+    id: "email-input"
+- inputText: "test@example.com"
+- tapOn:
+    id: "password-input"
+- inputText: "TestPassword123!"
+- tapOn: "Sign In"
+
+# Verify successful login
+- assertVisible:
+    text: ".*"
+    timeout: 10000

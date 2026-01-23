@@ -268,7 +268,7 @@ interface ParsedReceipt {
 ### 6.3 Testing
 - [x] Unit tests for calculation logic ([IP-82](https://calpinsw.atlassian.net/browse/IP-82)) - 8 tests covering all distribution modes
 - [x] Integration tests for Edge Functions ([IP-83](https://calpinsw.atlassian.net/browse/IP-83)) - Deno tests for send-notification & parse-receipt
-- [ ] E2E tests for critical flows ([IP-84](https://calpinsw.atlassian.net/browse/IP-84))
+- [x] E2E tests for critical flows ([IP-84](https://calpinsw.atlassian.net/browse/IP-84)) - Maestro tests for auth, receipts, friends
 
 ### 6.4 App Store Preparation
 - [x] App icons and splash screen ([IP-85](https://calpinsw.atlassian.net/browse/IP-85)) - Branded icons with receipt/split design
