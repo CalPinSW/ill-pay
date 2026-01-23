@@ -25,9 +25,10 @@ interface Receipt {
 interface HomeScreenProps {
   onSelectReceipt?: (receiptId: string) => void;
   onJoinReceipt?: () => void;
+  onScanQR?: () => void;
 }
 
-export function HomeScreen({ onSelectReceipt, onJoinReceipt }: HomeScreenProps) {
+export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScreenProps) {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -130,11 +131,18 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt }: HomeScreenProps) 
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.title}>Receipts</Text>
-        {onJoinReceipt && (
-          <TouchableOpacity style={styles.joinButton} onPress={onJoinReceipt}>
-            <Text style={styles.joinButtonText}>Join</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.headerActions}>
+          {onScanQR && (
+            <TouchableOpacity style={styles.scanButton} onPress={onScanQR}>
+              <Text style={styles.scanButtonText}>📷</Text>
+            </TouchableOpacity>
+          )}
+          {onJoinReceipt && (
+            <TouchableOpacity style={styles.joinButton} onPress={onJoinReceipt}>
+              <Text style={styles.joinButtonText}>Join</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <FlatList
@@ -168,6 +176,19 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1a1a1a',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  scanButton: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  scanButtonText: {
+    fontSize: 16,
   },
   joinButton: {
     backgroundColor: '#007AFF',
