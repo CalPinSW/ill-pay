@@ -84,7 +84,7 @@ For privacy-related questions or concerns, please contact:
 
 We use the following third-party services:
 - **Supabase**: Database and authentication
-- **OpenAI**: Receipt parsing (images processed but not stored by OpenAI)
+- **Google Gemini**: Receipt parsing (images processed but not stored by OpenAI)
 - **Expo**: App distribution and updates
 
 Each service has its own privacy policy that governs their use of data.

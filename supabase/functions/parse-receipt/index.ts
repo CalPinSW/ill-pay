@@ -7,12 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function verifyAuth(req: Request): Promise<boolean> {
+async function getAuthedSupabaseClient(req: Request) {
   const authHeader = req.headers.get("Authorization");
   const apiKey = req.headers.get("apikey");
   
   if (!authHeader && !apiKey) {
-    return false;
+    return null;
   }
   
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -24,9 +24,43 @@ async function verifyAuth(req: Request): Promise<boolean> {
     },
   });
 
+  return supabase;
+}
+
+async function getAuthedUserId(req: Request): Promise<string | null> {
+  const supabase = await getAuthedSupabaseClient(req);
+  if (!supabase) return null;
+
   const { data: { user }, error } = await supabase.auth.getUser();
-  
-  return !error && !!user;
+  if (error || !user) return null;
+  return user.id;
+}
+
+async function enforceRateLimit(req: Request, userId: string) {
+  const supabase = await getAuthedSupabaseClient(req);
+  if (!supabase) {
+    return {
+      allowed: false,
+      count: 0,
+      limit: 0,
+      error: "Unauthorized",
+    };
+  }
+
+  const day = new Date().toISOString().slice(0, 10);
+  const limit = 2;
+
+  const { data, error } = await supabase.rpc("check_and_increment_parse_receipt_usage", {
+    p_user_id: userId,
+    p_day: day,
+    p_limit: limit,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data as { allowed: boolean; count: number; limit: number };
 }
 
 interface ParsedReceipt {
@@ -78,11 +112,24 @@ serve(async (req: Request) => {
   }
 
   try {
-    const isAuthenticated = await verifyAuth(req);
-    if (!isAuthenticated) {
+    const userId = await getAuthedUserId(req);
+    if (!userId) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
+      );
+    }
+
+    const usage = await enforceRateLimit(req, userId);
+    if (!usage.allowed) {
+      return new Response(
+        JSON.stringify({
+          error: "Daily receipt parsing limit reached",
+          code: "RATE_LIMIT_EXCEEDED",
+          limit: usage.limit,
+          count: usage.count,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
       );
     }
 

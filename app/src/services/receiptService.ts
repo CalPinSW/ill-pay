@@ -3,6 +3,18 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from './supabase';
 import { ParsedReceipt, Receipt, ReceiptItem } from '@/types/receipt';
 
+export class RateLimitExceededError extends Error {
+  limit: number;
+  count: number;
+
+  constructor(message: string, limit: number, count: number) {
+    super(message);
+    this.name = 'RateLimitExceededError';
+    this.limit = limit;
+    this.count = count;
+  }
+}
+
 async function compressImage(uri: string): Promise<string> {
   const result = await ImageManipulator.manipulateAsync(
     uri,
@@ -46,7 +58,21 @@ export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt
     body: { image_base64: base64 },
   });
 
-  if (error) throw error;
+  if (error) {
+    const maybeContext = (error as any)?.context;
+    const status = maybeContext?.status;
+    const body = maybeContext?.body;
+
+    if (status === 429 && body?.code === 'RATE_LIMIT_EXCEEDED') {
+      throw new RateLimitExceededError(
+        body?.error || 'Daily receipt parsing limit reached',
+        Number(body?.limit) || 2,
+        Number(body?.count) || 0
+      );
+    }
+
+    throw error;
+  }
   
   if (data?.error) {
     throw new Error(data.error);

@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   secondaryButtonGrow: {
-        backgroundColor: '#f0f0f0',
+    backgroundColor: '#f0f0f0',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',

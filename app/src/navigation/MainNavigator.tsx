@@ -7,11 +7,11 @@ import { useAuthStore } from '@/store/authStore';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { HomeScreen } from '@/screens/home';
-import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
+import { ScanScreen, ReceiptReviewScreen, RateLimitScreen } from '@/screens/scan';
 import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
 import { ProfileScreen, EditProfileScreen, AboutScreen } from '@/screens/profile';
 import { ReceiptDetailScreen, InviteFriendsScreen, JoinReceiptScreen, ParticipantReceiptScreen, QRScannerScreen, SettlementScreen } from '@/screens/receipt';
-import { parseReceiptImage, createReceipt, uploadReceiptImage } from '@/services/receiptService';
+import { parseReceiptImage, createReceipt, uploadReceiptImage, RateLimitExceededError } from '@/services/receiptService';
 import { ParsedReceipt } from '@/types/receipt';
 
 export type MainTabParamList = {
@@ -145,10 +145,11 @@ function HomeStack() {
 }
 
 function ScanStack() {
-  const [screen, setScreen] = useState<'camera' | 'parsing' | 'review'>('camera');
+  const [screen, setScreen] = useState<'camera' | 'parsing' | 'review' | 'rate_limit'>('camera');
   const [capturedImageUri, setCapturedImageUri] = useState<string | null>(null);
   const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ limit: number; count: number } | null>(null);
   const navigation = useNavigation<any>();
   const { setNewReceiptId } = useContext(NewReceiptContext);
 
@@ -162,6 +163,13 @@ function ScanStack() {
       setScreen('review');
     } catch (error) {
       console.error('Error parsing receipt:', error);
+
+      if (error instanceof RateLimitExceededError) {
+        setRateLimitInfo({ limit: error.limit, count: error.count });
+        setScreen('rate_limit');
+        return;
+      }
+
       Alert.alert(
         'Parsing Failed',
         'Could not parse the receipt. You can add items manually.',
@@ -220,6 +228,13 @@ function ScanStack() {
     setScreen('camera');
   };
 
+  const handleRateLimitBack = () => {
+    setCapturedImageUri(null);
+    setParsedReceipt(null);
+    setRateLimitInfo(null);
+    setScreen('camera');
+  };
+
   if (screen === 'parsing') {
     return (
       <View style={scanStyles.loadingContainer}>
@@ -237,6 +252,16 @@ function ScanStack() {
         onConfirm={handleConfirmReceipt}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
+      />
+    );
+  }
+
+  if (screen === 'rate_limit' && rateLimitInfo) {
+    return (
+      <RateLimitScreen
+        limit={rateLimitInfo.limit}
+        count={rateLimitInfo.count}
+        onBack={handleRateLimitBack}
       />
     );
   }
