@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { Text, Alert, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen } from '@/screens/scan';
@@ -313,7 +313,7 @@ function ProfileStack() {
 function FriendsTabIcon({ pendingCount }: { pendingCount: number }) {
   return (
     <View style={{ position: 'relative' }}>
-      <Text style={{ fontSize: 20 }}>👥</Text>
+      <MaterialIcons name="groups" size={24} color="black" />
       {pendingCount > 0 && (
         <View style={badgeStyles.badge}>
           <Text style={badgeStyles.badgeText}>
@@ -406,15 +406,15 @@ export function MainNavigator() {
           component={HomeStack}
           options={{
             tabBarLabel: 'Home',
-            tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>🏠</Text>,
+            tabBarIcon: ({ color }) => <MaterialIcons name="home" size={24} color="black" />,
           }}
         />
         <Tab.Screen
           name="ScanTab"
           component={ScanStack}
           options={{
-            tabBarLabel: 'Scan',
-            tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>📷</Text>,
+            tabBarLabel: 'Scan Receipt',
+            tabBarIcon: ({ color }) => <MaterialIcons name="document-scanner" size={24} color="black" />,
           }}
         />
         <Tab.Screen
@@ -430,7 +430,7 @@ export function MainNavigator() {
           component={ProfileStack}
           options={{
             tabBarLabel: 'Profile',
-            tabBarIcon: ({ color }) => <Text style={{ fontSize: 20 }}>👤</Text>,
+            tabBarIcon: ({ color }) => <MaterialIcons name="person" size={24} color="black" />,
           }}
         />
       </Tab.Navigator>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,18 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Share,
   ActivityIndicator,
   RefreshControl,
   Image,
+  Modal,
+  Pressable,
 } from 'react-native';
+import Feather from '@expo/vector-icons/Feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { activateAndShareReceipt, getReceiptParticipants } from '@/services/sharingService';
 import { QRCodeShare } from '@/components/QRCodeShare';
+import { getItemClaims } from '@/services/claimService';
 
 interface ReceiptDetailScreenProps {
   receiptId: string;
@@ -30,6 +33,11 @@ interface ReceiptItem {
   quantity: number;
   unit_price: number;
   total_price: number;
+}
+
+interface ItemClaim {
+  item_id: string;
+  quantity: number;
 }
 
 interface Participant {
@@ -55,16 +63,20 @@ interface Receipt {
   share_code: string | null;
   status: string;
   owner_id: string;
+  image_url?: string | null;
 }
 
 export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClaimItems, onViewSettlement }: ReceiptDetailScreenProps) {
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [claims, setClaims] = useState<ItemClaim[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSharing, setIsSharing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false);
+  const pinchInProgressRef = useRef(false);
 
   const fetchReceipt = useCallback(async () => {
     try {
@@ -88,6 +100,9 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
 
       if (itemsError) throw itemsError;
       setItems(itemsData || []);
+
+      const claimsData = await getItemClaims(receiptId);
+      setClaims((claimsData || []).map((claim: any) => ({ item_id: claim.item_id, quantity: claim.quantity })));
 
       // Get owner profile
       const { data: ownerProfile } = await supabase
@@ -163,6 +178,37 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
   };
 
   const isOwner = currentUserId === receipt?.owner_id;
+  const allItemsClaimed =
+    items.length > 0 &&
+    items.every((item) => {
+      const claimedQty = claims
+        .filter((claim) => claim.item_id === item.id)
+        .reduce((sum, claim) => sum + claim.quantity, 0);
+      return claimedQty >= item.quantity;
+    });
+
+  const claimButtonStyles = allItemsClaimed ? styles.secondaryButton : styles.primaryButton;
+  const claimButtonTextStyles = allItemsClaimed ? styles.secondaryButtonText : styles.primaryButtonText;
+  const settlementButtonStyles = allItemsClaimed ? styles.primaryButton : styles.secondaryButton;
+  const settlementButtonTextStyles = allItemsClaimed ? styles.primaryButtonText : styles.secondaryButtonText;
+
+  const handleReceiptModalPress = () => {
+    if (!pinchInProgressRef.current) {
+      setIsImageModalVisible(false);
+    }
+  };
+
+  const handleOverlayTouchStart = (event: any) => {
+    if (event.nativeEvent.touches?.length > 1) {
+      pinchInProgressRef.current = true;
+    }
+  };
+
+  const handleOverlayTouchEnd = (event: any) => {
+    if (!event.nativeEvent.touches || event.nativeEvent.touches.length <= 1) {
+      pinchInProgressRef.current = false;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -206,11 +252,28 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
         }
       >
         <View style={styles.receiptHeader}>
-          <Text style={styles.restaurantName}>
-            {receipt.restaurant_name || 'Unknown Restaurant'}
-          </Text>
-          <Text style={styles.receiptDate}>{formatDate(receipt.receipt_date)}</Text>
-          
+          <View style={styles.receiptHeaderTop}>
+            <View style={styles.receiptHeaderInfo}>
+              <Text style={styles.restaurantName}>
+                {receipt.restaurant_name || 'Unknown Restaurant'}
+              </Text>
+              <Text style={styles.receiptDate}>{formatDate(receipt.receipt_date)}</Text>
+            </View>
+
+            {receipt.image_url && (
+              <TouchableOpacity
+                style={styles.receiptImagePreview}
+                activeOpacity={0.8}
+                onPress={() => setIsImageModalVisible(true)}
+              >
+                <Image source={{ uri: receipt.image_url }} style={styles.receiptImage} />
+                <View style={styles.receiptImageOverlay}>
+                  <Text style={styles.receiptImageOverlayText}>Tap to view</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
+
           {receipt.share_code && (
             <View style={styles.shareCodeContainer}>
               <Text style={styles.shareCodeLabel}>Share Code</Text>
@@ -286,24 +349,24 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
             ))}
           </View>
         )}
-
-        <View style={styles.actionsSection}>
+      </ScrollView>
+      <View style={styles.actionsSection}>
           <TouchableOpacity
-            style={styles.primaryButton}
+            style={claimButtonStyles}
             onPress={() => onClaimItems(receiptId)}
           >
-            <Text style={styles.primaryButtonText}>Claim Items</Text>
+            <Text style={claimButtonTextStyles}>{allItemsClaimed ? 'Edit Claimed Items' : 'Claim Items'}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.secondaryButton}
+            style={settlementButtonStyles}
             onPress={() => onViewSettlement(receiptId)}
           >
-            <Text style={styles.secondaryButtonText}>View Settlement</Text>
+            <Text style={settlementButtonTextStyles}>View Settlement</Text>
           </TouchableOpacity>
 
           {isOwner && (
-            <>
+            <View style={styles.ownerActionsRow}>
               <TouchableOpacity
                 style={styles.secondaryButton}
                 onPress={handleShare}
@@ -312,28 +375,65 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
                 {isSharing ? (
                   <ActivityIndicator color="#007AFF" />
                 ) : (
-                  <Text style={styles.secondaryButtonText}>
-                    {receipt.share_code ? 'Share Again' : 'Share Receipt'}
-                  </Text>
+                  <Feather name="share" size={24} color="#007AFF" />
                 )}
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.secondaryButton}
+                style={styles.secondaryButtonGrow}
                 onPress={() => onInviteFriends(receiptId)}
               >
                 <Text style={styles.secondaryButtonText}>Invite Friends</Text>
               </TouchableOpacity>
-            </>
+            </View>
           )}
         </View>
-      </ScrollView>
-
       {showQRCode && receipt?.share_code && (
         <QRCodeShare
           shareCode={receipt.share_code}
           onClose={() => setShowQRCode(false)}
         />
+      )}
+
+      {receipt.image_url && (
+        <Modal
+          visible={isImageModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setIsImageModalVisible(false)}
+        >
+          <Pressable
+            style={styles.imageModalOverlay}
+            onPress={handleReceiptModalPress}
+            onTouchStart={handleOverlayTouchStart}
+            onTouchEnd={handleOverlayTouchEnd}
+          >
+            <ScrollView
+              style={styles.fullReceiptScroll}
+              contentContainerStyle={styles.fullReceiptScrollContent}
+              maximumZoomScale={3}
+              minimumZoomScale={1}
+              bounces={false}
+              showsHorizontalScrollIndicator={false}
+              showsVerticalScrollIndicator={false}
+            >
+              <Image
+                source={{ uri: receipt.image_url }}
+                style={styles.fullReceiptImage}
+                resizeMode="contain"
+              />
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.imageModalCloseButton}
+              onPress={() => {
+                pinchInProgressRef.current = false;
+                setIsImageModalVisible(false);
+              }}
+            >
+              <Text style={styles.imageModalCloseText}>Close</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Modal>
       )}
     </SafeAreaView>
   );
@@ -387,9 +487,17 @@ const styles = StyleSheet.create({
   },
   receiptHeader: {
     padding: 20,
-    alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  receiptHeaderTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+  },
+  receiptHeaderInfo: {
+    flex: 1,
   },
   restaurantName: {
     fontSize: 24,
@@ -418,6 +526,29 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#007AFF',
     letterSpacing: 4,
+  },
+  receiptImagePreview: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  receiptImage: {
+    width: '100%',
+    height: '100%',
+  },
+  receiptImageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  receiptImageOverlayText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
   section: {
     padding: 20,
@@ -537,6 +668,10 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 12,
   },
+  ownerActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   primaryButton: {
     backgroundColor: '#007AFF',
     padding: 16,
@@ -554,6 +689,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
   },
+  secondaryButtonGrow: {
+        backgroundColor: '#f0f0f0',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    flex: 1,
+  },
   secondaryButtonText: {
     fontSize: 17,
     fontWeight: '600',
@@ -567,6 +709,41 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  imageModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  fullReceiptScroll: {
+    width: '90%',
+    height: '90%',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  fullReceiptScrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullReceiptImage: {
+    width: '100%',
+    height: '100%',
+  },
+  imageModalCloseButton: {
+    position: 'absolute',
+    top: 32,
+    right: 32,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
+  imageModalCloseText: {
+    color: '#fff',
     fontWeight: '600',
   },
 });

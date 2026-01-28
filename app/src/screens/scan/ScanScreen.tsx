@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 
 interface ScanScreenProps {
@@ -84,7 +85,7 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.centeredContent}>
-          <Text style={styles.icon}>📷</Text>
+          <MaterialIcons style={styles.icon} name="camera-alt" size={64} color="black" />
           <Text style={styles.title}>Camera Access Required</Text>
           <Text style={styles.subtitle}>
             We need camera access to scan receipts. You can also pick an image from your gallery.
@@ -145,7 +146,7 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
         
         <View style={styles.cameraControls}>
           <TouchableOpacity style={styles.galleryButton} onPress={pickImage}>
-            <Text style={styles.galleryButtonText}>🖼️</Text>
+            <MaterialIcons style={styles.galleryButtonIcon} name="photo-library" size={24} color="black" />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
@@ -156,7 +157,7 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
             style={styles.flipButton}
             onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
           >
-            <Text style={styles.flipButtonText}>🔄</Text>
+            <MaterialIcons style={styles.flipButtonIcon} name="flip-camera-ios" size={24} color="black" />
           </TouchableOpacity>
         </View>
       </View>
@@ -261,8 +262,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  galleryButtonText: {
-    fontSize: 24,
+  galleryButtonIcon: {
+    color: '#fff',
   },
   captureButton: {
     width: 80,
@@ -287,8 +288,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  flipButtonText: {
-    fontSize: 24,
+  flipButtonIcon: {
+    color: '#fff'
   },
   previewContainer: {
     flex: 1,

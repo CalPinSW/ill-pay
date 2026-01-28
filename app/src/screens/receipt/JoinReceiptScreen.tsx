@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getReceiptByShareCode, joinReceipt } from '@/services/sharingService';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface JoinReceiptScreenProps {
   onBack: () => void;
@@ -104,7 +105,7 @@ export function JoinReceiptScreen({ onBack, onJoinSuccess, onScanQR, initialCode
               </View>
 
               <TouchableOpacity style={styles.scanButton} onPress={onScanQR}>
-                <Text style={styles.scanButtonIcon}>📷</Text>
+                <MaterialIcons style={styles.scanButtonIcon} name="document-scanner" size={24} color="black" />
                 <Text style={styles.scanButtonText}>Scan QR Code</Text>
               </TouchableOpacity>
             </>
@@ -220,7 +221,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   scanButtonIcon: {
-    fontSize: 20,
     marginRight: 8,
   },
   scanButtonText: {
