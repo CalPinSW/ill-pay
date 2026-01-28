@@ -205,6 +205,50 @@ maestro test .maestro/
 | Integration | `supabase/tests/` | `deno task test` |
 | E2E | `app/.maestro/` | `maestro test .maestro/` |
 
+## Deployment
+
+### Database Migrations
+
+When you create new database migrations, push them to the remote Supabase database:
+
+```bash
+# Push all pending migrations
+supabase db push
+
+# The command will show which migrations will be applied and ask for confirmation
+```
+
+### Edge Functions
+
+Deploy updated Edge Functions to Supabase:
+
+```bash
+# Deploy a specific function
+supabase functions deploy parse-receipt
+supabase functions deploy send-notification
+
+# Deploy all functions
+supabase functions deploy
+```
+
+> **Note:** Make sure your `.env` file in the `supabase/` directory contains the necessary secrets (like `GEMINI_API_KEY`) before deploying.
+
+### Mobile App Builds
+
+For development builds with physical devices:
+
+```bash
+cd app
+
+# Build for iOS (requires Apple Developer account)
+eas build --profile development --platform ios
+
+# Build for Android
+eas build --profile development --platform android
+```
+
+For production builds and app store submission, see [Build Guide](./app/BUILD.md).
+
 ## Documentation
 
 - [Implementation Plan](./IMPLEMENTATION_PLAN.md) - Detailed development roadmap
