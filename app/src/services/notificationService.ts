@@ -56,10 +56,7 @@ export async function savePushToken(token: string): Promise<void> {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return;
 
-  await supabase
-    .from('profiles')
-    .update({ push_token: token })
-    .eq('id', userData.user.id);
+  await supabase.from('profiles').update({ push_token: token }).eq('id', userData.user.id);
 }
 
 /**
@@ -69,10 +66,7 @@ export async function removePushToken(): Promise<void> {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return;
 
-  await supabase
-    .from('profiles')
-    .update({ push_token: null })
-    .eq('id', userData.user.id);
+  await supabase.from('profiles').update({ push_token: null }).eq('id', userData.user.id);
 }
 
 /**
@@ -111,7 +105,7 @@ export function addNotificationReceivedListener(
   return Notifications.addNotificationReceivedListener(callback);
 }
 
-export type NotificationType = 
+export type NotificationType =
   | 'friend_request'
   | 'friend_accepted'
   | 'receipt_invitation'

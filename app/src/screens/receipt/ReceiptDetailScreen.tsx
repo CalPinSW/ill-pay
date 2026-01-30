@@ -67,7 +67,13 @@ interface Receipt {
   image_url?: string | null;
 }
 
-export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClaimItems, onViewSettlement }: ReceiptDetailScreenProps) {
+export function ReceiptDetailScreen({
+  receiptId,
+  onBack,
+  onInviteFriends,
+  onClaimItems,
+  onViewSettlement,
+}: ReceiptDetailScreenProps) {
   const { colors } = useTheme();
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [items, setItems] = useState<ReceiptItem[]>([]);
@@ -104,7 +110,12 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
       setItems(itemsData || []);
 
       const claimsData = await getItemClaims(receiptId);
-      setClaims((claimsData || []).map((claim: any) => ({ item_id: claim.item_id, quantity: claim.quantity })));
+      setClaims(
+        (claimsData || []).map((claim: any) => ({
+          item_id: claim.item_id,
+          quantity: claim.quantity,
+        }))
+      );
 
       // Get owner profile
       const { data: ownerProfile } = await supabase
@@ -150,7 +161,7 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
     setIsSharing(true);
     try {
       let shareCode = receipt.share_code;
-      
+
       if (!shareCode) {
         shareCode = await activateAndShareReceipt(receiptId);
         setReceipt({ ...receipt, share_code: shareCode, status: 'active' });
@@ -190,9 +201,13 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
     });
 
   const claimButtonStyles = allItemsClaimed ? styles.secondaryButton : styles.primaryButton;
-  const claimButtonTextStyles = allItemsClaimed ? styles.secondaryButtonText : styles.primaryButtonText;
+  const claimButtonTextStyles = allItemsClaimed
+    ? styles.secondaryButtonText
+    : styles.primaryButtonText;
   const settlementButtonStyles = allItemsClaimed ? styles.primaryButton : styles.secondaryButton;
-  const settlementButtonTextStyles = allItemsClaimed ? styles.primaryButtonText : styles.secondaryButtonText;
+  const settlementButtonTextStyles = allItemsClaimed
+    ? styles.primaryButtonText
+    : styles.secondaryButtonText;
 
   const handleReceiptModalPress = () => {
     if (!pinchInProgressRef.current) {
@@ -227,7 +242,10 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, { color: colors.textSecondary }]}>Receipt not found</Text>
-          <TouchableOpacity style={[styles.backButton, { backgroundColor: colors.primary }]} onPress={onBack}>
+          <TouchableOpacity
+            style={[styles.backButton, { backgroundColor: colors.primary }]}
+            onPress={onBack}
+          >
             <Text style={styles.backButtonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
@@ -236,7 +254,10 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
           <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
@@ -250,7 +271,11 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
       <ScrollView
         style={styles.content}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={fetchReceipt} tintColor={colors.primary} />
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchReceipt}
+            tintColor={colors.primary}
+          />
         }
       >
         <View style={[styles.receiptHeader, { borderBottomColor: colors.border }]}>
@@ -259,7 +284,9 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
               <Text style={[styles.restaurantName, { color: colors.text }]}>
                 {receipt.restaurant_name || 'Unknown Restaurant'}
               </Text>
-              <Text style={[styles.receiptDate, { color: colors.textSecondary }]}>{formatDate(receipt.receipt_date)}</Text>
+              <Text style={[styles.receiptDate, { color: colors.textSecondary }]}>
+                {formatDate(receipt.receipt_date)}
+              </Text>
             </View>
 
             {receipt.image_url && (
@@ -277,8 +304,12 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
           </View>
 
           {receipt.share_code && (
-            <View style={[styles.shareCodeContainer, { backgroundColor: colors.backgroundTertiary }]}>
-              <Text style={[styles.shareCodeLabel, { color: colors.textSecondary }]}>Share Code</Text>
+            <View
+              style={[styles.shareCodeContainer, { backgroundColor: colors.backgroundTertiary }]}
+            >
+              <Text style={[styles.shareCodeLabel, { color: colors.textSecondary }]}>
+                Share Code
+              </Text>
               <Text style={[styles.shareCode, { color: colors.text }]}>{receipt.share_code}</Text>
             </View>
           )}
@@ -294,33 +325,48 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
                   {item.quantity} × {formatCurrency(item.unit_price)}
                 </Text>
               </View>
-              <Text style={[styles.itemTotal, { color: colors.text }]}>{formatCurrency(item.total_price)}</Text>
+              <Text style={[styles.itemTotal, { color: colors.text }]}>
+                {formatCurrency(item.total_price)}
+              </Text>
             </View>
           ))}
         </View>
 
-        <View style={[styles.totalsSection, { backgroundColor: colors.backgroundSecondary, borderTopColor: colors.border }]}>
+        <View
+          style={[
+            styles.totalsSection,
+            { backgroundColor: colors.backgroundSecondary, borderTopColor: colors.border },
+          ]}
+        >
           {receipt.subtotal && (
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Subtotal</Text>
-              <Text style={[styles.totalValue, { color: colors.text }]}>{formatCurrency(receipt.subtotal)}</Text>
+              <Text style={[styles.totalValue, { color: colors.text }]}>
+                {formatCurrency(receipt.subtotal)}
+              </Text>
             </View>
           )}
           {receipt.tax && (
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Tax</Text>
-              <Text style={[styles.totalValue, { color: colors.text }]}>{formatCurrency(receipt.tax)}</Text>
+              <Text style={[styles.totalValue, { color: colors.text }]}>
+                {formatCurrency(receipt.tax)}
+              </Text>
             </View>
           )}
           {receipt.tip_amount && (
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Tip</Text>
-              <Text style={[styles.totalValue, { color: colors.text }]}>{formatCurrency(receipt.tip_amount)}</Text>
+              <Text style={[styles.totalValue, { color: colors.text }]}>
+                {formatCurrency(receipt.tip_amount)}
+              </Text>
             </View>
           )}
           <View style={[styles.totalRow, styles.grandTotalRow, { borderTopColor: colors.border }]}>
             <Text style={[styles.grandTotalLabel, { color: colors.text }]}>Total</Text>
-            <Text style={[styles.grandTotalValue, { color: colors.text }]}>{formatCurrency(receipt.total)}</Text>
+            <Text style={[styles.grandTotalValue, { color: colors.text }]}>
+              {formatCurrency(receipt.total)}
+            </Text>
           </View>
         </View>
 
@@ -328,11 +374,14 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>Participants</Text>
             {participants.map((p) => (
-              <View key={p.user_id} style={[styles.participantRow, { borderBottomColor: colors.border }]}>
+              <View
+                key={p.user_id}
+                style={[styles.participantRow, { borderBottomColor: colors.border }]}
+              >
                 {p.profile?.avatar_url ? (
-                  <Image 
-                    source={{ uri: p.profile.avatar_url }} 
-                    style={[styles.avatarImage, p.isOwner && { borderColor: colors.primary }]} 
+                  <Image
+                    source={{ uri: p.profile.avatar_url }}
+                    style={[styles.avatarImage, p.isOwner && { borderColor: colors.primary }]}
                   />
                 ) : (
                   <View style={[styles.avatar, p.isOwner && { backgroundColor: colors.primary }]}>
@@ -345,56 +394,61 @@ export function ReceiptDetailScreen({ receiptId, onBack, onInviteFriends, onClai
                   <Text style={[styles.participantName, { color: colors.text }]}>
                     {p.profile?.display_name || p.profile?.username || 'Unknown'}
                   </Text>
-                  {p.isOwner && <Text style={[styles.ownerBadge, { color: colors.primary }]}>Owner</Text>}
+                  {p.isOwner && (
+                    <Text style={[styles.ownerBadge, { color: colors.primary }]}>Owner</Text>
+                  )}
                 </View>
               </View>
             ))}
           </View>
         )}
       </ScrollView>
-      <View style={[styles.actionsSection, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
-          <TouchableOpacity
-            style={claimButtonStyles}
-            onPress={() => onClaimItems(receiptId)}
-          >
-            <Text style={claimButtonTextStyles}>{allItemsClaimed ? 'Edit Claimed Items' : 'Claim Items'}</Text>
-          </TouchableOpacity>
+      <View
+        style={[
+          styles.actionsSection,
+          { backgroundColor: colors.background, borderTopColor: colors.border },
+        ]}
+      >
+        <TouchableOpacity style={claimButtonStyles} onPress={() => onClaimItems(receiptId)}>
+          <Text style={claimButtonTextStyles}>
+            {allItemsClaimed ? 'Edit Claimed Items' : 'Claim Items'}
+          </Text>
+        </TouchableOpacity>
 
-          <TouchableOpacity
-            style={settlementButtonStyles}
-            onPress={() => onViewSettlement(receiptId)}
-          >
-            <Text style={settlementButtonTextStyles}>View Settlement</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={settlementButtonStyles}
+          onPress={() => onViewSettlement(receiptId)}
+        >
+          <Text style={settlementButtonTextStyles}>View Settlement</Text>
+        </TouchableOpacity>
 
-          {isOwner && (
-            <View style={styles.ownerActionsRow}>
-              <TouchableOpacity
-                style={[styles.secondaryButton, { backgroundColor: colors.backgroundTertiary }]}
-                onPress={handleShare}
-                disabled={isSharing}
-              >
-                {isSharing ? (
-                  <ActivityIndicator color={colors.primary} />
-                ) : (
-                  <Feather name="share" size={24} color={colors.primary} />
-                )}
-              </TouchableOpacity>
+        {isOwner && (
+          <View style={styles.ownerActionsRow}>
+            <TouchableOpacity
+              style={[styles.secondaryButton, { backgroundColor: colors.backgroundTertiary }]}
+              onPress={handleShare}
+              disabled={isSharing}
+            >
+              {isSharing ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <Feather name="share" size={24} color={colors.primary} />
+              )}
+            </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[styles.secondaryButtonGrow, { backgroundColor: colors.backgroundTertiary }]}
-                onPress={() => onInviteFriends(receiptId)}
-              >
-                <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Invite Friends</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+            <TouchableOpacity
+              style={[styles.secondaryButtonGrow, { backgroundColor: colors.backgroundTertiary }]}
+              onPress={() => onInviteFriends(receiptId)}
+            >
+              <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>
+                Invite Friends
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
       {showQRCode && receipt?.share_code && (
-        <QRCodeShare
-          shareCode={receipt.share_code}
-          onClose={() => setShowQRCode(false)}
-        />
+        <QRCodeShare shareCode={receipt.share_code} onClose={() => setShowQRCode(false)} />
       )}
 
       {receipt.image_url && (

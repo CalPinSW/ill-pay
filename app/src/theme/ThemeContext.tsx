@@ -19,7 +19,7 @@ const THEME_STORAGE_KEY = '@theme_mode';
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const systemColorScheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  
+
   // Load saved theme preference on mount
   useEffect(() => {
     loadThemePreference();
@@ -46,10 +46,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   // Determine actual theme based on mode and system preference
-  const theme: 'light' | 'dark' = 
-    themeMode === 'system' 
-      ? (systemColorScheme === 'dark' ? 'dark' : 'light')
-      : themeMode;
+  const theme: 'light' | 'dark' =
+    themeMode === 'system' ? (systemColorScheme === 'dark' ? 'dark' : 'light') : themeMode;
 
   const colors = Colors[theme];
 

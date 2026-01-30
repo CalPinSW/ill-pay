@@ -20,7 +20,7 @@ export function UsernameInput({
   editable = true,
 }: UsernameInputProps) {
   const { colors } = useTheme();
-  
+
   const handleChange = (text: string) => {
     // Auto-format: lowercase and filter invalid characters
     const formatted = text.toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -57,7 +57,9 @@ export function UsernameInput({
       {error ? (
         <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
       ) : (
-        <Text style={[styles.hint, { color: colors.textTertiary }]}>Used by friends to find you</Text>
+        <Text style={[styles.hint, { color: colors.textTertiary }]}>
+          Used by friends to find you
+        </Text>
       )}
     </View>
   );

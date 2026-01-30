@@ -47,14 +47,16 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
       // Query friendships where I am the user_id (I sent the request)
       const { data: sentData, error: sentError } = await supabase
         .from('friendships')
-        .select(`
+        .select(
+          `
           id,
           user_id,
           friend_id,
           status,
           created_at,
           friend:profiles!friendships_friend_id_fkey(*)
-        `)
+        `
+        )
         .eq('user_id', user.id)
         .eq('status', 'accepted');
 
@@ -63,14 +65,16 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
       // Query friendships where I am the friend_id (I received/accepted the request)
       const { data: receivedData, error: receivedError } = await supabase
         .from('friendships')
-        .select(`
+        .select(
+          `
           id,
           user_id,
           friend_id,
           status,
           created_at,
           friend:profiles!friendships_user_id_fkey(*)
-        `)
+        `
+        )
         .eq('friend_id', user.id)
         .eq('status', 'accepted');
 
@@ -90,10 +94,10 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
 
       // Combine and deduplicate by friend id
       const allFriends = [...sentFormatted, ...receivedFormatted];
-      const uniqueFriends = allFriends.filter((friend, index, self) =>
-        index === self.findIndex((f) => f.friend?.id === friend.friend?.id)
+      const uniqueFriends = allFriends.filter(
+        (friend, index, self) => index === self.findIndex((f) => f.friend?.id === friend.friend?.id)
       );
-      
+
       setFriends(uniqueFriends as Friendship[]);
     } catch (error) {
       console.error('Error fetching friends:', error);
@@ -169,7 +173,7 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
   };
 
   const renderFriend = ({ item }: { item: Friendship }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.friendItem, { borderBottomColor: colors.border }]}
       onLongPress={() => handleRemoveFriend(item)}
       delayLongPress={500}
@@ -185,12 +189,11 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
         <Text style={[styles.friendName, { color: colors.text }]}>
           {item.friend.display_name || item.friend.username}
         </Text>
-        <Text style={[styles.friendUsername, { color: colors.textSecondary }]}>@{item.friend.username}</Text>
+        <Text style={[styles.friendUsername, { color: colors.textSecondary }]}>
+          @{item.friend.username}
+        </Text>
       </View>
-      <TouchableOpacity 
-        style={styles.removeButton}
-        onPress={() => handleRemoveFriend(item)}
-      >
+      <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveFriend(item)}>
         <Text style={[styles.removeButtonText, { color: colors.textTertiary }]}>✕</Text>
       </TouchableOpacity>
     </TouchableOpacity>
@@ -208,7 +211,10 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -217,7 +223,10 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <Text style={[styles.title, { color: colors.text }]}>Friends</Text>
         <TouchableOpacity onPress={onNavigateToSearch}>
@@ -226,7 +235,10 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
       </View>
 
       {pendingCount > 0 && (
-        <TouchableOpacity style={[styles.requestsBanner, { backgroundColor: colors.backgroundTertiary }]} onPress={onNavigateToRequests}>
+        <TouchableOpacity
+          style={[styles.requestsBanner, { backgroundColor: colors.backgroundTertiary }]}
+          onPress={onNavigateToRequests}
+        >
           <Text style={[styles.requestsText, { color: colors.primary }]}>
             {pendingCount} pending friend request{pendingCount > 1 ? 's' : ''}
           </Text>
@@ -241,7 +253,11 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={friends.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primaryHover} />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primaryHover}
+          />
         }
       />
     </SafeAreaView>

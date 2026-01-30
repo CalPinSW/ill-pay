@@ -7,10 +7,10 @@ interface ErrorStateProps {
   onRetry?: () => void;
 }
 
-export function ErrorState({ 
+export function ErrorState({
   title = 'Something went wrong',
   message = 'Please check your connection and try again.',
-  onRetry 
+  onRetry,
 }: ErrorStateProps) {
   return (
     <View style={styles.container}>

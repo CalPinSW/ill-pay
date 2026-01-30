@@ -20,18 +20,15 @@ export async function signInWithProvider(provider: Provider) {
     if (error) throw error;
     if (!data.url) throw new Error('No OAuth URL returned');
 
-    const result = await WebBrowser.openAuthSessionAsync(
-      data.url,
-      redirectTo
-    );
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
 
     if (result.type === 'success') {
       const { url } = result;
-      
+
       // Extract tokens from the URL fragment or query params
       const hashParams = url.includes('#') ? url.split('#')[1] : '';
       const queryParamsStr = url.includes('?') ? url.split('?')[1]?.split('#')[0] : '';
-      
+
       const params = new URLSearchParams(hashParams || queryParamsStr);
       const accessToken = params.get('access_token');
       const refreshToken = params.get('refresh_token');
@@ -45,7 +42,7 @@ export async function signInWithProvider(provider: Provider) {
         if (sessionError) throw sessionError;
         return { data: sessionData, error: null };
       }
-      
+
       // Check for error in URL
       const errorParam = params.get('error');
       const errorDescription = params.get('error_description');

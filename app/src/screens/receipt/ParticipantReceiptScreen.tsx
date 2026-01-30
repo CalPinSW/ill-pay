@@ -12,7 +12,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
-import { claimItem, unclaimItem, getItemClaims, splitItemBetweenUsers } from '@/services/claimService';
+import {
+  claimItem,
+  unclaimItem,
+  getItemClaims,
+  splitItemBetweenUsers,
+} from '@/services/claimService';
 import { useTheme } from '@/theme';
 
 interface ParticipantReceiptScreenProps {
@@ -96,12 +101,14 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
       // Fetch participants
       const { data: participantsData } = await supabase
         .from('receipt_participants')
-        .select(`
+        .select(
+          `
           user_id,
           profile:profiles(id, username, display_name)
-        `)
+        `
+        )
         .eq('receipt_id', receiptId);
-      
+
       // Also include the owner
       const { data: ownerData } = await supabase
         .from('profiles')
@@ -115,7 +122,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
       }
       (participantsData || []).forEach((p: any) => {
         const profile = Array.isArray(p.profile) ? p.profile[0] : p.profile;
-        if (profile && !allParticipants.find(ap => ap.user_id === p.user_id)) {
+        if (profile && !allParticipants.find((ap) => ap.user_id === p.user_id)) {
           allParticipants.push({ user_id: p.user_id, profile });
         }
       });
@@ -132,10 +139,8 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
     const channel = supabase
       .channel(`claims:${receiptId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'item_claims' },
-        () => fetchData()
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'item_claims' }, () =>
+        fetchData()
       )
       .subscribe();
 
@@ -145,17 +150,15 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
   }, [receiptId, fetchData]);
 
   const getClaimsForItem = (itemId: string) => {
-    return claims.filter(c => c.item_id === itemId);
+    return claims.filter((c) => c.item_id === itemId);
   };
 
   const getMyClaimForItem = (itemId: string) => {
-    return claims.find(c => c.item_id === itemId && c.user_id === currentUserId);
+    return claims.find((c) => c.item_id === itemId && c.user_id === currentUserId);
   };
 
   const getTotalClaimedForItem = (itemId: string) => {
-    return claims
-      .filter(c => c.item_id === itemId)
-      .reduce((sum, c) => sum + c.quantity, 0);
+    return claims.filter((c) => c.item_id === itemId).reduce((sum, c) => sum + c.quantity, 0);
   };
 
   const handleClaim = async (item: ReceiptItem) => {
@@ -212,7 +215,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
   const formatCurrency = (amount: number) => `£${amount.toFixed(2)}`;
 
   const getUnclaimedItems = () => {
-    return items.filter(item => {
+    return items.filter((item) => {
       const totalClaimed = getTotalClaimedForItem(item.id);
       return totalClaimed < item.quantity;
     });
@@ -231,7 +234,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
         const totalClaimed = getTotalClaimedForItem(item.id);
         const myClaim = getMyClaimForItem(item.id);
         const remaining = item.quantity - totalClaimed;
-        
+
         if (remaining > 0) {
           const newQuantity = (myClaim?.quantity || 0) + remaining;
           await claimItem(item.id, newQuantity);
@@ -249,7 +252,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
   const openSplitModal = (item: ReceiptItem) => {
     setSplitItem(item);
     // Pre-select users who already have claims on this item
-    const existingClaimUserIds = getClaimsForItem(item.id).map(c => c.user_id);
+    const existingClaimUserIds = getClaimsForItem(item.id).map((c) => c.user_id);
     if (existingClaimUserIds.length > 0) {
       setSelectedSplitUsers(existingClaimUserIds);
     } else {
@@ -267,7 +270,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
     setClaimingItemId(splitItem.id);
     setSplitModalVisible(false);
-    
+
     try {
       await splitItemBetweenUsers(splitItem.id, selectedSplitUsers);
       await fetchData();
@@ -282,10 +285,8 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
   };
 
   const toggleSplitUser = (userId: string) => {
-    setSelectedSplitUsers(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+    setSelectedSplitUsers((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     );
   };
 
@@ -307,20 +308,44 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
     const isClaimedByOthersOnly = isFullyClaimed && !myClaim;
 
     return (
-      <View key={item.id} style={[styles.itemCard, { backgroundColor: colors.surface, borderColor: colors.border }, isClaimedByOthersOnly && { opacity: 0.5 }]}>
+      <View
+        key={item.id}
+        style={[
+          styles.itemCard,
+          { backgroundColor: colors.surface, borderColor: colors.border },
+          isClaimedByOthersOnly && { opacity: 0.5 },
+        ]}
+      >
         <View style={styles.itemHeader}>
           <View style={styles.itemInfo}>
-            <Text style={[styles.itemName, { color: colors.text }, isClaimedByOthersOnly && { color: colors.textTertiary }]}>{item.name}</Text>
-            <Text style={[styles.itemPrice, { color: colors.textSecondary }, isClaimedByOthersOnly && { color: colors.textTertiary }]}>
-              {item.quantity} × {formatCurrency(item.unit_price)} = {formatCurrency(item.total_price)}
+            <Text
+              style={[
+                styles.itemName,
+                { color: colors.text },
+                isClaimedByOthersOnly && { color: colors.textTertiary },
+              ]}
+            >
+              {item.name}
+            </Text>
+            <Text
+              style={[
+                styles.itemPrice,
+                { color: colors.textSecondary },
+                isClaimedByOthersOnly && { color: colors.textTertiary },
+              ]}
+            >
+              {item.quantity} × {formatCurrency(item.unit_price)} ={' '}
+              {formatCurrency(item.total_price)}
             </Text>
           </View>
           <View style={styles.claimStatus}>
-            <Text style={[
-              styles.claimCount,
-              { color: colors.textSecondary },
-              isFullyClaimed && { color: colors.success }
-            ]}>
+            <Text
+              style={[
+                styles.claimCount,
+                { color: colors.textSecondary },
+                isFullyClaimed && { color: colors.success },
+              ]}
+            >
               {totalClaimed}/{item.quantity}
             </Text>
           </View>
@@ -328,12 +353,23 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
         {itemClaims.length > 0 && (
           <View style={styles.claimsList}>
-            {itemClaims.map(claim => (
-              <View key={claim.id} style={[styles.claimBadge, { backgroundColor: claim.user_id === currentUserId ? colors.primary : colors.backgroundTertiary }]}>
-                <Text style={[
-                  styles.claimBadgeText,
-                  { color: claim.user_id === currentUserId ? colors.textInverse : colors.text }
-                ]}>
+            {itemClaims.map((claim) => (
+              <View
+                key={claim.id}
+                style={[
+                  styles.claimBadge,
+                  {
+                    backgroundColor:
+                      claim.user_id === currentUserId ? colors.primary : colors.backgroundTertiary,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.claimBadgeText,
+                    { color: claim.user_id === currentUserId ? colors.textInverse : colors.text },
+                  ]}
+                >
                   {claim.profile?.display_name || claim.profile?.username || 'Unknown'}
                   {claim.quantity !== 1 && ` ${formatQuantity(claim.quantity)}`}
                 </Text>
@@ -360,7 +396,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
           >
             <Text style={[styles.splitButtonText, { color: colors.primary }]}>Split</Text>
           </TouchableOpacity>
-          
+
           {!isFullyClaimed && (
             <TouchableOpacity
               style={[
@@ -374,9 +410,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
               {isClaiming ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.claimButtonText}>
-                  {myClaim ? `+` : 'Claim'}
-                </Text>
+                <Text style={styles.claimButtonText}>{myClaim ? `+` : 'Claim'}</Text>
               )}
             </TouchableOpacity>
           )}
@@ -396,7 +430,10 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
           <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
@@ -415,7 +452,12 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
           <RefreshControl refreshing={isLoading} onRefresh={fetchData} tintColor={colors.primary} />
         }
       >
-        <Text style={[styles.instructions, { backgroundColor: colors.surface, color: colors.textSecondary }]}>
+        <Text
+          style={[
+            styles.instructions,
+            { backgroundColor: colors.surface, color: colors.textSecondary },
+          ]}
+        >
           Tap items to claim what you ordered
         </Text>
 
@@ -437,17 +479,22 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
         <View style={[styles.summarySection, { backgroundColor: colors.backgroundSecondary }]}>
           <Text style={[styles.summaryTitle, { color: colors.text }]}>Your Claims</Text>
-          {claims.filter(c => c.user_id === currentUserId).length === 0 ? (
-            <Text style={[styles.noClaims, { color: colors.textSecondary }]}>You haven't claimed any items yet</Text>
+          {claims.filter((c) => c.user_id === currentUserId).length === 0 ? (
+            <Text style={[styles.noClaims, { color: colors.textSecondary }]}>
+              You haven't claimed any items yet
+            </Text>
           ) : (
             <View style={styles.myClaimsList}>
               {items
-                .filter(item => getMyClaimForItem(item.id))
-                .map(item => {
+                .filter((item) => getMyClaimForItem(item.id))
+                .map((item) => {
                   const myClaim = getMyClaimForItem(item.id)!;
-                  const myTotal = (item.unit_price * myClaim.quantity);
+                  const myTotal = item.unit_price * myClaim.quantity;
                   return (
-                    <View key={item.id} style={[styles.myClaimRow, { borderBottomColor: colors.border }]}>
+                    <View
+                      key={item.id}
+                      style={[styles.myClaimRow, { borderBottomColor: colors.border }]}
+                    >
                       <Text style={[styles.myClaimName, { color: colors.text }]}>
                         {item.name} × {myClaim.quantity}
                       </Text>
@@ -474,23 +521,27 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
             <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
               {splitItem?.name} - {splitItem && formatCurrency(splitItem.unit_price)}
             </Text>
-            
-            <Text style={[styles.modalLabel, { color: colors.text }]}>Select who to split with:</Text>
-            
+
+            <Text style={[styles.modalLabel, { color: colors.text }]}>
+              Select who to split with:
+            </Text>
+
             <ScrollView style={styles.participantList}>
-              {participants.map(p => (
+              {participants.map((p) => (
                 <TouchableOpacity
                   key={p.user_id}
                   style={[
                     styles.participantItem,
-                    selectedSplitUsers.includes(p.user_id) && styles.participantItemSelected
+                    selectedSplitUsers.includes(p.user_id) && styles.participantItemSelected,
                   ]}
                   onPress={() => toggleSplitUser(p.user_id)}
                 >
-                  <Text style={[
-                    styles.participantName,
-                    selectedSplitUsers.includes(p.user_id) && styles.participantNameSelected
-                  ]}>
+                  <Text
+                    style={[
+                      styles.participantName,
+                      selectedSplitUsers.includes(p.user_id) && styles.participantNameSelected,
+                    ]}
+                  >
                     {p.profile?.display_name || p.profile?.username}
                     {p.user_id === currentUserId && ' (You)'}
                   </Text>
@@ -517,7 +568,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
               <TouchableOpacity
                 style={[
                   styles.modalConfirmButton,
-                  selectedSplitUsers.length < 2 && styles.modalConfirmDisabled
+                  selectedSplitUsers.length < 2 && styles.modalConfirmDisabled,
                 ]}
                 onPress={handleSplit}
                 disabled={selectedSplitUsers.length < 2}

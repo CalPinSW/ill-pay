@@ -21,14 +21,9 @@ export function QRCodeShare({ shareCode, onClose }: QRCodeShareProps) {
     <View style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Share Receipt</Text>
-        
+
         <View style={styles.qrContainer}>
-          <QRCode
-            value={deepLink}
-            size={200}
-            backgroundColor="#fff"
-            color="#000"
-          />
+          <QRCode value={deepLink} size={200} backgroundColor="#fff" color="#000" />
         </View>
 
         <View style={styles.codeContainer}>
@@ -36,9 +31,7 @@ export function QRCodeShare({ shareCode, onClose }: QRCodeShareProps) {
           <Text style={styles.code}>{shareCode}</Text>
         </View>
 
-        <Text style={styles.instructions}>
-          Scan this QR code or enter the code to join
-        </Text>
+        <Text style={styles.instructions}>Scan this QR code or enter the code to join</Text>
 
         <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
           <Text style={styles.shareButtonText}>Share Link</Text>

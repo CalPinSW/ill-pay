@@ -18,34 +18,34 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
 
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     if (scanned || isProcessing) return;
-    
+
     setScanned(true);
     setIsProcessing(true);
 
     try {
       let shareCode = data.trim();
-      
+
       // Extract share code from deep link
       if (shareCode.includes('illpay://join/')) {
         shareCode = shareCode.split('illpay://join/')[1];
       }
-      
+
       // Clean up share code - remove any trailing slashes or whitespace
       shareCode = shareCode.replace(/[\/\s]/g, '').toUpperCase();
 
       if (!shareCode || shareCode.length < 4 || shareCode.length > 10) {
         Alert.alert('Invalid Code', 'This QR code is not a valid receipt share code.', [
-          { text: 'OK', onPress: () => setScanned(false) }
+          { text: 'OK', onPress: () => setScanned(false) },
         ]);
         setIsProcessing(false);
         return;
       }
 
       const receipt = await getReceiptByShareCode(shareCode);
-      
+
       if (!receipt) {
         Alert.alert('Not Found', 'No receipt found with that share code.', [
-          { text: 'OK', onPress: () => setScanned(false) }
+          { text: 'OK', onPress: () => setScanned(false) },
         ]);
         setIsProcessing(false);
         return;
@@ -55,12 +55,11 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
       onJoinSuccess(receipt.id);
     } catch (error: any) {
       console.error('Error joining receipt:', error);
-      const message = error.code === 'PGRST116' 
-        ? 'No receipt found with that share code.'
-        : 'Failed to join receipt. Please try again.';
-      Alert.alert('Error', message, [
-        { text: 'OK', onPress: () => setScanned(false) }
-      ]);
+      const message =
+        error.code === 'PGRST116'
+          ? 'No receipt found with that share code.'
+          : 'Failed to join receipt. Please try again.';
+      Alert.alert('Error', message, [{ text: 'OK', onPress: () => setScanned(false) }]);
       setIsProcessing(false);
     }
   };
@@ -69,7 +68,9 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.centerContent}>
-          <Text style={[styles.message, { color: colors.text }]}>Requesting camera permission...</Text>
+          <Text style={[styles.message, { color: colors.text }]}>
+            Requesting camera permission...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -86,8 +87,13 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
           <View style={styles.headerButton} />
         </View>
         <View style={styles.centerContent}>
-          <Text style={[styles.message, { color: colors.text }]}>Camera permission is required to scan QR codes</Text>
-          <TouchableOpacity style={[styles.permissionButton, { backgroundColor: colors.primary }]} onPress={requestPermission}>
+          <Text style={[styles.message, { color: colors.text }]}>
+            Camera permission is required to scan QR codes
+          </Text>
+          <TouchableOpacity
+            style={[styles.permissionButton, { backgroundColor: colors.primary }]}
+            onPress={requestPermission}
+          >
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </TouchableOpacity>
         </View>
@@ -96,7 +102,10 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
           <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
@@ -115,9 +124,7 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
         />
         <View style={styles.overlay}>
           <View style={styles.scanFrame} />
-          <Text style={styles.hint}>
-            Point camera at a receipt QR code
-          </Text>
+          <Text style={styles.hint}>Point camera at a receipt QR code</Text>
         </View>
       </View>
 

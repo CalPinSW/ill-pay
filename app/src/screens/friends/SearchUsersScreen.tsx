@@ -29,29 +29,32 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
 
-  const searchUsers = useCallback(async (query: string) => {
-    if (!query.trim() || !user) {
-      setResults([]);
-      return;
-    }
+  const searchUsers = useCallback(
+    async (query: string) => {
+      if (!query.trim() || !user) {
+        setResults([]);
+        return;
+      }
 
-    setIsSearching(true);
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
-        .neq('id', user.id)
-        .limit(20);
+      setIsSearching(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+          .neq('id', user.id)
+          .limit(20);
 
-      if (error) throw error;
-      setResults(data as Profile[]);
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [user]);
+        if (error) throw error;
+        setResults(data as Profile[]);
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    },
+    [user]
+  );
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -132,11 +135,19 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
           </View>
         )}
         <View style={styles.userInfo}>
-          <Text style={[styles.userName, { color: colors.text }]}>{item.display_name || item.username}</Text>
-          <Text style={[styles.userUsername, { color: colors.textSecondary }]}>@{item.username}</Text>
+          <Text style={[styles.userName, { color: colors.text }]}>
+            {item.display_name || item.username}
+          </Text>
+          <Text style={[styles.userUsername, { color: colors.textSecondary }]}>
+            @{item.username}
+          </Text>
         </View>
         <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: hasSentRequest ? colors.backgroundTertiary : colors.primary }, hasSentRequest && styles.addButtonDisabled]}
+          style={[
+            styles.addButton,
+            { backgroundColor: hasSentRequest ? colors.backgroundTertiary : colors.primary },
+            hasSentRequest && styles.addButtonDisabled,
+          ]}
           onPress={() => sendFriendRequest(item.id)}
           disabled={hasSentRequest}
         >
@@ -167,13 +178,18 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={[styles.emptyText, { color: colors.text }]}>No users found</Text>
-        <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>Try a different search term</Text>
+        <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
+          Try a different search term
+        </Text>
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onGoBack}>
           <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
@@ -184,7 +200,10 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
 
       <View style={styles.searchContainer}>
         <TextInput
-          style={[styles.searchInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+          style={[
+            styles.searchInput,
+            { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text },
+          ]}
           placeholder="Search by username or name..."
           placeholderTextColor={colors.inputPlaceholder}
           value={searchQuery}
@@ -192,9 +211,7 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
           autoCapitalize="none"
           autoCorrect={false}
         />
-        {isSearching && (
-          <ActivityIndicator style={styles.searchIndicator} color={colors.primary} />
-        )}
+        {isSearching && <ActivityIndicator style={styles.searchIndicator} color={colors.primary} />}
       </View>
 
       <FlatList

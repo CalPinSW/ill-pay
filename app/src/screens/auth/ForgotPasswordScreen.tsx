@@ -51,7 +51,10 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
             We've sent a password reset link to {email}. Please check your inbox and follow the
             instructions.
           </Text>
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={onNavigateToSignIn}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.primary }]}
+            onPress={onNavigateToSignIn}
+          >
             <Text style={styles.buttonText}>Back to Sign In</Text>
           </TouchableOpacity>
         </View>
@@ -64,10 +67,7 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Reset Password</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -79,7 +79,14 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Email</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="you@example.com"
               placeholderTextColor={colors.inputPlaceholder}
               value={email}
@@ -91,7 +98,11 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
           </View>
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              { backgroundColor: colors.primary },
+              isLoading && styles.buttonDisabled,
+            ]}
             onPress={handleResetPassword}
             disabled={isLoading}
           >
@@ -104,7 +115,9 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Remember your password?</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+            Remember your password?
+          </Text>
           <TouchableOpacity onPress={onNavigateToSignIn}>
             <Text style={[styles.linkText, { color: colors.primary }]}>Sign In</Text>
           </TouchableOpacity>

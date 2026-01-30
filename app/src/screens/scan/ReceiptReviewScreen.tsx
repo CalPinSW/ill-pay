@@ -107,7 +107,10 @@ export function ReceiptReviewScreen({
     const nextDrafts = [...itemDrafts];
     const current = nextDrafts[index]?.quantity ?? '';
     const qty = current === '' ? 0 : parseInt(current, 10);
-    nextDrafts[index] = { ...nextDrafts[index], quantity: (Number.isFinite(qty) ? qty : 0).toString() };
+    nextDrafts[index] = {
+      ...nextDrafts[index],
+      quantity: (Number.isFinite(qty) ? qty : 0).toString(),
+    };
     setItemDrafts(nextDrafts);
   };
 
@@ -186,7 +189,10 @@ export function ReceiptReviewScreen({
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -205,7 +211,14 @@ export function ReceiptReviewScreen({
             <View style={styles.inputRow}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Restaurant</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  },
+                ]}
                 value={restaurantName}
                 onChangeText={setRestaurantName}
                 placeholder="Restaurant name"
@@ -235,10 +248,23 @@ export function ReceiptReviewScreen({
             </View>
 
             {items.map((item, index) => (
-              <View key={index} style={[styles.itemCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <View
+                key={index}
+                style={[
+                  styles.itemCard,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                ]}
+              >
                 <View style={styles.itemHeader}>
                   <TextInput
-                    style={[styles.itemNameInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                    style={[
+                      styles.itemNameInput,
+                      {
+                        backgroundColor: colors.input,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      },
+                    ]}
                     value={item.name}
                     onChangeText={(v) => updateItemName(index, v)}
                     placeholder="Item name"
@@ -252,7 +278,14 @@ export function ReceiptReviewScreen({
                   <View style={styles.itemField}>
                     <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>Qty</Text>
                     <TextInput
-                      style={[styles.itemInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                      style={[
+                        styles.itemInput,
+                        {
+                          backgroundColor: colors.input,
+                          borderColor: colors.inputBorder,
+                          color: colors.text,
+                        },
+                      ]}
                       value={itemDrafts[index]?.quantity ?? item.quantity.toString()}
                       onChangeText={(v) => updateItemQuantityText(index, v)}
                       onBlur={() => blurItemQuantity(index)}
@@ -263,7 +296,14 @@ export function ReceiptReviewScreen({
                   <View style={styles.itemField}>
                     <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>Unit $</Text>
                     <TextInput
-                      style={[styles.itemInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                      style={[
+                        styles.itemInput,
+                        {
+                          backgroundColor: colors.input,
+                          borderColor: colors.inputBorder,
+                          color: colors.text,
+                        },
+                      ]}
                       value={itemDrafts[index]?.unit_price ?? item.unit_price.toFixed(2)}
                       onChangeText={(v) => updateItemUnitPriceText(index, v)}
                       onBlur={() => blurItemUnitPrice(index)}
@@ -273,14 +313,18 @@ export function ReceiptReviewScreen({
                   </View>
                   <View style={styles.itemField}>
                     <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>Total</Text>
-                    <Text style={[styles.itemTotal, { color: colors.text }]}>${item.total_price.toFixed(2)}</Text>
+                    <Text style={[styles.itemTotal, { color: colors.text }]}>
+                      ${item.total_price.toFixed(2)}
+                    </Text>
                   </View>
                 </View>
               </View>
             ))}
 
             {items.length === 0 && (
-              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No items. Tap "+ Add Item" to add one.</Text>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                No items. Tap "+ Add Item" to add one.
+              </Text>
             )}
           </View>
 
@@ -288,12 +332,21 @@ export function ReceiptReviewScreen({
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Totals</Text>
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Subtotal</Text>
-              <Text style={[styles.totalInput, { color: colors.text }]}>{computedSubtotal.toFixed(2)}</Text>
+              <Text style={[styles.totalInput, { color: colors.text }]}>
+                {computedSubtotal.toFixed(2)}
+              </Text>
             </View>
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Tax</Text>
               <TextInput
-                style={[styles.totalInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                style={[
+                  styles.totalInput,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  },
+                ]}
                 value={tax}
                 onChangeText={setTax}
                 placeholder="0.00"
@@ -304,7 +357,14 @@ export function ReceiptReviewScreen({
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Tip</Text>
               <TextInput
-                style={[styles.totalInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                style={[
+                  styles.totalInput,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  },
+                ]}
                 value={tip}
                 onChangeText={setTip}
                 placeholder="0.00"
@@ -312,16 +372,29 @@ export function ReceiptReviewScreen({
                 keyboardType="decimal-pad"
               />
             </View>
-            <View style={[styles.totalRow, styles.grandTotalRow, { borderTopColor: colors.border }]}>
+            <View
+              style={[styles.totalRow, styles.grandTotalRow, { borderTopColor: colors.border }]}
+            >
               <Text style={[styles.grandTotalLabel, { color: colors.text }]}>Total</Text>
-              <Text style={[styles.totalInput, styles.grandTotalInput, { color: colors.text }]}>{computedTotal.toFixed(2)}</Text>
+              <Text style={[styles.totalInput, styles.grandTotalInput, { color: colors.text }]}>
+                {computedTotal.toFixed(2)}
+              </Text>
             </View>
           </View>
         </ScrollView>
 
-        <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
+        <View
+          style={[
+            styles.footer,
+            { backgroundColor: colors.background, borderTopColor: colors.border },
+          ]}
+        >
           <TouchableOpacity
-            style={[styles.confirmButton, { backgroundColor: colors.primary }, isSubmitting && styles.buttonDisabled]}
+            style={[
+              styles.confirmButton,
+              { backgroundColor: colors.primary },
+              isSubmitting && styles.buttonDisabled,
+            ]}
             onPress={handleConfirm}
             disabled={isSubmitting}
           >

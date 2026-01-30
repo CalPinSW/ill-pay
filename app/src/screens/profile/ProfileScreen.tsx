@@ -61,7 +61,7 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      
+
       setPasswordModalVisible(false);
       setNewPassword('');
       setConfirmPassword('');
@@ -87,27 +87,29 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
 
   const getThemeLabel = () => {
     switch (themeMode) {
-      case 'light': return 'Light';
-      case 'dark': return 'Dark';
-      case 'system': return 'System';
+      case 'light':
+        return 'Light';
+      case 'dark':
+        return 'Dark';
+      case 'system':
+        return 'System';
     }
   };
 
   const handleThemePress = () => {
-    Alert.alert(
-      'Appearance',
-      'Choose your preferred theme',
-      [
-        { text: 'System', onPress: () => setThemeMode('system') },
-        { text: 'Light', onPress: () => setThemeMode('light') },
-        { text: 'Dark', onPress: () => setThemeMode('dark') },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+    Alert.alert('Appearance', 'Choose your preferred theme', [
+      { text: 'System', onPress: () => setThemeMode('system') },
+      { text: 'Light', onPress: () => setThemeMode('light') },
+      { text: 'Dark', onPress: () => setThemeMode('dark') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           {profile?.avatar_url ? (
@@ -120,28 +122,41 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
           <Text style={[styles.displayName, { color: colors.text }]}>
             {profile?.display_name || profile?.username || 'User'}
           </Text>
-          <Text style={[styles.username, { color: colors.textSecondary }]}>@{profile?.username}</Text>
+          <Text style={[styles.username, { color: colors.textSecondary }]}>
+            @{profile?.username}
+          </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>Account</Text>
 
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]} onPress={onEditProfile}>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: colors.border }]}
+            onPress={onEditProfile}
+          >
             <Text style={[styles.menuItemText, { color: colors.text }]}>Edit Profile</Text>
             <Text style={[styles.menuItemArrow, { color: colors.textSecondary }]}>›</Text>
           </TouchableOpacity>
 
           {isEmailUser && (
-            <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]} onPress={() => setPasswordModalVisible(true)}>
+            <TouchableOpacity
+              style={[styles.menuItem, { borderBottomColor: colors.border }]}
+              onPress={() => setPasswordModalVisible(true)}
+            >
               <Text style={[styles.menuItemText, { color: colors.text }]}>Change Password</Text>
               <Text style={[styles.menuItemArrow, { color: colors.textSecondary }]}>›</Text>
             </TouchableOpacity>
           )}
 
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]} onPress={handleThemePress}>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: colors.border }]}
+            onPress={handleThemePress}
+          >
             <Text style={[styles.menuItemText, { color: colors.text }]}>Appearance</Text>
             <View style={styles.menuItemRight}>
-              <Text style={[styles.menuItemValue, { color: colors.textSecondary }]}>{getThemeLabel()}</Text>
+              <Text style={[styles.menuItemValue, { color: colors.textSecondary }]}>
+                {getThemeLabel()}
+              </Text>
               <Text style={[styles.menuItemArrow, { color: colors.textSecondary }]}>›</Text>
             </View>
           </TouchableOpacity>
@@ -161,9 +176,11 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
             />
           </View>
 
-          <TouchableOpacity 
-            style={[styles.menuItem, { borderBottomColor: colors.border }]} 
-            onPress={() => Linking.openURL('https://github.com/CalPinSW/ill-pay/blob/main/PRIVACY_POLICY.md')}
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: colors.border }]}
+            onPress={() =>
+              Linking.openURL('https://github.com/CalPinSW/ill-pay/blob/main/PRIVACY_POLICY.md')
+            }
           >
             <Text style={[styles.menuItemText, { color: colors.text }]}>Privacy Policy</Text>
             <Text style={[styles.menuItemArrow, { color: colors.textSecondary }]}>›</Text>
@@ -173,7 +190,7 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>Support</Text>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: colors.border }]}
             onPress={() => Linking.openURL('mailto:support@illpay.app?subject=Help%20Request')}
           >
@@ -181,13 +198,19 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
             <Text style={[styles.menuItemArrow, { color: colors.textSecondary }]}>›</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.menuItem, { borderBottomColor: colors.border }]} onPress={onAbout}>
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomColor: colors.border }]}
+            onPress={onAbout}
+          >
             <Text style={[styles.menuItemText, { color: colors.text }]}>About</Text>
             <Text style={[styles.menuItemArrow, { color: colors.textSecondary }]}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={[styles.signOutButton, { backgroundColor: colors.error }]} onPress={handleSignOut}>
+        <TouchableOpacity
+          style={[styles.signOutButton, { backgroundColor: colors.error }]}
+          onPress={handleSignOut}
+        >
           <Text style={styles.signOutText}>Sign Out</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -198,17 +221,24 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
         transparent={true}
         onRequestClose={() => setPasswordModalVisible(false)}
       >
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
             <Text style={[styles.modalTitle, { color: colors.text }]}>Change Password</Text>
-            
+
             <View style={styles.inputContainer}>
               <Text style={[styles.inputLabel, { color: colors.text }]}>New Password</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  },
+                ]}
                 placeholder="At least 6 characters"
                 placeholderTextColor={colors.inputPlaceholder}
                 value={newPassword}
@@ -221,7 +251,14 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
             <View style={styles.inputContainer}>
               <Text style={[styles.inputLabel, { color: colors.text }]}>Confirm Password</Text>
               <TextInput
-                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  },
+                ]}
                 placeholder="Re-enter your password"
                 placeholderTextColor={colors.inputPlaceholder}
                 value={confirmPassword}
@@ -243,7 +280,11 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
                 <Text style={[styles.modalCancelText, { color: colors.text }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modalConfirmButton, { backgroundColor: colors.primary }, isChangingPassword && styles.modalConfirmDisabled]}
+                style={[
+                  styles.modalConfirmButton,
+                  { backgroundColor: colors.primary },
+                  isChangingPassword && styles.modalConfirmDisabled,
+                ]}
                 onPress={handleChangePassword}
                 disabled={isChangingPassword}
               >

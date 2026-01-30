@@ -16,39 +16,35 @@ export class RateLimitExceededError extends Error {
 }
 
 async function compressImage(uri: string): Promise<string> {
-  const result = await ImageManipulator.manipulateAsync(
-    uri,
-    [{ resize: { width: 1200 } }],
-    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG, base64: true }
-  );
+  const result = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1200 } }], {
+    compress: 0.7,
+    format: ImageManipulator.SaveFormat.JPEG,
+    base64: true,
+  });
   return result.base64 || '';
 }
 
 export async function uploadReceiptImage(imageUri: string): Promise<string> {
   const fileName = `receipt_${Date.now()}.jpg`;
-  
+
   const base64 = await readAsStringAsync(imageUri, {
     encoding: 'base64',
   });
 
-  const { data, error } = await supabase.storage
-    .from('receipts')
-    .upload(fileName, decode(base64), {
-      contentType: 'image/jpeg',
-    });
+  const { data, error } = await supabase.storage.from('receipts').upload(fileName, decode(base64), {
+    contentType: 'image/jpeg',
+  });
 
   if (error) throw error;
 
-  const { data: urlData } = supabase.storage
-    .from('receipts')
-    .getPublicUrl(data.path);
+  const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(data.path);
 
   return urlData.publicUrl;
 }
 
 export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt> {
   const base64 = await compressImage(imageUri);
-  
+
   const sizeMB = (base64.length * 0.75) / (1024 * 1024);
   if (sizeMB > 4) {
     throw new Error('Image too large. Please take a closer photo of the receipt.');
@@ -73,20 +69,20 @@ export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt
 
     throw error;
   }
-  
+
   if (data?.error) {
     throw new Error(data.error);
   }
-  
+
   // Combine items with the same name and unit price
   const parsedData = data as ParsedReceipt;
   if (parsedData.items && parsedData.items.length > 0) {
-    const itemMap = new Map<string, typeof parsedData.items[0]>();
-    
+    const itemMap = new Map<string, (typeof parsedData.items)[0]>();
+
     for (const item of parsedData.items) {
       const key = `${item.name.toLowerCase().trim()}|${item.unit_price}`;
       const existing = itemMap.get(key);
-      
+
       if (existing) {
         existing.quantity += item.quantity;
         existing.total_price += item.total_price;
@@ -94,10 +90,10 @@ export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt
         itemMap.set(key, { ...item });
       }
     }
-    
+
     parsedData.items = Array.from(itemMap.values());
   }
-  
+
   return parsedData;
 }
 
@@ -135,9 +131,7 @@ export async function createReceipt(
       total_price: item.total_price,
     }));
 
-    const { error: itemsError } = await supabase
-      .from('receipt_items')
-      .insert(itemsToInsert);
+    const { error: itemsError } = await supabase.from('receipt_items').insert(itemsToInsert);
 
     if (itemsError) throw itemsError;
   }
@@ -165,14 +159,8 @@ export async function getReceiptWithItems(receiptId: string) {
   return { ...receipt, items } as Receipt & { items: ReceiptItem[] };
 }
 
-export async function updateReceiptItems(
-  receiptId: string,
-  items: ReceiptItem[]
-): Promise<void> {
-  await supabase
-    .from('receipt_items')
-    .delete()
-    .eq('receipt_id', receiptId);
+export async function updateReceiptItems(receiptId: string, items: ReceiptItem[]): Promise<void> {
+  await supabase.from('receipt_items').delete().eq('receipt_id', receiptId);
 
   if (items.length > 0) {
     const itemsToInsert = items.map((item) => ({
@@ -183,9 +171,7 @@ export async function updateReceiptItems(
       total_price: item.total_price,
     }));
 
-    const { error } = await supabase
-      .from('receipt_items')
-      .insert(itemsToInsert);
+    const { error } = await supabase.from('receipt_items').insert(itemsToInsert);
 
     if (error) throw error;
   }

@@ -50,20 +50,26 @@ export function SignInScreen({
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Welcome Back</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Sign in to continue splitting bills</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Sign in to continue splitting bills
+          </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Email</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="you@example.com"
               placeholderTextColor={colors.inputPlaceholder}
               value={email}
@@ -77,7 +83,14 @@ export function SignInScreen({
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Password</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="Enter your password"
               placeholderTextColor={colors.inputPlaceholder}
               value={password}
@@ -87,15 +100,18 @@ export function SignInScreen({
             />
           </View>
 
-          <TouchableOpacity
-            style={styles.forgotPassword}
-            onPress={onNavigateToForgotPassword}
-          >
-            <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>Forgot password?</Text>
+          <TouchableOpacity style={styles.forgotPassword} onPress={onNavigateToForgotPassword}>
+            <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>
+              Forgot password?
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              { backgroundColor: colors.primary },
+              isLoading && styles.buttonDisabled,
+            ]}
             onPress={handleSignIn}
             disabled={isLoading || socialLoading !== null}
           >
@@ -108,13 +124,19 @@ export function SignInScreen({
 
           <View style={styles.divider}>
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-            <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or continue with</Text>
+            <Text style={[styles.dividerText, { color: colors.textTertiary }]}>
+              or continue with
+            </Text>
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
           <View style={styles.socialButtons}>
             <TouchableOpacity
-              style={[styles.socialButton, { backgroundColor: colors.surface, borderColor: colors.border }, socialLoading === 'google' && styles.buttonDisabled]}
+              style={[
+                styles.socialButton,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+                socialLoading === 'google' && styles.buttonDisabled,
+              ]}
               onPress={async () => {
                 setSocialLoading('google');
                 const { error } = await signInWithSocial('google');
@@ -132,7 +154,11 @@ export function SignInScreen({
 
             {Platform.OS === 'ios' && (
               <TouchableOpacity
-                style={[styles.socialButton, styles.appleButton, socialLoading === 'apple' && styles.buttonDisabled]}
+                style={[
+                  styles.socialButton,
+                  styles.appleButton,
+                  socialLoading === 'apple' && styles.buttonDisabled,
+                ]}
                 onPress={async () => {
                   setSocialLoading('apple');
                   const { error } = await signInWithSocial('apple');
@@ -152,7 +178,9 @@ export function SignInScreen({
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Don't have an account?</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+            Don't have an account?
+          </Text>
           <TouchableOpacity onPress={onNavigateToSignUp}>
             <Text style={[styles.linkText, { color: colors.primary }]}>Sign Up</Text>
           </TouchableOpacity>

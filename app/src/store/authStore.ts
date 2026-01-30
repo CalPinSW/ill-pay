@@ -3,12 +3,16 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/services/supabase';
 import { AuthState, Profile, SignUpCredentials, SignInCredentials } from '@/types/auth';
 
-function withTimeout<T>(promise: Promise<T> | PromiseLike<T>, ms: number, operation: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T> | PromiseLike<T>,
+  ms: number,
+  operation: string
+): Promise<T> {
   return Promise.race([
     Promise.resolve(promise),
-    new Promise<T>((_, reject) => 
+    new Promise<T>((_, reject) =>
       setTimeout(() => reject(new Error(`${operation} timed out after ${ms}ms`)), ms)
-    )
+    ),
   ]);
 }
 
@@ -129,14 +133,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       const { signInWithProvider } = await import('@/services/socialAuthService');
       const { data, error } = await signInWithProvider(provider);
-      
+
       if (error) throw error;
-      
+
       // Fetch profile after setSession completes (session is already persisted)
       if (data?.session?.user) {
         await get().fetchProfile(data.session.user.id);
       }
-      
+
       return { error: null };
     } catch (error) {
       console.error('Social sign in error:', error);
@@ -147,13 +151,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   signOut: async () => {
     try {
       set({ isLoading: true });
-      
+
       try {
         await withTimeout(supabase.auth.signOut(), 5000, 'signOut');
       } catch (timeoutError) {
         console.error('Sign out timeout, clearing local state:', timeoutError);
       }
-      
+
       set({ user: null, session: null, profile: null });
     } catch (error) {
       console.error('Sign out error:', error);

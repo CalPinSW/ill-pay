@@ -8,10 +8,7 @@ export interface ItemClaim {
   created_at: string;
 }
 
-export async function claimItem(
-  itemId: string,
-  quantity: number
-): Promise<ItemClaim> {
+export async function claimItem(itemId: string, quantity: number): Promise<ItemClaim> {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) throw new Error('Not authenticated');
 
@@ -69,18 +66,20 @@ export async function getItemClaims(receiptId: string) {
 
   if (!items || items.length === 0) return [];
 
-  const itemIds = items.map(i => i.id);
+  const itemIds = items.map((i) => i.id);
 
   const { data, error } = await supabase
     .from('item_claims')
-    .select(`
+    .select(
+      `
       id,
       item_id,
       user_id,
       quantity,
       created_at,
       profile:profiles(id, username, display_name, avatar_url)
-    `)
+    `
+    )
     .in('item_id', itemIds);
 
   if (error) throw error;
@@ -102,7 +101,7 @@ export async function getMyClaimsForReceipt(receiptId: string) {
 
   if (!items || items.length === 0) return [];
 
-  const itemIds = items.map(i => i.id);
+  const itemIds = items.map((i) => i.id);
 
   const { data, error } = await supabase
     .from('item_claims')
@@ -118,33 +117,24 @@ export async function getMyClaimsForReceipt(receiptId: string) {
  * Split an item equally between multiple users.
  * Each user gets 1/N share of one unit of the item.
  */
-export async function splitItemBetweenUsers(
-  itemId: string,
-  userIds: string[]
-): Promise<void> {
+export async function splitItemBetweenUsers(itemId: string, userIds: string[]): Promise<void> {
   if (userIds.length === 0) return;
 
   const sharePerUser = 1 / userIds.length;
 
   // Delete existing claims for this item from these users
   for (const userId of userIds) {
-    await supabase
-      .from('item_claims')
-      .delete()
-      .eq('item_id', itemId)
-      .eq('user_id', userId);
+    await supabase.from('item_claims').delete().eq('item_id', itemId).eq('user_id', userId);
   }
 
   // Create new claims with equal shares
-  const claims = userIds.map(userId => ({
+  const claims = userIds.map((userId) => ({
     item_id: itemId,
     user_id: userId,
     quantity: sharePerUser,
   }));
 
-  const { error } = await supabase
-    .from('item_claims')
-    .insert(claims);
+  const { error } = await supabase.from('item_claims').insert(claims);
 
   if (error) throw error;
 }

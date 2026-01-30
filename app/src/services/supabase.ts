@@ -8,24 +8,24 @@ const CHUNK_SIZE = 1800; // Leave some headroom
 const ExpoSecureStoreAdapter = {
   getItem: async (key: string): Promise<string | null> => {
     const chunkCountStr = await SecureStore.getItemAsync(`${key}_chunks`);
-    
+
     if (chunkCountStr) {
       // Value was chunked
       const chunkCount = parseInt(chunkCountStr, 10);
       const chunks: string[] = [];
-      
+
       for (let i = 0; i < chunkCount; i++) {
         const chunk = await SecureStore.getItemAsync(`${key}_chunk_${i}`);
         if (chunk) chunks.push(chunk);
       }
-      
+
       return chunks.join('');
     }
-    
+
     // Try regular storage (for small values or migration)
     return SecureStore.getItemAsync(key);
   },
-  
+
   setItem: async (key: string, value: string): Promise<void> => {
     // First, clean up any existing chunks
     const existingChunks = await SecureStore.getItemAsync(`${key}_chunks`);
@@ -36,10 +36,10 @@ const ExpoSecureStoreAdapter = {
       }
       await SecureStore.deleteItemAsync(`${key}_chunks`);
     }
-    
+
     // Also clean up non-chunked version if it exists
     await SecureStore.deleteItemAsync(key);
-    
+
     if (value.length <= CHUNK_SIZE) {
       // Small enough to store directly
       await SecureStore.setItemAsync(key, value);
@@ -49,17 +49,17 @@ const ExpoSecureStoreAdapter = {
       for (let i = 0; i < value.length; i += CHUNK_SIZE) {
         chunks.push(value.slice(i, i + CHUNK_SIZE));
       }
-      
+
       // Store chunk count
       await SecureStore.setItemAsync(`${key}_chunks`, chunks.length.toString());
-      
+
       // Store each chunk
       for (let i = 0; i < chunks.length; i++) {
         await SecureStore.setItemAsync(`${key}_chunk_${i}`, chunks[i]);
       }
     }
   },
-  
+
   removeItem: async (key: string): Promise<void> => {
     // Remove chunked data if it exists
     const chunkCountStr = await SecureStore.getItemAsync(`${key}_chunks`);
@@ -70,7 +70,7 @@ const ExpoSecureStoreAdapter = {
       }
       await SecureStore.deleteItemAsync(`${key}_chunks`);
     }
-    
+
     // Also remove non-chunked version
     await SecureStore.deleteItemAsync(key);
   },
@@ -78,8 +78,7 @@ const ExpoSecureStoreAdapter = {
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseKey =
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(

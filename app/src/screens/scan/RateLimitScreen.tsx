@@ -11,9 +11,12 @@ interface RateLimitScreenProps {
 
 export function RateLimitScreen({ limit, count, onBack }: RateLimitScreenProps) {
   const { colors } = useTheme();
-  
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>Daily limit reached</Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -21,7 +24,10 @@ export function RateLimitScreen({ limit, count, onBack }: RateLimitScreenProps) 
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Try again tomorrow.</Text>
 
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={onBack}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.primary }]}
+          onPress={onBack}
+        >
           <Text style={styles.buttonText}>Back to Scan</Text>
         </TouchableOpacity>
       </View>

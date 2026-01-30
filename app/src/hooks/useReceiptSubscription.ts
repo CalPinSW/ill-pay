@@ -41,29 +41,32 @@ export function useReceiptSubscription(receiptId: string) {
   const fetchData = useCallback(async () => {
     try {
       const [itemsResult, participantsResult, claimsResult] = await Promise.all([
-        supabase
-          .from('receipt_items')
-          .select('*')
-          .eq('receipt_id', receiptId)
-          .order('created_at'),
+        supabase.from('receipt_items').select('*').eq('receipt_id', receiptId).order('created_at'),
         supabase
           .from('receipt_participants')
-          .select(`
+          .select(
+            `
             user_id,
             joined_at,
             profile:profiles(id, username, display_name, avatar_url)
-          `)
+          `
+          )
           .eq('receipt_id', receiptId),
         supabase
           .from('item_claims')
-          .select(`
+          .select(
+            `
             id,
             item_id,
             user_id,
             quantity,
             profile:profiles(id, username, display_name)
-          `)
-          .in('item_id', items.map(i => i.id)),
+          `
+          )
+          .in(
+            'item_id',
+            items.map((i) => i.id)
+          ),
       ]);
 
       if (itemsResult.data) setItems(itemsResult.data);

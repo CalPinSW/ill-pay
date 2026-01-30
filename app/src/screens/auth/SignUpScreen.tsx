@@ -78,20 +78,26 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
       style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Join I'll Pay to split bills with friends</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Join I'll Pay to split bills with friends
+          </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Email *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="you@example.com"
               placeholderTextColor={colors.inputPlaceholder}
               value={email}
@@ -112,15 +118,19 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
             required
           />
 
-          <DisplayNameInput
-            value={displayName}
-            onChangeText={setDisplayName}
-          />
+          <DisplayNameInput value={displayName} onChangeText={setDisplayName} />
 
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Password *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="At least 6 characters"
               placeholderTextColor={colors.inputPlaceholder}
               value={password}
@@ -133,7 +143,14 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           <View style={styles.inputContainer}>
             <Text style={[styles.label, { color: colors.text }]}>Confirm Password *</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                },
+              ]}
               placeholder="Re-enter your password"
               placeholderTextColor={colors.inputPlaceholder}
               value={confirmPassword}
@@ -144,7 +161,11 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              { backgroundColor: colors.primary },
+              isLoading && styles.buttonDisabled,
+            ]}
             onPress={handleSignUp}
             disabled={isLoading || socialLoading !== null}
           >
@@ -157,13 +178,19 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
 
           <View style={styles.divider}>
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
-            <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or sign up with</Text>
+            <Text style={[styles.dividerText, { color: colors.textTertiary }]}>
+              or sign up with
+            </Text>
             <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
           <View style={styles.socialButtons}>
             <TouchableOpacity
-              style={[styles.socialButton, { backgroundColor: colors.surface, borderColor: colors.border }, socialLoading === 'google' && styles.buttonDisabled]}
+              style={[
+                styles.socialButton,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+                socialLoading === 'google' && styles.buttonDisabled,
+              ]}
               onPress={async () => {
                 setSocialLoading('google');
                 const { error } = await signInWithSocial('google');
@@ -181,7 +208,11 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
 
             {Platform.OS === 'ios' && (
               <TouchableOpacity
-                style={[styles.socialButton, styles.appleButton, socialLoading === 'apple' && styles.buttonDisabled]}
+                style={[
+                  styles.socialButton,
+                  styles.appleButton,
+                  socialLoading === 'apple' && styles.buttonDisabled,
+                ]}
                 onPress={async () => {
                   setSocialLoading('apple');
                   const { error } = await signInWithSocial('apple');
@@ -201,7 +232,9 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
         </View>
 
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Already have an account?</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+            Already have an account?
+          </Text>
           <TouchableOpacity onPress={onNavigateToSignIn}>
             <Text style={[styles.linkText, { color: colors.primary }]}>Sign In</Text>
           </TouchableOpacity>

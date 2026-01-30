@@ -8,11 +8,11 @@ interface LoadingSkeletonProps {
   style?: ViewStyle;
 }
 
-export function LoadingSkeleton({ 
-  width = '100%', 
-  height = 20, 
+export function LoadingSkeleton({
+  width = '100%',
+  height = 20,
   borderRadius = 4,
-  style 
+  style,
 }: LoadingSkeletonProps) {
   const opacity = useRef(new Animated.Value(0.3)).current;
 

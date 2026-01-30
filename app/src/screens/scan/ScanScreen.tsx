@@ -34,7 +34,7 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
         quality: 0.8,
         base64: false,
       });
-      
+
       if (photo?.uri) {
         setCapturedImage(photo.uri);
       }
@@ -75,7 +75,10 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
 
   if (!permission) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
         <View style={styles.centeredContent}>
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
@@ -85,18 +88,34 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
 
   if (!permission.granted) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
         <View style={styles.centeredContent}>
-          <MaterialIcons style={styles.icon} name="camera-alt" size={64} color={colors.textSecondary} />
+          <MaterialIcons
+            style={styles.icon}
+            name="camera-alt"
+            size={64}
+            color={colors.textSecondary}
+          />
           <Text style={[styles.title, { color: colors.text }]}>Camera Access Required</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             We need camera access to scan receipts. You can also pick an image from your gallery.
           </Text>
-          <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={requestPermission}>
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: colors.primary }]}
+            onPress={requestPermission}
+          >
             <Text style={styles.buttonText}>Grant Camera Access</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.backgroundTertiary }]} onPress={pickImage}>
-            <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>Pick from Gallery</Text>
+          <TouchableOpacity
+            style={[styles.secondaryButton, { backgroundColor: colors.backgroundTertiary }]}
+            onPress={pickImage}
+          >
+            <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>
+              Pick from Gallery
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -105,7 +124,10 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
 
   if (capturedImage) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
         <View style={styles.previewContainer}>
           <Image source={{ uri: capturedImage }} style={styles.previewImage} />
           <View style={styles.previewActions}>
@@ -117,7 +139,11 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
               <Text style={[styles.retakeButtonText, { color: colors.primary }]}>Retake</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.useButton, { backgroundColor: colors.primary }, isProcessing && styles.buttonDisabled]}
+              style={[
+                styles.useButton,
+                { backgroundColor: colors.primary },
+                isProcessing && styles.buttonDisabled,
+              ]}
               onPress={handleUsePhoto}
               disabled={isProcessing}
             >
@@ -134,32 +160,44 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={styles.cameraContainer}>
-        <CameraView
-          ref={cameraRef}
-          style={styles.camera}
-          facing={facing}
-        />
+        <CameraView ref={cameraRef} style={styles.camera} facing={facing} />
         <View style={styles.cameraOverlay}>
           <View style={styles.scanFrame} />
           <Text style={styles.scanHint}>Position receipt within the frame</Text>
         </View>
-        
+
         <View style={styles.cameraControls}>
-          <TouchableOpacity style={[styles.galleryButton, { backgroundColor: colors.backgroundTertiary }]} onPress={pickImage}>
-            <MaterialIcons style={styles.galleryButtonIcon} name="photo-library" size={24} color={colors.primary} />
+          <TouchableOpacity
+            style={[styles.galleryButton, { backgroundColor: colors.backgroundTertiary }]}
+            onPress={pickImage}
+          >
+            <MaterialIcons
+              style={styles.galleryButtonIcon}
+              name="photo-library"
+              size={24}
+              color={colors.primary}
+            />
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
             <View style={styles.captureButtonInner} />
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.flipButton, { backgroundColor: colors.backgroundTertiary }]}
             onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
           >
-            <MaterialIcons style={styles.flipButtonIcon} name="flip-camera-ios" size={24} color={colors.primary} />
+            <MaterialIcons
+              style={styles.flipButtonIcon}
+              name="flip-camera-ios"
+              size={24}
+              color={colors.primary}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -291,7 +329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   flipButtonIcon: {
-    color: '#fff'
+    color: '#fff',
   },
   previewContainer: {
     flex: 1,

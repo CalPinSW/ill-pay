@@ -5,7 +5,11 @@ import { useAuthStore } from '@/store/authStore';
 import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
 import { useNotifications } from '@/hooks/useNotifications';
-import { navigationRef, navigateFromNotification, NotificationScreen } from '@/services/navigationService';
+import {
+  navigationRef,
+  navigateFromNotification,
+  NotificationScreen,
+} from '@/services/navigationService';
 
 export function RootNavigator() {
   const user = useAuthStore((state) => state.user);

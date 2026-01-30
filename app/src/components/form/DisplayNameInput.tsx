@@ -16,7 +16,7 @@ export function DisplayNameInput({
   required = false,
 }: DisplayNameInputProps) {
   const { colors } = useTheme();
-  
+
   return (
     <View style={styles.container}>
       <Text style={[styles.label, { color: colors.text }]}>

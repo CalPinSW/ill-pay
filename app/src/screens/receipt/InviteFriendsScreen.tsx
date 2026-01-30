@@ -43,12 +43,14 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
 
       const { data: friendships, error: friendsError } = await supabase
         .from('friendships')
-        .select(`
+        .select(
+          `
           user_id,
           friend_id,
           user:profiles!friendships_user_id_fkey(id, username, display_name, avatar_url),
           friend:profiles!friendships_friend_id_fkey(id, username, display_name, avatar_url)
-        `)
+        `
+        )
         .eq('status', 'accepted')
         .or(`user_id.eq.${userData.user.id},friend_id.eq.${userData.user.id}`);
 
@@ -58,10 +60,15 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
       const participantIds = new Set((participants || []).map((p: any) => p.user_id));
 
       const friendsList: Friend[] = (friendships || []).map((f: any) => {
-        const friendProfile = f.user_id === userData.user?.id 
-          ? (Array.isArray(f.friend) ? f.friend[0] : f.friend)
-          : (Array.isArray(f.user) ? f.user[0] : f.user);
-        
+        const friendProfile =
+          f.user_id === userData.user?.id
+            ? Array.isArray(f.friend)
+              ? f.friend[0]
+              : f.friend
+            : Array.isArray(f.user)
+              ? f.user[0]
+              : f.user;
+
         return {
           id: friendProfile.id,
           username: friendProfile.username,
@@ -84,9 +91,7 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
     setInvitingId(friendId);
     try {
       await inviteFriendToReceipt(receiptId, friendId);
-      setFriends(friends.map(f => 
-        f.id === friendId ? { ...f, isInvited: true } : f
-      ));
+      setFriends(friends.map((f) => (f.id === friendId ? { ...f, isInvited: true } : f)));
     } catch (error) {
       console.error('Error inviting friend:', error);
       Alert.alert('Error', 'Failed to invite friend');
@@ -106,7 +111,9 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
         <Text style={[styles.friendName, { color: colors.text }]}>
           {item.display_name || item.username}
         </Text>
-        <Text style={[styles.friendUsername, { color: colors.textSecondary }]}>@{item.username}</Text>
+        <Text style={[styles.friendUsername, { color: colors.textSecondary }]}>
+          @{item.username}
+        </Text>
       </View>
       {item.isInvited ? (
         <View style={[styles.invitedBadge, { backgroundColor: colors.backgroundTertiary }]}>
@@ -138,7 +145,10 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
           <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>

@@ -76,9 +76,7 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
         Alert.alert('Error', error.message);
       }
     } else {
-      Alert.alert('Success', 'Profile updated successfully', [
-        { text: 'OK', onPress: onGoBack },
-      ]);
+      Alert.alert('Success', 'Profile updated successfully', [{ text: 'OK', onPress: onGoBack }]);
     }
   };
 
@@ -104,9 +102,7 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
 
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
+      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
 
       setAvatarUrl(urlData.publicUrl);
     } catch (error: any) {
@@ -123,7 +119,10 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      Alert.alert('Permission Required', `Please grant ${useCamera ? 'camera' : 'photo library'} access.`);
+      Alert.alert(
+        'Permission Required',
+        `Please grant ${useCamera ? 'camera' : 'photo library'} access.`
+      );
       return;
     }
 
@@ -170,7 +169,10 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -192,11 +194,17 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
                 <Text style={styles.avatarText}>{getInitials()}</Text>
               </View>
             )}
-            <TouchableOpacity style={styles.changePhotoButton} onPress={handleChangePhoto} disabled={isUploading}>
+            <TouchableOpacity
+              style={styles.changePhotoButton}
+              onPress={handleChangePhoto}
+              disabled={isUploading}
+            >
               {isUploading ? (
                 <ActivityIndicator color={colors.primary} />
               ) : (
-                <Text style={[styles.changePhotoText, { color: colors.primary }]}>Change Photo</Text>
+                <Text style={[styles.changePhotoText, { color: colors.primary }]}>
+                  Change Photo
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -211,14 +219,15 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
               error={usernameError}
             />
 
-            <DisplayNameInput
-              value={displayName}
-              onChangeText={setDisplayName}
-            />
+            <DisplayNameInput value={displayName} onChangeText={setDisplayName} />
           </View>
 
           <TouchableOpacity
-            style={[styles.saveButton, { backgroundColor: colors.primary }, isLoading && styles.saveButtonDisabled]}
+            style={[
+              styles.saveButton,
+              { backgroundColor: colors.primary },
+              isLoading && styles.saveButtonDisabled,
+            ]}
             onPress={handleSave}
             disabled={isLoading}
           >

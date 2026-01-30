@@ -11,12 +11,12 @@ function generateShareCode(): string {
 
 export async function activateAndShareReceipt(receiptId: string): Promise<string> {
   const shareCode = generateShareCode();
-  
+
   const { data, error } = await supabase
     .from('receipts')
-    .update({ 
+    .update({
       share_code: shareCode,
-      status: 'active'
+      status: 'active',
     })
     .eq('id', receiptId)
     .select('share_code')
@@ -29,7 +29,8 @@ export async function activateAndShareReceipt(receiptId: string): Promise<string
 export async function getReceiptByShareCode(shareCode: string) {
   const { data, error } = await supabase
     .from('receipts')
-    .select(`
+    .select(
+      `
       *,
       owner:profiles!receipts_owner_id_fkey(id, username, display_name, avatar_url),
       receipt_items(*),
@@ -38,7 +39,8 @@ export async function getReceiptByShareCode(shareCode: string) {
         joined_at,
         profile:profiles(id, username, display_name, avatar_url)
       )
-    `)
+    `
+    )
     .eq('share_code', shareCode.toUpperCase())
     .single();
 
@@ -64,12 +66,10 @@ export async function joinReceipt(receiptId: string): Promise<void> {
   }
 
   // Not a participant yet - add them
-  const { error } = await supabase
-    .from('receipt_participants')
-    .insert({
-      receipt_id: receiptId,
-      user_id: userData.user.id,
-    });
+  const { error } = await supabase.from('receipt_participants').insert({
+    receipt_id: receiptId,
+    user_id: userData.user.id,
+  });
 
   // Ignore duplicate key errors (race condition)
   if (error && error.code !== '23505') {
@@ -78,14 +78,15 @@ export async function joinReceipt(receiptId: string): Promise<void> {
 }
 
 export async function inviteFriendToReceipt(receiptId: string, friendId: string): Promise<void> {
-  const { error } = await supabase
-    .from('receipt_participants')
-    .upsert({
+  const { error } = await supabase.from('receipt_participants').upsert(
+    {
       receipt_id: receiptId,
       user_id: friendId,
-    }, {
-      onConflict: 'receipt_id,user_id'
-    });
+    },
+    {
+      onConflict: 'receipt_id,user_id',
+    }
+  );
 
   if (error) throw error;
 }
@@ -93,11 +94,13 @@ export async function inviteFriendToReceipt(receiptId: string, friendId: string)
 export async function getReceiptParticipants(receiptId: string) {
   const { data, error } = await supabase
     .from('receipt_participants')
-    .select(`
+    .select(
+      `
       user_id,
       joined_at,
       profile:profiles(id, username, display_name, avatar_url)
-    `)
+    `
+    )
     .eq('receipt_id', receiptId);
 
   if (error) throw error;

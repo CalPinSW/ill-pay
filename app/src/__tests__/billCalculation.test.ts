@@ -39,14 +39,12 @@ function calculateParticipantTotals(
     const itemsProportion = subtotal > 0 ? claim.itemsTotal / subtotal : 0;
 
     // Tax distribution
-    const taxPortion = distribution.tax === 'equal'
-      ? tax / participantCount
-      : tax * itemsProportion;
+    const taxPortion =
+      distribution.tax === 'equal' ? tax / participantCount : tax * itemsProportion;
 
     // Tip distribution
-    const tipPortion = distribution.tip === 'equal'
-      ? tip / participantCount
-      : tip * itemsProportion;
+    const tipPortion =
+      distribution.tip === 'equal' ? tip / participantCount : tip * itemsProportion;
 
     // Include unclaimed items
     const itemsWithUnclaimed = claim.itemsTotal + unclaimedPerPerson;
@@ -73,8 +71,8 @@ describe('Bill Calculation', () => {
         baseClaims,
         50, // subtotal
         10, // tax
-        5,  // tip
-        0,  // no unclaimed items
+        5, // tip
+        0, // no unclaimed items
         { tip: 'proportional', tax: 'proportional' }
       );
 
@@ -94,8 +92,8 @@ describe('Bill Calculation', () => {
         baseClaims,
         50, // subtotal
         10, // tax
-        6,  // tip
-        0,  // no unclaimed items
+        6, // tip
+        0, // no unclaimed items
         { tip: 'equal', tax: 'equal' }
       );
 
@@ -115,7 +113,7 @@ describe('Bill Calculation', () => {
         50, // subtotal
         10, // tax
         10, // tip
-        0,  // no unclaimed items
+        0, // no unclaimed items
         { tip: 'equal', tax: 'proportional' }
       );
 
@@ -129,8 +127,8 @@ describe('Bill Calculation', () => {
       const results = calculateParticipantTotals(
         baseClaims,
         50, // subtotal
-        0,  // no tax
-        0,  // no tip
+        0, // no tax
+        0, // no tip
         10, // 10 in unclaimed items
         { tip: 'proportional', tax: 'proportional' }
       );
@@ -144,16 +142,14 @@ describe('Bill Calculation', () => {
     });
 
     it('should handle single participant', () => {
-      const singleClaim: ParticipantClaim[] = [
-        { userId: 'user1', itemsTotal: 50 },
-      ];
+      const singleClaim: ParticipantClaim[] = [{ userId: 'user1', itemsTotal: 50 }];
 
       const results = calculateParticipantTotals(
         singleClaim,
         50, // subtotal
         10, // tax
-        5,  // tip
-        0,  // no unclaimed items
+        5, // tip
+        0, // no unclaimed items
         { tip: 'proportional', tax: 'proportional' }
       );
 
@@ -170,10 +166,10 @@ describe('Bill Calculation', () => {
 
       const results = calculateParticipantTotals(
         zeroClaims,
-        0,  // subtotal
+        0, // subtotal
         10, // tax
         10, // tip
-        0,  // no unclaimed items
+        0, // no unclaimed items
         { tip: 'proportional', tax: 'proportional' }
       );
 
@@ -192,9 +188,9 @@ describe('Bill Calculation', () => {
       const results = calculateParticipantTotals(
         threeClaims,
         90, // subtotal
-        9,  // tax
-        9,  // tip
-        0,  // no unclaimed items
+        9, // tax
+        9, // tip
+        0, // no unclaimed items
         { tip: 'equal', tax: 'equal' }
       );
 
@@ -209,21 +205,21 @@ describe('Bill Calculation', () => {
     it('should handle decimal amounts correctly', () => {
       const decimalClaims: ParticipantClaim[] = [
         { userId: 'user1', itemsTotal: 15.99 },
-        { userId: 'user2', itemsTotal: 12.50 },
+        { userId: 'user2', itemsTotal: 12.5 },
       ];
 
       const results = calculateParticipantTotals(
         decimalClaims,
         28.49, // subtotal
-        2.85,  // tax
-        5.00,  // tip
-        0,     // no unclaimed items
+        2.85, // tax
+        5.0, // tip
+        0, // no unclaimed items
         { tip: 'proportional', tax: 'proportional' }
       );
 
       // Verify totals sum correctly
       const totalOwed = results.reduce((sum, r) => sum + r.totalOwed, 0);
-      expect(totalOwed).toBeCloseTo(28.49 + 2.85 + 5.00);
+      expect(totalOwed).toBeCloseTo(28.49 + 2.85 + 5.0);
     });
   });
 });

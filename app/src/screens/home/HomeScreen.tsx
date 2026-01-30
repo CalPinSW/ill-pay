@@ -47,7 +47,8 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
       // Get receipts user owns
       const { data: ownedReceipts, error: ownedError } = await supabase
         .from('receipts')
-        .select(`
+        .select(
+          `
           id,
           restaurant_name,
           receipt_date,
@@ -56,7 +57,8 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
           created_at,
           owner_id,
           receipt_items(count)
-        `)
+        `
+        )
         .eq('owner_id', userData.user.id);
 
       if (ownedError) throw ownedError;
@@ -67,13 +69,14 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
         .select('receipt_id')
         .eq('user_id', userData.user.id);
 
-      const participantReceiptIds = (participations || []).map(p => p.receipt_id);
-      
+      const participantReceiptIds = (participations || []).map((p) => p.receipt_id);
+
       let sharedReceipts: any[] = [];
       if (participantReceiptIds.length > 0) {
         const { data: shared } = await supabase
           .from('receipts')
-          .select(`
+          .select(
+            `
             id,
             restaurant_name,
             receipt_date,
@@ -83,10 +86,11 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
             owner_id,
             receipt_items(count),
             owner:profiles!receipts_owner_id_fkey(display_name, username)
-          `)
+          `
+          )
           .in('id', participantReceiptIds)
           .neq('owner_id', userData.user.id);
-        
+
         sharedReceipts = (shared || []).map((r: any) => ({
           ...r,
           isShared: true,
@@ -102,7 +106,9 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
 
       // Combine and sort
       const allReceipts = [...ownedWithFlag, ...sharedReceipts];
-      allReceipts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      allReceipts.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
 
       const receiptsWithCount = allReceipts.map((r: any) => ({
         ...r,
@@ -145,20 +151,22 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
   };
 
   const renderReceipt = ({ item }: { item: Receipt }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[styles.receiptCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
       onPress={() => onSelectReceipt?.(item.id, item.isShared)}
     >
-      {item.image_url && (
-        <Image source={{ uri: item.image_url }} style={styles.receiptImage} />
-      )}
+      {item.image_url && <Image source={{ uri: item.image_url }} style={styles.receiptImage} />}
       <View style={styles.receiptInfo}>
         <Text style={[styles.restaurantName, { color: colors.text }]} numberOfLines={1}>
           {item.restaurant_name || 'Unknown Restaurant'}
         </Text>
-        <Text style={[styles.receiptDate, { color: colors.textSecondary }]}>{formatDate(item.receipt_date)}</Text>
+        <Text style={[styles.receiptDate, { color: colors.textSecondary }]}>
+          {formatDate(item.receipt_date)}
+        </Text>
         {item.isShared ? (
-          <Text style={[styles.sharedBy, { color: colors.primary }]}>Shared by {item.ownerName}</Text>
+          <Text style={[styles.sharedBy, { color: colors.primary }]}>
+            Shared by {item.ownerName}
+          </Text>
         ) : (
           <Text style={[styles.itemCount, { color: colors.textTertiary }]}>
             {item.item_count} item{item.item_count !== 1 ? 's' : ''}
@@ -166,7 +174,9 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
         )}
       </View>
       <View style={styles.receiptTotal}>
-        <Text style={[styles.totalAmount, { color: colors.text }]}>{formatCurrency(item.total)}</Text>
+        <Text style={[styles.totalAmount, { color: colors.text }]}>
+          {formatCurrency(item.total)}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -180,11 +190,17 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <Text style={[styles.title, { color: colors.text }]}>Receipts</Text>
         {onJoinReceipt && (
-          <TouchableOpacity style={[styles.joinButton, { backgroundColor: colors.primary }]} onPress={onJoinReceipt}>
+          <TouchableOpacity
+            style={[styles.joinButton, { backgroundColor: colors.primary }]}
+            onPress={onJoinReceipt}
+          >
             <Text style={styles.joinButtonText}>Join</Text>
           </TouchableOpacity>
         )}
@@ -197,7 +213,11 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
         ListEmptyComponent={!isLoading ? renderEmpty : null}
         contentContainerStyle={receipts.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primaryHover} />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primaryHover}
+          />
         }
       />
     </SafeAreaView>

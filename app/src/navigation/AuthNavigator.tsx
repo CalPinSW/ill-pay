@@ -13,7 +13,7 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthNavigator() {
   const { colors } = useTheme();
-  
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -32,9 +32,7 @@ export function AuthNavigator() {
         )}
       </Stack.Screen>
       <Stack.Screen name="SignUp">
-        {(props) => (
-          <SignUpScreen onNavigateToSignIn={() => props.navigation.navigate('SignIn')} />
-        )}
+        {(props) => <SignUpScreen onNavigateToSignIn={() => props.navigation.navigate('SignIn')} />}
       </Stack.Screen>
       <Stack.Screen name="ForgotPassword">
         {(props) => (

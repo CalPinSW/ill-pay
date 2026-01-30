@@ -11,8 +11,20 @@ import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen, RateLimitScreen } from '@/screens/scan';
 import { FriendsScreen, SearchUsersScreen, FriendRequestsScreen } from '@/screens/friends';
 import { ProfileScreen, EditProfileScreen, AboutScreen } from '@/screens/profile';
-import { ReceiptDetailScreen, InviteFriendsScreen, JoinReceiptScreen, ParticipantReceiptScreen, QRScannerScreen, SettlementScreen } from '@/screens/receipt';
-import { parseReceiptImage, createReceipt, uploadReceiptImage, RateLimitExceededError } from '@/services/receiptService';
+import {
+  ReceiptDetailScreen,
+  InviteFriendsScreen,
+  JoinReceiptScreen,
+  ParticipantReceiptScreen,
+  QRScannerScreen,
+  SettlementScreen,
+} from '@/screens/receipt';
+import {
+  parseReceiptImage,
+  createReceipt,
+  uploadReceiptImage,
+  RateLimitExceededError,
+} from '@/services/receiptService';
 import { ParsedReceipt } from '@/types/receipt';
 
 export type MainTabParamList = {
@@ -31,7 +43,9 @@ const NewReceiptContext = createContext<{
 }>({ newReceiptId: null, setNewReceiptId: () => {} });
 
 function HomeStack() {
-  const [screen, setScreen] = useState<'list' | 'detail' | 'invite' | 'join' | 'scan' | 'participant' | 'settlement'>('list');
+  const [screen, setScreen] = useState<
+    'list' | 'detail' | 'invite' | 'join' | 'scan' | 'participant' | 'settlement'
+  >('list');
   const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
   const { newReceiptId, setNewReceiptId } = useContext(NewReceiptContext);
 
@@ -79,12 +93,7 @@ function HomeStack() {
   };
 
   if (screen === 'scan') {
-    return (
-      <QRScannerScreen
-        onBack={handleBack}
-        onJoinSuccess={handleJoinSuccess}
-      />
-    );
+    return <QRScannerScreen onBack={handleBack} onJoinSuccess={handleJoinSuccess} />;
   }
 
   if (screen === 'join') {
@@ -98,30 +107,15 @@ function HomeStack() {
   }
 
   if (screen === 'settlement' && selectedReceiptId) {
-    return (
-      <SettlementScreen
-        receiptId={selectedReceiptId}
-        onBack={handleBackToDetail}
-      />
-    );
+    return <SettlementScreen receiptId={selectedReceiptId} onBack={handleBackToDetail} />;
   }
 
   if (screen === 'participant' && selectedReceiptId) {
-    return (
-      <ParticipantReceiptScreen
-        receiptId={selectedReceiptId}
-        onBack={handleBackToDetail}
-      />
-    );
+    return <ParticipantReceiptScreen receiptId={selectedReceiptId} onBack={handleBackToDetail} />;
   }
 
   if (screen === 'invite' && selectedReceiptId) {
-    return (
-      <InviteFriendsScreen
-        receiptId={selectedReceiptId}
-        onBack={handleBackToDetail}
-      />
-    );
+    return <InviteFriendsScreen receiptId={selectedReceiptId} onBack={handleBackToDetail} />;
   }
 
   if (screen === 'detail' && selectedReceiptId) {
@@ -137,7 +131,7 @@ function HomeStack() {
   }
 
   return (
-    <HomeScreen 
+    <HomeScreen
       onSelectReceipt={handleSelectReceipt}
       onJoinReceipt={() => setScreen('join')}
       onScanQR={() => setScreen('scan')}
@@ -172,26 +166,22 @@ function ScanStack() {
         return;
       }
 
-      Alert.alert(
-        'Parsing Failed',
-        'Could not parse the receipt. You can add items manually.',
-        [
-          {
-            text: 'Add Manually',
-            onPress: () => {
-              setParsedReceipt({ items: [] });
-              setScreen('review');
-            },
+      Alert.alert('Parsing Failed', 'Could not parse the receipt. You can add items manually.', [
+        {
+          text: 'Add Manually',
+          onPress: () => {
+            setParsedReceipt({ items: [] });
+            setScreen('review');
           },
-          {
-            text: 'Retake Photo',
-            onPress: () => {
-              setCapturedImageUri(null);
-              setScreen('camera');
-            },
+        },
+        {
+          text: 'Retake Photo',
+          onPress: () => {
+            setCapturedImageUri(null);
+            setScreen('camera');
           },
-        ]
-      );
+        },
+      ]);
     }
   };
 
@@ -208,11 +198,11 @@ function ScanStack() {
       }
 
       const createdReceipt = await createReceipt(receipt, imageUrl);
-      
+
       setCapturedImageUri(null);
       setParsedReceipt(null);
       setScreen('camera');
-      
+
       // Navigate to the receipt detail on the Home tab
       setNewReceiptId(createdReceipt.id);
       navigation.navigate('HomeTab');
@@ -242,7 +232,9 @@ function ScanStack() {
       <View style={[scanStyles.loadingContainer, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text style={[scanStyles.loadingText, { color: colors.text }]}>Analyzing receipt...</Text>
-        <Text style={[scanStyles.loadingSubtext, { color: colors.textSecondary }]}>This may take a few seconds</Text>
+        <Text style={[scanStyles.loadingSubtext, { color: colors.textSecondary }]}>
+          This may take a few seconds
+        </Text>
       </View>
     );
   }
@@ -291,7 +283,11 @@ const scanStyles = StyleSheet.create({
   },
 });
 
-function FriendsStack({ route }: { route?: { params?: { screen?: 'list' | 'search' | 'requests' } } }) {
+function FriendsStack({
+  route,
+}: {
+  route?: { params?: { screen?: 'list' | 'search' | 'requests' } };
+}) {
   const initialScreen = route?.params?.screen || 'list';
   const [screen, setScreen] = useState<'list' | 'search' | 'requests'>(initialScreen);
 
@@ -330,10 +326,7 @@ function ProfileStack() {
   }
 
   return (
-    <ProfileScreen 
-      onEditProfile={() => setScreen('edit')}
-      onAbout={() => setScreen('about')}
-    />
+    <ProfileScreen onEditProfile={() => setScreen('edit')} onAbout={() => setScreen('about')} />
   );
 }
 
@@ -343,9 +336,7 @@ function FriendsTabIcon({ pendingCount, color }: { pendingCount: number; color: 
       <MaterialIcons name="groups" size={24} color={color} />
       {pendingCount > 0 && (
         <View style={badgeStyles.badge}>
-          <Text style={badgeStyles.badgeText}>
-            {pendingCount > 9 ? '9+' : pendingCount}
-          </Text>
+          <Text style={badgeStyles.badgeText}>{pendingCount > 9 ? '9+' : pendingCount}</Text>
         </View>
       )}
     </View>
@@ -443,7 +434,9 @@ export function MainNavigator() {
           component={ScanStack}
           options={{
             tabBarLabel: 'Scan Receipt',
-            tabBarIcon: ({ color }) => <MaterialIcons name="document-scanner" size={24} color={color} />,
+            tabBarIcon: ({ color }) => (
+              <MaterialIcons name="document-scanner" size={24} color={color} />
+            ),
           }}
         />
         <Tab.Screen
@@ -451,7 +444,9 @@ export function MainNavigator() {
           component={FriendsStack}
           options={{
             tabBarLabel: 'Friends',
-            tabBarIcon: ({ color }) => <FriendsTabIcon pendingCount={pendingRequestCount} color={color} />,
+            tabBarIcon: ({ color }) => (
+              <FriendsTabIcon pendingCount={pendingRequestCount} color={color} />
+            ),
           }}
         />
         <Tab.Screen

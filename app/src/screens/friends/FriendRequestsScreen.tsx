@@ -42,25 +42,27 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
     try {
       const { data, error } = await supabase
         .from('friendships')
-        .select(`
+        .select(
+          `
           id,
           user_id,
           friend_id,
           status,
           created_at,
           requester:profiles!friendships_user_id_fkey(*)
-        `)
+        `
+        )
         .eq('friend_id', user.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
+
       const formattedData = (data || []).map((item: any) => ({
         ...item,
         requester: Array.isArray(item.requester) ? item.requester[0] : item.requester,
       }));
-      
+
       setRequests(formattedData as FriendRequest[]);
     } catch (error) {
       console.error('Error fetching requests:', error);
@@ -102,10 +104,7 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
 
   const declineRequest = async (requestId: string) => {
     try {
-      const { error } = await supabase
-        .from('friendships')
-        .delete()
-        .eq('id', requestId);
+      const { error } = await supabase.from('friendships').delete().eq('id', requestId);
 
       if (error) throw error;
 
@@ -141,7 +140,9 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
         <Text style={[styles.requestName, { color: colors.text }]}>
           {item.requester?.display_name || item.requester?.username}
         </Text>
-        <Text style={[styles.requestUsername, { color: colors.textSecondary }]}>@{item.requester?.username}</Text>
+        <Text style={[styles.requestUsername, { color: colors.textSecondary }]}>
+          @{item.requester?.username}
+        </Text>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity
@@ -171,7 +172,10 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        edges={['top']}
+      >
         <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={onGoBack}>
             <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
@@ -187,7 +191,10 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onGoBack}>
           <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
@@ -203,7 +210,11 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={requests.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primaryHover} />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={colors.primaryHover}
+          />
         }
       />
     </SafeAreaView>

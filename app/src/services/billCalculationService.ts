@@ -70,15 +70,17 @@ export async function calculateBillBreakdown(
   if (itemsError) throw itemsError;
 
   // Fetch claims with user profiles
-  const itemIds = (items || []).map(i => i.id);
+  const itemIds = (items || []).map((i) => i.id);
   const { data: claims, error: claimsError } = await supabase
     .from('item_claims')
-    .select(`
+    .select(
+      `
       item_id,
       user_id,
       quantity,
       profile:profiles(id, username, display_name, avatar_url)
-    `)
+    `
+    )
     .in('item_id', itemIds);
 
   if (claimsError) throw claimsError;
@@ -94,7 +96,7 @@ export async function calculateBillBreakdown(
   const subtotal = receipt.subtotal || 0;
   const tax = receipt.tax || 0;
   const tip = receipt.tip_amount || 0;
-  const total = receipt.total || (subtotal + tax + tip);
+  const total = receipt.total || subtotal + tax + tip;
 
   // Build item map
   const itemMap = new Map<string, ReceiptItem>();
@@ -103,11 +105,19 @@ export async function calculateBillBreakdown(
   }
 
   // Calculate per-user item totals
-  const userTotals = new Map<string, {
-    items_total: number;
-    claimed_items: { name: string; quantity: number; amount: number }[];
-    profile: { id: string; username: string; display_name: string | null; avatar_url: string | null } | null;
-  }>();
+  const userTotals = new Map<
+    string,
+    {
+      items_total: number;
+      claimed_items: { name: string; quantity: number; amount: number }[];
+      profile: {
+        id: string;
+        username: string;
+        display_name: string | null;
+        avatar_url: string | null;
+      } | null;
+    }
+  >();
 
   // Process claims
   for (const claim of claims || []) {
@@ -138,7 +148,7 @@ export async function calculateBillBreakdown(
   let unclaimedTotal = 0;
   for (const item of items || []) {
     const claimedQty = (claims || [])
-      .filter(c => c.item_id === item.id)
+      .filter((c) => c.item_id === item.id)
       .reduce((sum, c) => sum + c.quantity, 0);
     const unclaimedQty = item.quantity - claimedQty;
     if (unclaimedQty > 0) {
@@ -147,8 +157,10 @@ export async function calculateBillBreakdown(
   }
 
   // Calculate total claimed amount
-  const totalClaimedAmount = Array.from(userTotals.values())
-    .reduce((sum, u) => sum + u.items_total, 0);
+  const totalClaimedAmount = Array.from(userTotals.values()).reduce(
+    (sum, u) => sum + u.items_total,
+    0
+  );
 
   // Calculate participant totals with tax and tip
   const participants: ParticipantTotal[] = [];
@@ -159,7 +171,7 @@ export async function calculateBillBreakdown(
 
   for (const [userId, data] of userTotals) {
     const itemsProportion = subtotal > 0 ? data.items_total / subtotal : 0;
-    
+
     // Tax can be proportional or equal
     let taxPortion: number;
     if (distribution.tax === 'equal') {
@@ -167,7 +179,7 @@ export async function calculateBillBreakdown(
     } else {
       taxPortion = tax * itemsProportion;
     }
-    
+
     // Tip can be proportional or equal
     let tipPortion: number;
     if (distribution.tip === 'equal') {
@@ -212,5 +224,5 @@ export async function getMyTotal(receiptId: string): Promise<ParticipantTotal | 
   if (!userData.user) return null;
 
   const breakdown = await calculateBillBreakdown(receiptId);
-  return breakdown.participants.find(p => p.user_id === userData.user!.id) || null;
+  return breakdown.participants.find((p) => p.user_id === userData.user!.id) || null;
 }

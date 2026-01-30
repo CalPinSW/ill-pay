@@ -7,17 +7,16 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
-import { 
-  calculateBillBreakdown, 
-  BillBreakdown, 
-  DistributionType,
+import {
+  calculateBillBreakdown,
+  BillBreakdown,
   DistributionOptions,
 } from '@/services/billCalculationService';
 import { useTheme } from '@/theme';
+import { DistributionToggle, ParticipantCard } from '@/components/settlement';
 
 interface SettlementScreenProps {
   receiptId: string;
@@ -29,9 +28,9 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
   const [breakdown, setBreakdown] = useState<BillBreakdown | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [distribution, setDistribution] = useState<DistributionOptions>({ 
-    tip: 'proportional', 
-    tax: 'proportional' 
+  const [distribution, setDistribution] = useState<DistributionOptions>({
+    tip: 'proportional',
+    tax: 'proportional',
   });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [receiptName, setReceiptName] = useState<string>('Receipt');
@@ -42,11 +41,8 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
   const handleMarkSettled = async () => {
     setIsSettling(true);
     try {
-      await supabase
-        .from('receipts')
-        .update({ status: 'settled' })
-        .eq('id', receiptId);
-      
+      await supabase.from('receipts').update({ status: 'settled' }).eq('id', receiptId);
+
       setReceiptStatus('settled');
     } catch (error) {
       console.error('Error settling receipt:', error);
@@ -58,11 +54,8 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
   const handleRestore = async () => {
     setIsSettling(true);
     try {
-      await supabase
-        .from('receipts')
-        .update({ status: 'active' })
-        .eq('id', receiptId);
-      
+      await supabase.from('receipts').update({ status: 'active' }).eq('id', receiptId);
+
       setReceiptStatus('active');
     } catch (error) {
       console.error('Error restoring receipt:', error);
@@ -84,7 +77,7 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
         .select('restaurant_name, owner_id, status')
         .eq('id', receiptId)
         .single();
-      
+
       setReceiptName(receipt?.restaurant_name || 'Receipt');
       setOwnerId(receipt?.owner_id || null);
       setReceiptStatus(receipt?.status || 'draft');
@@ -121,9 +114,14 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Failed to load bill breakdown</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchBreakdown}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+          <Text style={[styles.errorText, { color: colors.textSecondary }]}>
+            Failed to load bill breakdown
+          </Text>
+          <TouchableOpacity
+            style={[styles.retryButton, { backgroundColor: colors.primary }]}
+            onPress={fetchBreakdown}
+          >
+            <Text style={[styles.retryButtonText, { color: colors.textInverse }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -131,38 +129,60 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
           <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>Settlement</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
+          Settlement
+        </Text>
         <View style={styles.headerButton} />
       </View>
 
       <ScrollView
         style={styles.content}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={fetchBreakdown} tintColor={colors.primary} />
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={fetchBreakdown}
+            tintColor={colors.primary}
+          />
         }
       >
-        <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+        <View
+          style={[
+            styles.summaryCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
           <Text style={[styles.restaurantName, { color: colors.text }]}>{receiptName}</Text>
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Subtotal</Text>
-            <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(breakdown.subtotal)}</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>
+              {formatCurrency(breakdown.subtotal)}
+            </Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tax</Text>
-            <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(breakdown.tax)}</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>
+              {formatCurrency(breakdown.tax)}
+            </Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tip</Text>
-            <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(breakdown.tip)}</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>
+              {formatCurrency(breakdown.tip)}
+            </Text>
           </View>
           <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
             <Text style={[styles.totalLabel, { color: colors.text }]}>Total</Text>
-            <Text style={[styles.totalValue, { color: colors.text }]}>{formatCurrency(breakdown.total)}</Text>
+            <Text style={[styles.totalValue, { color: colors.text }]}>
+              {formatCurrency(breakdown.total)}
+            </Text>
           </View>
         </View>
 
@@ -178,68 +198,26 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
         )}
 
         {(breakdown.tax > 0 || breakdown.tip > 0) && (
-          <View style={styles.distributionSection}>
+          <View
+            style={[
+              styles.distributionSection,
+              { backgroundColor: colors.card, borderColor: colors.cardBorder },
+            ]}
+          >
             {breakdown.tax > 0 && (
-              <View style={styles.distributionRow}>
-                <Text style={styles.distributionLabel}>Tax:</Text>
-                <View style={styles.toggleButtons}>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      distribution.tax === 'proportional' && styles.toggleButtonActive
-                    ]}
-                    onPress={() => setDistribution(d => ({ ...d, tax: 'proportional' }))}
-                  >
-                    <Text style={[
-                      styles.toggleButtonText,
-                      distribution.tax === 'proportional' && styles.toggleButtonTextActive
-                    ]}>Proportional</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      distribution.tax === 'equal' && styles.toggleButtonActive
-                    ]}
-                    onPress={() => setDistribution(d => ({ ...d, tax: 'equal' }))}
-                  >
-                    <Text style={[
-                      styles.toggleButtonText,
-                      distribution.tax === 'equal' && styles.toggleButtonTextActive
-                    ]}>Equal</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              <DistributionToggle
+                label="Tax:"
+                value={distribution.tax}
+                onChange={(value) => setDistribution((d) => ({ ...d, tax: value }))}
+              />
             )}
-
             {breakdown.tip > 0 && (
-              <View style={[styles.distributionRow, breakdown.tax === 0 && { marginBottom: 0 }]}>
-                <Text style={styles.distributionLabel}>Tip:</Text>
-                <View style={styles.toggleButtons}>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      distribution.tip === 'proportional' && styles.toggleButtonActive
-                    ]}
-                    onPress={() => setDistribution(d => ({ ...d, tip: 'proportional' }))}
-                  >
-                    <Text style={[
-                      styles.toggleButtonText,
-                      distribution.tip === 'proportional' && styles.toggleButtonTextActive
-                    ]}>Proportional</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.toggleButton,
-                      distribution.tip === 'equal' && styles.toggleButtonActive
-                    ]}
-                    onPress={() => setDistribution(d => ({ ...d, tip: 'equal' }))}
-                  >
-                    <Text style={[
-                      styles.toggleButtonText,
-                      distribution.tip === 'equal' && styles.toggleButtonTextActive
-                    ]}>Equal</Text>
-                  </TouchableOpacity>
-                </View>
+              <View style={breakdown.tax === 0 && { marginBottom: 0 }}>
+                <DistributionToggle
+                  label="Tip:"
+                  value={distribution.tip}
+                  onChange={(value) => setDistribution((d) => ({ ...d, tip: value }))}
+                />
               </View>
             )}
           </View>
@@ -250,75 +228,28 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Who Owes What</Text>
             {isRefreshing && <ActivityIndicator size="small" color={colors.primary} />}
           </View>
-          
+
           {breakdown.participants.map((participant) => (
-            <View 
-              key={participant.user_id} 
-              style={[
-                styles.participantCard,
-                participant.user_id === currentUserId && styles.participantCardHighlight
-              ]}
-            >
-              <View style={styles.participantHeader}>
-                {participant.avatar_url ? (
-                  <Image 
-                    source={{ uri: participant.avatar_url }} 
-                    style={styles.participantAvatar} 
-                  />
-                ) : (
-                  <View style={styles.participantAvatarPlaceholder}>
-                    <Text style={styles.participantAvatarText}>
-                      {(participant.display_name || participant.username || '?')[0].toUpperCase()}
-                    </Text>
-                  </View>
-                )}
-                <View style={styles.participantInfo}>
-                  <Text style={styles.participantName}>
-                    {participant.display_name || participant.username}
-                    {participant.user_id === currentUserId && ' (You)'}
-                  </Text>
-                </View>
-                <Text style={styles.participantTotal}>
-                  {formatCurrency(participant.total_owed)}
-                </Text>
-              </View>
-
-              <View style={styles.participantBreakdown}>
-                <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownLabel}>Items</Text>
-                  <Text style={styles.breakdownValue}>
-                    {formatCurrency(participant.items_total)}
-                  </Text>
-                </View>
-                <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownLabel}>Tax</Text>
-                  <Text style={styles.breakdownValue}>
-                    {formatCurrency(participant.tax_portion)}
-                  </Text>
-                </View>
-                <View style={styles.breakdownRow}>
-                  <Text style={styles.breakdownLabel}>Tip</Text>
-                  <Text style={styles.breakdownValue}>
-                    {formatCurrency(participant.tip_portion)}
-                  </Text>
-                </View>
-              </View>
-
-              {participant.claimed_items.length > 0 && (
-                <View style={styles.claimedItems}>
-                  {participant.claimed_items.map((item, idx) => (
-                    <Text key={idx} style={styles.claimedItem}>
-                      • {item.name} × {item.quantity}
-                    </Text>
-                  ))}
-                </View>
-              )}
-            </View>
+            <ParticipantCard
+              key={participant.user_id}
+              displayName={participant.display_name}
+              username={participant.username}
+              avatarUrl={participant.avatar_url}
+              isCurrentUser={participant.user_id === currentUserId}
+              totalOwed={participant.total_owed}
+              itemsTotal={participant.items_total}
+              taxPortion={participant.tax_portion}
+              tipPortion={participant.tip_portion}
+              claimedItems={participant.claimed_items}
+              formatCurrency={formatCurrency}
+            />
           ))}
 
           {breakdown.participants.length === 0 && (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>No items claimed yet</Text>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+                No items claimed yet
+              </Text>
             </View>
           )}
         </View>
@@ -327,26 +258,33 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
           <View style={styles.actionsSection}>
             {isSettled ? (
               <TouchableOpacity
-                style={styles.restoreButton}
+                style={[
+                  styles.restoreButton,
+                  { backgroundColor: colors.surface, borderColor: colors.primary },
+                ]}
                 onPress={handleRestore}
                 disabled={isSettling}
               >
                 {isSettling ? (
-                  <ActivityIndicator color="#007AFF" />
+                  <ActivityIndicator color={colors.primary} />
                 ) : (
-                  <Text style={styles.restoreButtonText}>Restore Receipt</Text>
+                  <Text style={[styles.restoreButtonText, { color: colors.primary }]}>
+                    Restore Receipt
+                  </Text>
                 )}
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={styles.settleButton}
+                style={[styles.settleButton, { backgroundColor: colors.success }]}
                 onPress={handleMarkSettled}
                 disabled={isSettling}
               >
                 {isSettling ? (
-                  <ActivityIndicator color="#fff" />
+                  <ActivityIndicator color={colors.textInverse} />
                 ) : (
-                  <Text style={styles.settleButtonText}>Mark as Settled</Text>
+                  <Text style={[styles.settleButtonText, { color: colors.textInverse }]}>
+                    Mark as Settled
+                  </Text>
                 )}
               </TouchableOpacity>
             )}
@@ -354,8 +292,10 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
         )}
 
         {isSettled && (
-          <View style={styles.settledBanner}>
-            <Text style={styles.settledBannerText}>✓ This receipt has been settled</Text>
+          <View style={[styles.settledBanner, { backgroundColor: colors.success + '20' }]}>
+            <Text style={[styles.settledBannerText, { color: colors.success }]}>
+              ✓ This receipt has been settled
+            </Text>
           </View>
         )}
       </ScrollView>
@@ -366,7 +306,6 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   loadingContainer: {
     flex: 1,
@@ -381,17 +320,14 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#666',
     marginBottom: 16,
   },
   retryButton: {
-    backgroundColor: '#007AFF',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   retryButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -400,23 +336,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   headerButton: {
     width: 70,
   },
   headerButtonText: {
     fontSize: 16,
-    color: '#007AFF',
   },
   headerTitle: {
     flex: 1,
     fontSize: 17,
     fontWeight: '600',
     textAlign: 'center',
-    color: '#1a1a1a',
   },
   content: {
     flex: 1,
@@ -424,13 +356,12 @@ const styles = StyleSheet.create({
   summaryCard: {
     margin: 16,
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 12,
+    borderWidth: 1,
   },
   restaurantName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a1a1a',
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -441,88 +372,44 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 16,
-    color: '#666',
   },
   summaryValue: {
     fontSize: 16,
-    color: '#1a1a1a',
   },
   totalRow: {
     borderTopWidth: 1,
-    borderTopColor: '#eee',
     marginTop: 8,
     paddingTop: 16,
   },
   totalLabel: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
   },
   totalValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#007AFF',
   },
   warningCard: {
     marginHorizontal: 16,
     marginBottom: 16,
     padding: 12,
-    backgroundColor: '#fff3cd',
     borderRadius: 8,
   },
   warningText: {
     fontSize: 14,
-    color: '#856404',
     textAlign: 'center',
   },
   warningSubtext: {
     fontSize: 12,
-    color: '#856404',
     textAlign: 'center',
     marginTop: 4,
   },
   distributionSection: {
     marginHorizontal: 16,
     marginBottom: 16,
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-  },
-  distributionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  distributionLabel: {
-    fontSize: 14,
-    color: '#666',
-    width: 40,
-  },
-  toggleButtons: {
-    flexDirection: 'row',
-    backgroundColor: '#eee',
-    borderRadius: 8,
-    padding: 4,
-    flex: 1,
-  },
-  toggleButton: {
-    flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  toggleButtonActive: {
-    backgroundColor: '#fff',
-  },
-  toggleButtonText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  toggleButtonTextActive: {
-    color: '#007AFF',
-    fontWeight: '600',
+    borderWidth: 1,
   },
   participantsSection: {
     padding: 16,
@@ -536,85 +423,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  participantCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  participantCardHighlight: {
-    borderWidth: 2,
-    borderColor: '#007AFF',
-  },
-  participantHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  participantAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 12,
-  },
-  participantAvatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  participantAvatarText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  participantInfo: {
-    flex: 1,
-  },
-  participantName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1a1a1a',
-  },
-  participantTotal: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  participantBreakdown: {
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    paddingTop: 12,
-  },
-  breakdownRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  breakdownLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  breakdownValue: {
-    fontSize: 14,
-    color: '#1a1a1a',
-  },
-  claimedItems: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  claimedItem: {
-    fontSize: 13,
-    color: '#666',
-    paddingVertical: 2,
   },
   emptyState: {
     padding: 24,
@@ -622,14 +430,12 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#666',
   },
   actionsSection: {
     padding: 16,
     paddingTop: 0,
   },
   settleButton: {
-    backgroundColor: '#34c759',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -637,12 +443,9 @@ const styles = StyleSheet.create({
   settleButtonText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#fff',
   },
   restoreButton: {
-    backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: '#007AFF',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -650,19 +453,16 @@ const styles = StyleSheet.create({
   restoreButtonText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#007AFF',
   },
   settledBanner: {
     marginHorizontal: 16,
     marginBottom: 16,
     padding: 12,
-    backgroundColor: '#d4edda',
     borderRadius: 8,
     alignItems: 'center',
   },
   settledBannerText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#155724',
   },
 });

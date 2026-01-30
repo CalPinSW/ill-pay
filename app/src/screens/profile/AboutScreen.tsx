@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Linking,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useTheme } from '@/theme';
@@ -21,7 +14,10 @@ export function AboutScreen({ onGoBack }: AboutScreenProps) {
   const buildNumber = Constants.expoConfig?.ios?.buildNumber || '1';
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      edges={['top']}
+    >
       <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onGoBack} style={styles.headerButton}>
           <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
@@ -34,7 +30,9 @@ export function AboutScreen({ onGoBack }: AboutScreenProps) {
         <View style={styles.logoSection}>
           <Text style={styles.appIcon}>🧾</Text>
           <Text style={[styles.appName, { color: colors.text }]}>I'll Pay</Text>
-          <Text style={[styles.appTagline, { color: colors.textSecondary }]}>Split bills with friends, effortlessly</Text>
+          <Text style={[styles.appTagline, { color: colors.textSecondary }]}>
+            Split bills with friends, effortlessly
+          </Text>
         </View>
 
         <View style={styles.infoSection}>
@@ -49,8 +47,11 @@ export function AboutScreen({ onGoBack }: AboutScreenProps) {
         </View>
 
         <View style={styles.linksSection}>
-          <TouchableOpacity 
-            style={[styles.linkItem, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          <TouchableOpacity
+            style={[
+              styles.linkItem,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
             onPress={() => Linking.openURL('https://github.com/CalPinSW/ill-pay')}
           >
             <Text style={[styles.linkText, { color: colors.primary }]}>View on GitHub</Text>
