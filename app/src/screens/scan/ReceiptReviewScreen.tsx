@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ParsedReceipt, ReceiptItem } from '@/types/receipt';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 
 interface ReceiptReviewScreenProps {
   parsedReceipt: ParsedReceipt;
@@ -28,39 +29,140 @@ export function ReceiptReviewScreen({
   isSubmitting = false,
 }: ReceiptReviewScreenProps) {
   const [restaurantName, setRestaurantName] = useState(parsedReceipt.restaurant_name || '');
-  const [date, setDate] = useState(parsedReceipt.date || '');
+  const [date, setDate] = useState<Date>(() => {
+    const candidate = parsedReceipt.date ? new Date(parsedReceipt.date) : new Date();
+    return Number.isNaN(candidate.getTime()) ? new Date() : candidate;
+  });
   const [items, setItems] = useState<ReceiptItem[]>(parsedReceipt.items || []);
-  const [subtotal, setSubtotal] = useState(parsedReceipt.subtotal?.toString() || '');
+  const [itemDrafts, setItemDrafts] = useState<{ quantity: string; unit_price: string }[]>(
+    (parsedReceipt.items || []).map((item) => ({
+      quantity: item.quantity?.toString?.() ?? '0',
+      unit_price:
+        typeof item.unit_price === 'number' && Number.isFinite(item.unit_price)
+          ? item.unit_price.toFixed(2)
+          : '0.00',
+    }))
+  );
   const [tax, setTax] = useState(parsedReceipt.tax?.toString() || '');
   const [tip, setTip] = useState(parsedReceipt.tip?.toString() || '');
-  const [total, setTotal] = useState(parsedReceipt.total?.toString() || '');
 
-  const updateItem = (index: number, field: keyof ReceiptItem, value: string) => {
+  useEffect(() => {
+    if (itemDrafts.length === items.length) return;
+
+    setItemDrafts(
+      items.map((item, index) =>
+        itemDrafts[index]
+          ? itemDrafts[index]
+          : {
+              quantity: item.quantity?.toString?.() ?? '0',
+              unit_price:
+                typeof item.unit_price === 'number' && Number.isFinite(item.unit_price)
+                  ? item.unit_price.toFixed(2)
+                  : '0.00',
+            }
+      )
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
+  const sanitizeQuantity = (value: string) => value.replace(/[^0-9]/g, '');
+
+  const sanitizeDecimal = (value: string) => {
+    const cleaned = value.replace(/[^0-9.]/g, '');
+    const firstDot = cleaned.indexOf('.');
+    if (firstDot === -1) return cleaned;
+    return cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
+  };
+
+  const updateItemName = (index: number, value: string) => {
     const newItems = [...items];
-    if (field === 'name') {
-      newItems[index] = { ...newItems[index], name: value };
-    } else {
-      const numValue = parseFloat(value) || 0;
-      newItems[index] = { ...newItems[index], [field]: numValue };
-      
-      if (field === 'quantity' || field === 'unit_price') {
-        newItems[index].total_price = newItems[index].quantity * newItems[index].unit_price;
-      }
-    }
+    newItems[index] = { ...newItems[index], name: value };
     setItems(newItems);
+  };
+
+  const updateItemQuantityText = (index: number, value: string) => {
+    const nextText = sanitizeQuantity(value);
+    const nextDrafts = [...itemDrafts];
+    nextDrafts[index] = { ...nextDrafts[index], quantity: nextText };
+    setItemDrafts(nextDrafts);
+
+    const qty = nextText === '' ? 0 : parseInt(nextText, 10);
+    const unitText = nextDrafts[index]?.unit_price ?? '0';
+    const unit = parseFloat(unitText);
+
+    const newItems = [...items];
+    const safeUnit = Number.isFinite(unit) ? unit : 0;
+    newItems[index] = {
+      ...newItems[index],
+      quantity: Number.isFinite(qty) ? qty : 0,
+      unit_price: safeUnit,
+      total_price: (Number.isFinite(qty) ? qty : 0) * safeUnit,
+    };
+    setItems(newItems);
+  };
+
+  const blurItemQuantity = (index: number) => {
+    const nextDrafts = [...itemDrafts];
+    const current = nextDrafts[index]?.quantity ?? '';
+    const qty = current === '' ? 0 : parseInt(current, 10);
+    nextDrafts[index] = { ...nextDrafts[index], quantity: (Number.isFinite(qty) ? qty : 0).toString() };
+    setItemDrafts(nextDrafts);
+  };
+
+  const updateItemUnitPriceText = (index: number, value: string) => {
+    const nextText = sanitizeDecimal(value);
+    const nextDrafts = [...itemDrafts];
+    nextDrafts[index] = { ...nextDrafts[index], unit_price: nextText };
+    setItemDrafts(nextDrafts);
+
+    const qtyText = nextDrafts[index]?.quantity ?? '0';
+    const qty = parseInt(qtyText === '' ? '0' : qtyText, 10);
+    const unit = parseFloat(nextText);
+
+    const safeQty = Number.isFinite(qty) ? qty : 0;
+    const safeUnit = Number.isFinite(unit) ? unit : 0;
+
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      quantity: safeQty,
+      unit_price: safeUnit,
+      total_price: safeQty * safeUnit,
+    };
+    setItems(newItems);
+  };
+
+  const blurItemUnitPrice = (index: number) => {
+    const nextDrafts = [...itemDrafts];
+    const current = nextDrafts[index]?.unit_price ?? '';
+    const unit = parseFloat(current);
+    nextDrafts[index] = {
+      ...nextDrafts[index],
+      unit_price: Number.isFinite(unit) ? unit.toFixed(2) : '0.00',
+    };
+    setItemDrafts(nextDrafts);
   };
 
   const addItem = () => {
     setItems([...items, { name: '', quantity: 1, unit_price: 0, total_price: 0 }]);
+    setItemDrafts([...itemDrafts, { quantity: '1', unit_price: '0.00' }]);
   };
 
   const removeItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
+    setItemDrafts(itemDrafts.filter((_, i) => i !== index));
   };
 
   const calculateSubtotal = () => {
     return items.reduce((sum, item) => sum + item.total_price, 0);
   };
+
+  const computedSubtotal = calculateSubtotal();
+  const parsedTax = parseFloat(tax);
+  const parsedTip = parseFloat(tip);
+  const computedTax = Number.isFinite(parsedTax) ? parsedTax : 0;
+  const computedTip = Number.isFinite(parsedTip) ? parsedTip : 0;
+  const computedTotal = computedSubtotal + computedTax + computedTip;
 
   const handleConfirm = () => {
     if (items.length === 0) {
@@ -70,12 +172,12 @@ export function ReceiptReviewScreen({
 
     const updatedReceipt: ParsedReceipt = {
       restaurant_name: restaurantName || undefined,
-      date: date || undefined,
+      date: date.toISOString().split('T')[0] || undefined,
       items,
-      subtotal: parseFloat(subtotal) || calculateSubtotal(),
-      tax: parseFloat(tax) || undefined,
-      tip: parseFloat(tip) || undefined,
-      total: parseFloat(total) || undefined,
+      subtotal: computedSubtotal,
+      tax: Number.isFinite(parsedTax) ? parsedTax : undefined,
+      tip: Number.isFinite(parsedTip) ? parsedTip : undefined,
+      total: computedTotal,
     };
 
     onConfirm(updatedReceipt);
@@ -110,12 +212,14 @@ export function ReceiptReviewScreen({
             </View>
             <View style={styles.inputRow}>
               <Text style={styles.label}>Date</Text>
-              <TextInput
-                style={styles.input}
+              <RNDateTimePicker
                 value={date}
-                onChangeText={setDate}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#999"
+                mode="date"
+                display={'default'}
+                onChange={(event, nextDate) => {
+                  if (event.type === 'dismissed' || !nextDate) return;
+                  setDate(nextDate);
+                }}
               />
             </View>
           </View>
@@ -134,7 +238,7 @@ export function ReceiptReviewScreen({
                   <TextInput
                     style={styles.itemNameInput}
                     value={item.name}
-                    onChangeText={(v) => updateItem(index, 'name', v)}
+                    onChangeText={(v) => updateItemName(index, v)}
                     placeholder="Item name"
                     placeholderTextColor="#999"
                   />
@@ -147,8 +251,9 @@ export function ReceiptReviewScreen({
                     <Text style={styles.itemLabel}>Qty</Text>
                     <TextInput
                       style={styles.itemInput}
-                      value={item.quantity.toString()}
-                      onChangeText={(v) => updateItem(index, 'quantity', v)}
+                      value={itemDrafts[index]?.quantity ?? item.quantity.toString()}
+                      onChangeText={(v) => updateItemQuantityText(index, v)}
+                      onBlur={() => blurItemQuantity(index)}
                       keyboardType="numeric"
                     />
                   </View>
@@ -156,8 +261,9 @@ export function ReceiptReviewScreen({
                     <Text style={styles.itemLabel}>Unit $</Text>
                     <TextInput
                       style={styles.itemInput}
-                      value={item.unit_price.toFixed(2)}
-                      onChangeText={(v) => updateItem(index, 'unit_price', v)}
+                      value={itemDrafts[index]?.unit_price ?? item.unit_price.toFixed(2)}
+                      onChangeText={(v) => updateItemUnitPriceText(index, v)}
+                      onBlur={() => blurItemUnitPrice(index)}
                       keyboardType="decimal-pad"
                     />
                   </View>
@@ -178,14 +284,7 @@ export function ReceiptReviewScreen({
             <Text style={styles.sectionTitle}>Totals</Text>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Subtotal</Text>
-              <TextInput
-                style={styles.totalInput}
-                value={subtotal}
-                onChangeText={setSubtotal}
-                placeholder={calculateSubtotal().toFixed(2)}
-                placeholderTextColor="#999"
-                keyboardType="decimal-pad"
-              />
+              <Text style={styles.totalInput}>{computedSubtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>Tax</Text>
@@ -211,14 +310,7 @@ export function ReceiptReviewScreen({
             </View>
             <View style={[styles.totalRow, styles.grandTotalRow]}>
               <Text style={styles.grandTotalLabel}>Total</Text>
-              <TextInput
-                style={[styles.totalInput, styles.grandTotalInput]}
-                value={total}
-                onChangeText={setTotal}
-                placeholder="0.00"
-                placeholderTextColor="#999"
-                keyboardType="decimal-pad"
-              />
+              <Text style={[styles.totalInput, styles.grandTotalInput]}>{computedTotal.toFixed(2)}</Text>
             </View>
           </View>
         </ScrollView>

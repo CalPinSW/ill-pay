@@ -5,12 +5,14 @@ import { supabase } from './supabase';
 WebBrowser.maybeCompleteAuthSession();
 
 type Provider = 'google' | 'apple';
+const redirectTo = 'illpay://auth/callback';
 
 export async function signInWithProvider(provider: Provider) {
   try {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
+        redirectTo,
         skipBrowserRedirect: true,
       },
     });
@@ -20,7 +22,7 @@ export async function signInWithProvider(provider: Provider) {
 
     const result = await WebBrowser.openAuthSessionAsync(
       data.url,
-      'illpay://auth/callback'
+      redirectTo
     );
 
     if (result.type === 'success') {
