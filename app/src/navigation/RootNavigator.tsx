@@ -26,7 +26,7 @@ export function RootNavigator() {
     },
   });
 
-  if (!isInitialized || isLoading) {
+  if (!isInitialized) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4F46E5" />

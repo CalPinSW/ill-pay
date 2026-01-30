@@ -12,7 +12,6 @@ import {
   Alert,
 } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
-import { signInWithGoogle, signInWithApple } from '@/services/socialAuthService';
 
 interface SignInScreenProps {
   onNavigateToSignUp: () => void;
@@ -27,6 +26,7 @@ export function SignInScreen({
   const [password, setPassword] = useState('');
 
   const signIn = useAuthStore((state) => state.signIn);
+  const signInWithSocial = useAuthStore((state) => state.signInWithSocial);
   const isLoading = useAuthStore((state) => state.isLoading);
   const [socialLoading, setSocialLoading] = useState<'google' | 'apple' | null>(null);
 
@@ -115,7 +115,7 @@ export function SignInScreen({
               style={[styles.socialButton, socialLoading === 'google' && styles.buttonDisabled]}
               onPress={async () => {
                 setSocialLoading('google');
-                const { error } = await signInWithGoogle();
+                const { error } = await signInWithSocial('google');
                 setSocialLoading(null);
                 if (error) Alert.alert('Error', error.message);
               }}
@@ -133,7 +133,7 @@ export function SignInScreen({
                 style={[styles.socialButton, styles.appleButton, socialLoading === 'apple' && styles.buttonDisabled]}
                 onPress={async () => {
                   setSocialLoading('apple');
-                  const { error } = await signInWithApple();
+                  const { error } = await signInWithSocial('apple');
                   setSocialLoading(null);
                   if (error) Alert.alert('Error', error.message);
                 }}

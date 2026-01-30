@@ -3,6 +3,15 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/services/supabase';
 import { AuthState, Profile, SignUpCredentials, SignInCredentials } from '@/types/auth';
 
+function withTimeout<T>(promise: Promise<T> | PromiseLike<T>, ms: number, operation: string): Promise<T> {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise<T>((_, reject) => 
+      setTimeout(() => reject(new Error(`${operation} timed out after ${ms}ms`)), ms)
+    )
+  ]);
+}
+
 interface AuthStore extends AuthState {
   setUser: (user: User | null) => void;
   setSession: (session: Session | null) => void;
@@ -12,6 +21,7 @@ interface AuthStore extends AuthState {
   initialize: () => Promise<void>;
   signUp: (credentials: SignUpCredentials) => Promise<{ error: Error | null }>;
   signIn: (credentials: SignInCredentials) => Promise<{ error: Error | null }>;
+  signInWithSocial: (provider: 'google' | 'apple') => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
   fetchProfile: (userId: string) => Promise<void>;
@@ -47,9 +57,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       supabase.auth.onAuthStateChange(async (event, session) => {
         set({ user: session?.user ?? null, session });
 
-        if (event === 'SIGNED_IN' && session?.user) {
+        // Only fetch profile for email/password sign-ins (INITIAL_SESSION)
+        // OAuth sign-ins handle profile fetch explicitly after setSession completes
+        if (event === 'INITIAL_SESSION' && session?.user) {
           await get().fetchProfile(session.user.id);
-        } else if (event === 'SIGNED_OUT') {
+        } else if (event === 'SIGNED_OUT' && !session) {
           set({ profile: null });
         }
       });
@@ -76,6 +88,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       if (error) throw error;
+
+      // Supabase returns a user with no identities if email exists with OAuth
+      if (data?.user?.identities?.length === 0) {
+        throw new Error(
+          'An account with this email already exists. Please sign in using Google or Apple.'
+        );
+      }
 
       return { error: null };
     } catch (error) {
@@ -106,13 +125,39 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
+  signInWithSocial: async (provider) => {
+    try {
+      const { signInWithProvider } = await import('@/services/socialAuthService');
+      const { data, error } = await signInWithProvider(provider);
+      
+      if (error) throw error;
+      
+      // Fetch profile after setSession completes (session is already persisted)
+      if (data?.session?.user) {
+        await get().fetchProfile(data.session.user.id);
+      }
+      
+      return { error: null };
+    } catch (error) {
+      console.error('Social sign in error:', error);
+      return { error: error as Error };
+    }
+  },
+
   signOut: async () => {
     try {
       set({ isLoading: true });
-      await supabase.auth.signOut();
+      
+      try {
+        await withTimeout(supabase.auth.signOut(), 5000, 'signOut');
+      } catch (timeoutError) {
+        console.error('Sign out timeout, clearing local state:', timeoutError);
+      }
+      
       set({ user: null, session: null, profile: null });
     } catch (error) {
       console.error('Sign out error:', error);
+      set({ user: null, session: null, profile: null });
     } finally {
       set({ isLoading: false });
     }
@@ -139,17 +184,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   fetchProfile: async (userId) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const { data, error } = await withTimeout(
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        15000,
+        'fetchProfile'
+      );
 
       if (error) throw error;
 
       set({ profile: data as Profile });
-    } catch (error) {
-      console.error('Fetch profile error:', error);
+    } catch (error: any) {
+      console.error('Fetch profile error:', error?.message || error);
+      set({ profile: null });
     }
   },
 
