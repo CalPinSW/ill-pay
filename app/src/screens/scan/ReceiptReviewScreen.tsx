@@ -206,7 +206,7 @@ export function ReceiptReviewScreen({
         </View>
 
         <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: colors.surface }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Details</Text>
             <View style={styles.inputRow}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Restaurant</Text>
@@ -228,6 +228,7 @@ export function ReceiptReviewScreen({
             <View style={styles.inputRow}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Date</Text>
               <RNDateTimePicker
+                textColor={colors.text}
                 value={date}
                 mode="date"
                 display={'default'}
@@ -239,7 +240,7 @@ export function ReceiptReviewScreen({
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: colors.surface }]}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Items</Text>
               <TouchableOpacity onPress={addItem}>
@@ -328,11 +329,11 @@ export function ReceiptReviewScreen({
             )}
           </View>
 
-          <View style={styles.section}>
+          <View style={[styles.section, { backgroundColor: colors.surface }]}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Totals</Text>
             <View style={styles.totalRow}>
               <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Subtotal</Text>
-              <Text style={[styles.totalInput, { color: colors.text }]}>
+              <Text style={[styles.totalValue, { color: colors.text }]}>
                 {computedSubtotal.toFixed(2)}
               </Text>
             </View>
@@ -376,7 +377,7 @@ export function ReceiptReviewScreen({
               style={[styles.totalRow, styles.grandTotalRow, { borderTopColor: colors.border }]}
             >
               <Text style={[styles.grandTotalLabel, { color: colors.text }]}>Total</Text>
-              <Text style={[styles.totalInput, styles.grandTotalInput, { color: colors.text }]}>
+              <Text style={[styles.totalValue, styles.grandTotalValue, { color: colors.text }]}>
                 {computedTotal.toFixed(2)}
               </Text>
             </View>
@@ -399,9 +400,9 @@ export function ReceiptReviewScreen({
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.textInverse} />
             ) : (
-              <Text style={styles.confirmButtonText}>Create Receipt</Text>
+              <Text style={[styles.confirmButtonText, { color: colors.textInverse }]}>Create Receipt</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -413,7 +414,6 @@ export function ReceiptReviewScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
   },
   flex: {
     flex: 1,
@@ -423,18 +423,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
   },
   cancelButton: {
     fontSize: 16,
-    color: '#4F46E5',
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1a1a1a',
   },
   placeholder: {
     width: 50,
@@ -443,7 +439,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   section: {
-    backgroundColor: '#fff',
     marginTop: 16,
     padding: 16,
   },
@@ -456,12 +451,10 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
     textTransform: 'uppercase',
     marginBottom: 12,
   },
   addButton: {
-    color: '#4F46E5',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -473,19 +466,16 @@ const styles = StyleSheet.create({
   label: {
     width: 80,
     fontSize: 14,
-    color: '#666',
   },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
   },
   itemCard: {
     borderWidth: 1,
-    borderColor: '#eee',
     borderRadius: 8,
     padding: 12,
     marginBottom: 12,
@@ -504,7 +494,6 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     fontSize: 18,
-    color: '#999',
     padding: 4,
   },
   itemDetails: {
@@ -516,12 +505,10 @@ const styles = StyleSheet.create({
   },
   itemLabel: {
     fontSize: 12,
-    color: '#999',
     marginBottom: 4,
   },
   itemInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 6,
     padding: 8,
     fontSize: 14,
@@ -530,13 +517,11 @@ const styles = StyleSheet.create({
   itemTotal: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1a1a1a',
     textAlign: 'center',
     paddingVertical: 8,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
     paddingVertical: 24,
   },
   totalRow: {
@@ -547,39 +532,41 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 14,
-    color: '#666',
   },
   totalInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     padding: 12,
     width: 100,
     textAlign: 'right',
     fontSize: 16,
   },
+  totalValue: {
+    width: 100,
+    textAlign: 'right',
+    fontSize: 16,
+    paddingVertical: 12,
+  },
   grandTotalRow: {
     borderTopWidth: 1,
-    borderTopColor: '#eee',
     paddingTop: 12,
     marginTop: 4,
   },
   grandTotalLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1a1a1a',
   },
   grandTotalInput: {
     fontWeight: '600',
   },
+  grandTotalValue: {
+    fontWeight: '600',
+  },
   footer: {
     padding: 16,
-    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
   },
   confirmButton: {
-    backgroundColor: '#4F46E5',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
@@ -588,7 +575,6 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   confirmButtonText: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },
