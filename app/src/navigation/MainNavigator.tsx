@@ -227,6 +227,11 @@ function ScanStack() {
     setScreen('camera');
   };
 
+  const handleManualEntry = () => {
+    setParsedReceipt({ items: [] });
+    setScreen('review');
+  };
+
   if (screen === 'parsing') {
     return (
       <View style={[scanStyles.loadingContainer, { backgroundColor: colors.background }]}>
@@ -260,7 +265,7 @@ function ScanStack() {
     );
   }
 
-  return <ScanScreen onImageCaptured={handleImageCaptured} />;
+  return <ScanScreen onImageCaptured={handleImageCaptured} onManualEntry={handleManualEntry} />;
 }
 
 const scanStyles = StyleSheet.create({

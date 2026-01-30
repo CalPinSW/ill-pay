@@ -227,16 +227,15 @@ export function ReceiptReviewScreen({
             </View>
             <View style={styles.inputRow}>
               <Text style={[styles.label, { color: colors.textSecondary }]}>Date</Text>
-              <RNDateTimePicker
-                textColor={colors.text}
-                value={date}
-                mode="date"
+                <RNDateTimePicker
+                  value={date}
+                  mode="date"
                 display={'default'}
-                onChange={(event, nextDate) => {
-                  if (event.type === 'dismissed' || !nextDate) return;
-                  setDate(nextDate);
-                }}
-              />
+                  onChange={(event, nextDate) => {
+                    if (event.type === 'dismissed' || !nextDate) return;
+                    setDate(nextDate);
+                  }}
+                />
             </View>
           </View>
 
@@ -473,6 +472,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+  },
+  datePickerWrapper: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    justifyContent: 'center',
   },
   itemCard: {
     borderWidth: 1,

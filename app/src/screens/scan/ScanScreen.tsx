@@ -16,9 +16,10 @@ import { useTheme } from '@/theme';
 
 interface ScanScreenProps {
   onImageCaptured?: (uri: string) => void;
+  onManualEntry?: () => void;
 }
 
-export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
+export function ScanScreen({ onImageCaptured, onManualEntry }: ScanScreenProps) {
   const { colors } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>('back');
@@ -169,6 +170,17 @@ export function ScanScreen({ onImageCaptured }: ScanScreenProps) {
         <View style={styles.cameraOverlay}>
           <View style={styles.scanFrame} />
           <Text style={styles.scanHint}>Position receipt within the frame</Text>
+          {onManualEntry && (
+            <TouchableOpacity
+              style={[styles.manualEntryButton, { backgroundColor: colors.backgroundTertiary }]}
+              onPress={onManualEntry}
+            >
+              <MaterialIcons name="edit" size={20} color={colors.primary} />
+              <Text style={[styles.manualEntryText, { color: colors.primary }]}>
+                Manual Entry
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.cameraControls}>
@@ -270,6 +282,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: 140,
+    paddingTop: 60,
   },
   scanFrame: {
     width: '80%',
@@ -285,6 +298,21 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+  },
+  manualEntryButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    gap: 6,
+  },
+  manualEntryText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   cameraControls: {
     flexDirection: 'row',
