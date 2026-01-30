@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { claimItem, unclaimItem, getItemClaims, splitItemBetweenUsers } from '@/services/claimService';
+import { useTheme } from '@/theme';
 
 interface ParticipantReceiptScreenProps {
   receiptId: string;
@@ -58,6 +59,7 @@ interface Participant {
 }
 
 export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantReceiptScreenProps) {
+  const { colors } = useTheme();
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [items, setItems] = useState<ReceiptItem[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
@@ -305,18 +307,19 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
     const isClaimedByOthersOnly = isFullyClaimed && !myClaim;
 
     return (
-      <View key={item.id} style={[styles.itemCard, isClaimedByOthersOnly && styles.itemCardDimmed]}>
+      <View key={item.id} style={[styles.itemCard, { backgroundColor: colors.surface, borderColor: colors.border }, isClaimedByOthersOnly && { opacity: 0.5 }]}>
         <View style={styles.itemHeader}>
           <View style={styles.itemInfo}>
-            <Text style={[styles.itemName, isClaimedByOthersOnly && styles.itemNameDimmed]}>{item.name}</Text>
-            <Text style={[styles.itemPrice, isClaimedByOthersOnly && styles.itemPriceDimmed]}>
+            <Text style={[styles.itemName, { color: colors.text }, isClaimedByOthersOnly && { color: colors.textTertiary }]}>{item.name}</Text>
+            <Text style={[styles.itemPrice, { color: colors.textSecondary }, isClaimedByOthersOnly && { color: colors.textTertiary }]}>
               {item.quantity} × {formatCurrency(item.unit_price)} = {formatCurrency(item.total_price)}
             </Text>
           </View>
           <View style={styles.claimStatus}>
             <Text style={[
               styles.claimCount,
-              isFullyClaimed && styles.claimCountFull
+              { color: colors.textSecondary },
+              isFullyClaimed && { color: colors.success }
             ]}>
               {totalClaimed}/{item.quantity}
             </Text>
@@ -326,10 +329,10 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
         {itemClaims.length > 0 && (
           <View style={styles.claimsList}>
             {itemClaims.map(claim => (
-              <View key={claim.id} style={styles.claimBadge}>
+              <View key={claim.id} style={[styles.claimBadge, { backgroundColor: claim.user_id === currentUserId ? colors.primary : colors.backgroundTertiary }]}>
                 <Text style={[
                   styles.claimBadgeText,
-                  claim.user_id === currentUserId && styles.myClaimBadgeText
+                  { color: claim.user_id === currentUserId ? colors.textInverse : colors.text }
                 ]}>
                   {claim.profile?.display_name || claim.profile?.username || 'Unknown'}
                   {claim.quantity !== 1 && ` ${formatQuantity(claim.quantity)}`}
@@ -342,7 +345,7 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
         <View style={styles.claimActions}>
           {myClaim && (
             <TouchableOpacity
-              style={styles.unclaimButton}
+              style={[styles.unclaimButton, { backgroundColor: colors.error }]}
               onPress={() => handleUnclaim(item.id)}
               disabled={isClaiming}
             >
@@ -351,17 +354,18 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
           )}
 
           <TouchableOpacity
-            style={styles.splitButton}
+            style={[styles.splitButton, { backgroundColor: colors.backgroundTertiary }]}
             onPress={() => openSplitModal(item)}
             disabled={isClaiming}
           >
-            <Text style={styles.splitButtonText}>Split</Text>
+            <Text style={[styles.splitButtonText, { color: colors.primary }]}>Split</Text>
           </TouchableOpacity>
           
           {!isFullyClaimed && (
             <TouchableOpacity
               style={[
                 styles.claimButton,
+                { backgroundColor: colors.primary },
                 myClaim && styles.claimButtonActive,
               ]}
               onPress={() => handleClaim(item)}
@@ -383,41 +387,41 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Back</Text>
+          <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {receipt?.restaurant_name || 'Receipt'}
         </Text>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-          <Text style={styles.doneButtonText}>Done</Text>
+          <Text style={[styles.doneButtonText, { color: colors.primary }]}>Done</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView
         style={styles.content}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={fetchData} />
+          <RefreshControl refreshing={isLoading} onRefresh={fetchData} tintColor={colors.primary} />
         }
       >
-        <Text style={styles.instructions}>
+        <Text style={[styles.instructions, { backgroundColor: colors.surface, color: colors.textSecondary }]}>
           Tap items to claim what you ordered
         </Text>
 
         {getUnclaimedItems().length > 0 && (
           <TouchableOpacity
-            style={styles.claimRestButton}
+            style={[styles.claimRestButton, { backgroundColor: colors.primary }]}
             onPress={handleClaimTheRest}
             disabled={claimingItemId === 'all'}
           >
@@ -431,10 +435,10 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
 
         {items.map(renderItem)}
 
-        <View style={styles.summarySection}>
-          <Text style={styles.summaryTitle}>Your Claims</Text>
+        <View style={[styles.summarySection, { backgroundColor: colors.backgroundSecondary }]}>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>Your Claims</Text>
           {claims.filter(c => c.user_id === currentUserId).length === 0 ? (
-            <Text style={styles.noClaims}>You haven't claimed any items yet</Text>
+            <Text style={[styles.noClaims, { color: colors.textSecondary }]}>You haven't claimed any items yet</Text>
           ) : (
             <View style={styles.myClaimsList}>
               {items
@@ -443,11 +447,11 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
                   const myClaim = getMyClaimForItem(item.id)!;
                   const myTotal = (item.unit_price * myClaim.quantity);
                   return (
-                    <View key={item.id} style={styles.myClaimRow}>
-                      <Text style={styles.myClaimName}>
+                    <View key={item.id} style={[styles.myClaimRow, { borderBottomColor: colors.border }]}>
+                      <Text style={[styles.myClaimName, { color: colors.text }]}>
                         {item.name} × {myClaim.quantity}
                       </Text>
-                      <Text style={styles.myClaimTotal}>
+                      <Text style={[styles.myClaimTotal, { color: colors.text }]}>
                         {formatCurrency(myTotal)}
                       </Text>
                     </View>
@@ -465,13 +469,13 @@ export function ParticipantReceiptScreen({ receiptId, onBack }: ParticipantRecei
         onRequestClose={() => setSplitModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Split Item</Text>
-            <Text style={styles.modalSubtitle}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Split Item</Text>
+            <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
               {splitItem?.name} - {splitItem && formatCurrency(splitItem.unit_price)}
             </Text>
             
-            <Text style={styles.modalLabel}>Select who to split with:</Text>
+            <Text style={[styles.modalLabel, { color: colors.text }]}>Select who to split with:</Text>
             
             <ScrollView style={styles.participantList}>
               {participants.map(p => (

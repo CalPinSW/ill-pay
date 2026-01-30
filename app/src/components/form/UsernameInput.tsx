@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { useTheme } from '@/theme';
 
 interface UsernameInputProps {
   value: string;
@@ -18,6 +19,8 @@ export function UsernameInput({
   required = false,
   editable = true,
 }: UsernameInputProps) {
+  const { colors } = useTheme();
+  
   const handleChange = (text: string) => {
     // Auto-format: lowercase and filter invalid characters
     const formatted = text.toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -26,15 +29,20 @@ export function UsernameInput({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>
+      <Text style={[styles.label, { color: colors.text }]}>
         {label}
         {required && ' *'}
       </Text>
       <TextInput
         style={[
           styles.input,
-          error && styles.inputError,
-          !editable && styles.inputDisabled,
+          {
+            backgroundColor: colors.input,
+            borderColor: colors.inputBorder,
+            color: colors.text,
+          },
+          error && { borderColor: colors.error, backgroundColor: colors.errorBackground },
+          !editable && { backgroundColor: colors.inputDisabled, color: colors.textSecondary },
         ]}
         value={value}
         onChangeText={handleChange}
@@ -42,14 +50,14 @@ export function UsernameInput({
         autoCorrect={false}
         maxLength={30}
         placeholder="e.g. the_batman"
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.inputPlaceholder}
         editable={editable}
         autoComplete="username"
       />
       {error ? (
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
       ) : (
-        <Text style={styles.hint}>Used by friends to find you</Text>
+        <Text style={[styles.hint, { color: colors.textTertiary }]}>Used by friends to find you</Text>
       )}
     </View>
   );
@@ -78,33 +86,20 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  inputError: {
-    borderColor: '#ef4444',
-    backgroundColor: '#fef2f2',
-  },
-  inputDisabled: {
-    backgroundColor: '#eee',
-    color: '#666',
   },
   hint: {
     fontSize: 12,
-    color: '#999',
     marginTop: 4,
   },
   errorText: {
     fontSize: 12,
-    color: '#ef4444',
     marginTop: 4,
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SignInScreen, SignUpScreen, ForgotPasswordScreen } from '@/screens/auth';
+import { useTheme } from '@/theme';
 
 export type AuthStackParamList = {
   SignIn: undefined;
@@ -11,10 +12,15 @@ export type AuthStackParamList = {
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthNavigator() {
+  const { colors } = useTheme();
+  
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        contentStyle: {
+          backgroundColor: colors.background,
+        },
       }}
     >
       <Stack.Screen name="SignIn">

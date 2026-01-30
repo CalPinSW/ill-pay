@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { useTheme } from '@/theme';
 
 interface DisplayNameInputProps {
   value: string;
@@ -14,21 +15,30 @@ export function DisplayNameInput({
   label = 'Display Name',
   required = false,
 }: DisplayNameInputProps) {
+  const { colors } = useTheme();
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>
+      <Text style={[styles.label, { color: colors.text }]}>
         {label}
         {required && ' *'}
       </Text>
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: colors.input,
+            borderColor: colors.inputBorder,
+            color: colors.text,
+          },
+        ]}
         value={value}
         onChangeText={onChangeText}
         placeholder="e.g. Bruce Wayne"
-        placeholderTextColor="#999"
+        placeholderTextColor={colors.inputPlaceholder}
         autoComplete="name"
       />
-      <Text style={styles.hint}>How friends see you</Text>
+      <Text style={[styles.hint, { color: colors.textTertiary }]}>How friends see you</Text>
     </View>
   );
 }
@@ -40,20 +50,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    backgroundColor: '#f9f9f9',
   },
   hint: {
     fontSize: 12,
-    color: '#999',
     marginTop: 4,
   },
 });

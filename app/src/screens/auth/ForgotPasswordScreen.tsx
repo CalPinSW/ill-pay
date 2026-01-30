@@ -12,12 +12,14 @@ import {
   Alert,
 } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
+import { useTheme } from '@/theme';
 
 interface ForgotPasswordScreenProps {
   onNavigateToSignIn: () => void;
 }
 
 export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScreenProps) {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [emailSent, setEmailSent] = useState(false);
 
@@ -41,15 +43,15 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
 
   if (emailSent) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.successContent}>
           <Text style={styles.successIcon}>✉️</Text>
-          <Text style={styles.successTitle}>Check Your Email</Text>
-          <Text style={styles.successText}>
+          <Text style={[styles.successTitle, { color: colors.text }]}>Check Your Email</Text>
+          <Text style={[styles.successText, { color: colors.textSecondary }]}>
             We've sent a password reset link to {email}. Please check your inbox and follow the
             instructions.
           </Text>
-          <TouchableOpacity style={styles.button} onPress={onNavigateToSignIn}>
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={onNavigateToSignIn}>
             <Text style={styles.buttonText}>Back to Sign In</Text>
           </TouchableOpacity>
         </View>
@@ -59,7 +61,7 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -67,19 +69,19 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Reset Password</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>Reset Password</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Enter your email address and we'll send you a link to reset your password.
           </Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
               placeholder="you@example.com"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.inputPlaceholder}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -89,7 +91,7 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
           </View>
 
           <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
+            style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
             onPress={handleResetPassword}
             disabled={isLoading}
           >
@@ -102,9 +104,9 @@ export function ForgotPasswordScreen({ onNavigateToSignIn }: ForgotPasswordScree
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Remember your password?</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Remember your password?</Text>
           <TouchableOpacity onPress={onNavigateToSignIn}>
-            <Text style={styles.linkText}>Sign In</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>Sign In</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

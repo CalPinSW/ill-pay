@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { useFocusEffect } from '@react-navigation/native';
 import { EmptyState } from '@/components';
+import { useTheme } from '@/theme';
 
 interface Receipt {
   id: string;
@@ -33,6 +34,7 @@ interface HomeScreenProps {
 }
 
 export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScreenProps) {
+  const { colors } = useTheme();
   const [receipts, setReceipts] = useState<Receipt[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -144,27 +146,27 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
 
   const renderReceipt = ({ item }: { item: Receipt }) => (
     <TouchableOpacity 
-      style={styles.receiptCard}
+      style={[styles.receiptCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
       onPress={() => onSelectReceipt?.(item.id, item.isShared)}
     >
       {item.image_url && (
         <Image source={{ uri: item.image_url }} style={styles.receiptImage} />
       )}
       <View style={styles.receiptInfo}>
-        <Text style={styles.restaurantName} numberOfLines={1}>
+        <Text style={[styles.restaurantName, { color: colors.text }]} numberOfLines={1}>
           {item.restaurant_name || 'Unknown Restaurant'}
         </Text>
-        <Text style={styles.receiptDate}>{formatDate(item.receipt_date)}</Text>
+        <Text style={[styles.receiptDate, { color: colors.textSecondary }]}>{formatDate(item.receipt_date)}</Text>
         {item.isShared ? (
-          <Text style={styles.sharedBy}>Shared by {item.ownerName}</Text>
+          <Text style={[styles.sharedBy, { color: colors.primary }]}>Shared by {item.ownerName}</Text>
         ) : (
-          <Text style={styles.itemCount}>
+          <Text style={[styles.itemCount, { color: colors.textTertiary }]}>
             {item.item_count} item{item.item_count !== 1 ? 's' : ''}
           </Text>
         )}
       </View>
       <View style={styles.receiptTotal}>
-        <Text style={styles.totalAmount}>{formatCurrency(item.total)}</Text>
+        <Text style={[styles.totalAmount, { color: colors.text }]}>{formatCurrency(item.total)}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -178,11 +180,11 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Receipts</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Receipts</Text>
         {onJoinReceipt && (
-          <TouchableOpacity style={styles.joinButton} onPress={onJoinReceipt}>
+          <TouchableOpacity style={[styles.joinButton, { backgroundColor: colors.primary }]} onPress={onJoinReceipt}>
             <Text style={styles.joinButtonText}>Join</Text>
           </TouchableOpacity>
         )}
@@ -195,7 +197,7 @@ export function HomeScreen({ onSelectReceipt, onJoinReceipt, onScanQR }: HomeScr
         ListEmptyComponent={!isLoading ? renderEmpty : null}
         contentContainerStyle={receipts.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primaryHover} />
         }
       />
     </SafeAreaView>

@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ParsedReceipt, ReceiptItem } from '@/types/receipt';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
+import { useTheme } from '@/theme';
 
 interface ReceiptReviewScreenProps {
   parsedReceipt: ParsedReceipt;
@@ -28,6 +29,7 @@ export function ReceiptReviewScreen({
   onCancel,
   isSubmitting = false,
 }: ReceiptReviewScreenProps) {
+  const { colors } = useTheme();
   const [restaurantName, setRestaurantName] = useState(parsedReceipt.restaurant_name || '');
   const [date, setDate] = useState<Date>(() => {
     const candidate = parsedReceipt.date ? new Date(parsedReceipt.date) : new Date();
@@ -184,34 +186,34 @@ export function ReceiptReviewScreen({
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={onCancel} disabled={isSubmitting}>
-            <Text style={styles.cancelButton}>Cancel</Text>
+            <Text style={[styles.cancelButton, { color: colors.primary }]}>Cancel</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Review Receipt</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Review Receipt</Text>
           <View style={styles.placeholder} />
         </View>
 
         <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Details</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Details</Text>
             <View style={styles.inputRow}>
-              <Text style={styles.label}>Restaurant</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Restaurant</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
                 value={restaurantName}
                 onChangeText={setRestaurantName}
                 placeholder="Restaurant name"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.inputPlaceholder}
               />
             </View>
             <View style={styles.inputRow}>
-              <Text style={styles.label}>Date</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>Date</Text>
               <RNDateTimePicker
                 value={date}
                 mode="date"
@@ -226,98 +228,100 @@ export function ReceiptReviewScreen({
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Items</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>Items</Text>
               <TouchableOpacity onPress={addItem}>
-                <Text style={styles.addButton}>+ Add Item</Text>
+                <Text style={[styles.addButton, { color: colors.primary }]}>+ Add Item</Text>
               </TouchableOpacity>
             </View>
 
             {items.map((item, index) => (
-              <View key={index} style={styles.itemCard}>
+              <View key={index} style={[styles.itemCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                 <View style={styles.itemHeader}>
                   <TextInput
-                    style={styles.itemNameInput}
+                    style={[styles.itemNameInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
                     value={item.name}
                     onChangeText={(v) => updateItemName(index, v)}
                     placeholder="Item name"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={colors.inputPlaceholder}
                   />
                   <TouchableOpacity onPress={() => removeItem(index)}>
-                    <Text style={styles.removeButton}>✕</Text>
+                    <Text style={[styles.removeButton, { color: colors.error }]}>✕</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.itemDetails}>
                   <View style={styles.itemField}>
-                    <Text style={styles.itemLabel}>Qty</Text>
+                    <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>Qty</Text>
                     <TextInput
-                      style={styles.itemInput}
+                      style={[styles.itemInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
                       value={itemDrafts[index]?.quantity ?? item.quantity.toString()}
                       onChangeText={(v) => updateItemQuantityText(index, v)}
                       onBlur={() => blurItemQuantity(index)}
                       keyboardType="numeric"
+                      placeholderTextColor={colors.inputPlaceholder}
                     />
                   </View>
                   <View style={styles.itemField}>
-                    <Text style={styles.itemLabel}>Unit $</Text>
+                    <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>Unit $</Text>
                     <TextInput
-                      style={styles.itemInput}
+                      style={[styles.itemInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
                       value={itemDrafts[index]?.unit_price ?? item.unit_price.toFixed(2)}
                       onChangeText={(v) => updateItemUnitPriceText(index, v)}
                       onBlur={() => blurItemUnitPrice(index)}
                       keyboardType="decimal-pad"
+                      placeholderTextColor={colors.inputPlaceholder}
                     />
                   </View>
                   <View style={styles.itemField}>
-                    <Text style={styles.itemLabel}>Total</Text>
-                    <Text style={styles.itemTotal}>${item.total_price.toFixed(2)}</Text>
+                    <Text style={[styles.itemLabel, { color: colors.textSecondary }]}>Total</Text>
+                    <Text style={[styles.itemTotal, { color: colors.text }]}>${item.total_price.toFixed(2)}</Text>
                   </View>
                 </View>
               </View>
             ))}
 
             {items.length === 0 && (
-              <Text style={styles.emptyText}>No items. Tap "+ Add Item" to add one.</Text>
+              <Text style={[styles.emptyText, { color: colors.textSecondary }]}>No items. Tap "+ Add Item" to add one.</Text>
             )}
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Totals</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Totals</Text>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Subtotal</Text>
-              <Text style={styles.totalInput}>{computedSubtotal.toFixed(2)}</Text>
+              <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Subtotal</Text>
+              <Text style={[styles.totalInput, { color: colors.text }]}>{computedSubtotal.toFixed(2)}</Text>
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Tax</Text>
+              <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Tax</Text>
               <TextInput
-                style={styles.totalInput}
+                style={[styles.totalInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
                 value={tax}
                 onChangeText={setTax}
                 placeholder="0.00"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.inputPlaceholder}
                 keyboardType="decimal-pad"
               />
             </View>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Tip</Text>
+              <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>Tip</Text>
               <TextInput
-                style={styles.totalInput}
+                style={[styles.totalInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
                 value={tip}
                 onChangeText={setTip}
                 placeholder="0.00"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.inputPlaceholder}
                 keyboardType="decimal-pad"
               />
             </View>
-            <View style={[styles.totalRow, styles.grandTotalRow]}>
-              <Text style={styles.grandTotalLabel}>Total</Text>
-              <Text style={[styles.totalInput, styles.grandTotalInput]}>{computedTotal.toFixed(2)}</Text>
+            <View style={[styles.totalRow, styles.grandTotalRow, { borderTopColor: colors.border }]}>
+              <Text style={[styles.grandTotalLabel, { color: colors.text }]}>Total</Text>
+              <Text style={[styles.totalInput, styles.grandTotalInput, { color: colors.text }]}>{computedTotal.toFixed(2)}</Text>
             </View>
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { backgroundColor: colors.background, borderTopColor: colors.border }]}>
           <TouchableOpacity
-            style={[styles.confirmButton, isSubmitting && styles.buttonDisabled]}
+            style={[styles.confirmButton, { backgroundColor: colors.primary }, isSubmitting && styles.buttonDisabled]}
             onPress={handleConfirm}
             disabled={isSubmitting}
           >

@@ -15,12 +15,14 @@ import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { Profile } from '@/types/auth';
 import { NotificationTemplates } from '@/services/notificationService';
+import { useTheme } from '@/theme';
 
 interface SearchUsersScreenProps {
   onGoBack: () => void;
 }
 
 export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
+  const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Profile[]>([]);
@@ -121,24 +123,24 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
     const hasSentRequest = sentRequests.has(item.id);
 
     return (
-      <View style={styles.userItem}>
+      <View style={[styles.userItem, { borderBottomColor: colors.border }]}>
         {item.avatar_url ? (
           <Image source={{ uri: item.avatar_url }} style={styles.avatar} />
         ) : (
-          <View style={styles.avatarPlaceholder}>
+          <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primary }]}>
             <Text style={styles.avatarText}>{getInitials(item)}</Text>
           </View>
         )}
         <View style={styles.userInfo}>
-          <Text style={styles.userName}>{item.display_name || item.username}</Text>
-          <Text style={styles.userUsername}>@{item.username}</Text>
+          <Text style={[styles.userName, { color: colors.text }]}>{item.display_name || item.username}</Text>
+          <Text style={[styles.userUsername, { color: colors.textSecondary }]}>@{item.username}</Text>
         </View>
         <TouchableOpacity
-          style={[styles.addButton, hasSentRequest && styles.addButtonDisabled]}
+          style={[styles.addButton, { backgroundColor: hasSentRequest ? colors.backgroundTertiary : colors.primary }, hasSentRequest && styles.addButtonDisabled]}
           onPress={() => sendFriendRequest(item.id)}
           disabled={hasSentRequest}
         >
-          <Text style={[styles.addButtonText, hasSentRequest && styles.addButtonTextDisabled]}>
+          <Text style={[styles.addButtonText, hasSentRequest && { color: colors.textSecondary }]}>
             {hasSentRequest ? 'Sent' : 'Add'}
           </Text>
         </TouchableOpacity>
@@ -150,8 +152,8 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
     if (searchQuery.length < 2) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Search for users</Text>
-          <Text style={styles.emptySubtext}>
+          <Text style={[styles.emptyText, { color: colors.text }]}>Search for users</Text>
+          <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
             Enter at least 2 characters to search
           </Text>
         </View>
@@ -164,34 +166,34 @@ export function SearchUsersScreen({ onGoBack }: SearchUsersScreenProps) {
 
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No users found</Text>
-        <Text style={styles.emptySubtext}>Try a different search term</Text>
+        <Text style={[styles.emptyText, { color: colors.text }]}>No users found</Text>
+        <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>Try a different search term</Text>
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onGoBack}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Find Friends</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Find Friends</Text>
         <View style={styles.placeholder} />
       </View>
 
       <View style={styles.searchContainer}>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
           placeholder="Search by username or name..."
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.inputPlaceholder}
           value={searchQuery}
           onChangeText={handleSearch}
           autoCapitalize="none"
           autoCorrect={false}
         />
         {isSearching && (
-          <ActivityIndicator style={styles.searchIndicator} color="#4F46E5" />
+          <ActivityIndicator style={styles.searchIndicator} color={colors.primary} />
         )}
       </View>
 

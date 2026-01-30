@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { getReceiptByShareCode, joinReceipt } from '@/services/sharingService';
+import { useTheme } from '@/theme';
 
 interface QRScannerScreenProps {
   onBack: () => void;
@@ -10,6 +11,7 @@ interface QRScannerScreenProps {
 }
 
 export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps) {
+  const { colors } = useTheme();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -65,9 +67,9 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
 
   if (!permission) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.centerContent}>
-          <Text style={styles.message}>Requesting camera permission...</Text>
+          <Text style={[styles.message, { color: colors.text }]}>Requesting camera permission...</Text>
         </View>
       </SafeAreaView>
     );
@@ -75,17 +77,17 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
 
   if (!permission.granted) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-            <Text style={styles.headerButtonText}>← Back</Text>
+            <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Scan QR Code</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Scan QR Code</Text>
           <View style={styles.headerButton} />
         </View>
         <View style={styles.centerContent}>
-          <Text style={styles.message}>Camera permission is required to scan QR codes</Text>
-          <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <Text style={[styles.message, { color: colors.text }]}>Camera permission is required to scan QR codes</Text>
+          <TouchableOpacity style={[styles.permissionButton, { backgroundColor: colors.primary }]} onPress={requestPermission}>
             <Text style={styles.permissionButtonText}>Grant Permission</Text>
           </TouchableOpacity>
         </View>
@@ -94,12 +96,12 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Back</Text>
+          <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Scan QR Code</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Scan QR Code</Text>
         <View style={styles.headerButton} />
       </View>
 
@@ -122,7 +124,7 @@ export function QRScannerScreen({ onBack, onJoinSuccess }: QRScannerScreenProps)
       {scanned && (
         <View style={styles.scannedContainer}>
           <TouchableOpacity
-            style={styles.scanAgainButton}
+            style={[styles.scanAgainButton, { backgroundColor: colors.primary }]}
             onPress={() => setScanned(false)}
           >
             <Text style={styles.scanAgainButtonText}>Scan Again</Text>

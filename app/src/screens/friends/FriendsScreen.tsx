@@ -16,6 +16,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Profile } from '@/types/auth';
 import { EmptyState } from '@/components';
 import { removeFriend } from '@/services/friendshipService';
+import { useTheme } from '@/theme';
 
 interface Friendship {
   id: string;
@@ -32,6 +33,7 @@ interface FriendsScreenProps {
 }
 
 export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: FriendsScreenProps) {
+  const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
   const [friends, setFriends] = useState<Friendship[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
@@ -168,28 +170,28 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
 
   const renderFriend = ({ item }: { item: Friendship }) => (
     <TouchableOpacity 
-      style={styles.friendItem}
+      style={[styles.friendItem, { borderBottomColor: colors.border }]}
       onLongPress={() => handleRemoveFriend(item)}
       delayLongPress={500}
     >
       {item.friend.avatar_url ? (
         <Image source={{ uri: item.friend.avatar_url }} style={styles.avatar} />
       ) : (
-        <View style={styles.avatarPlaceholder}>
+        <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>{getInitials(item.friend)}</Text>
         </View>
       )}
       <View style={styles.friendInfo}>
-        <Text style={styles.friendName}>
+        <Text style={[styles.friendName, { color: colors.text }]}>
           {item.friend.display_name || item.friend.username}
         </Text>
-        <Text style={styles.friendUsername}>@{item.friend.username}</Text>
+        <Text style={[styles.friendUsername, { color: colors.textSecondary }]}>@{item.friend.username}</Text>
       </View>
       <TouchableOpacity 
         style={styles.removeButton}
         onPress={() => handleRemoveFriend(item)}
       >
-        <Text style={styles.removeButtonText}>✕</Text>
+        <Text style={[styles.removeButtonText, { color: colors.textTertiary }]}>✕</Text>
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -206,29 +208,29 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Friends</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
+        <Text style={[styles.title, { color: colors.text }]}>Friends</Text>
         <TouchableOpacity onPress={onNavigateToSearch}>
-          <Text style={styles.addIcon}>+</Text>
+          <Text style={[styles.addIcon, { color: colors.primary }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {pendingCount > 0 && (
-        <TouchableOpacity style={styles.requestsBanner} onPress={onNavigateToRequests}>
-          <Text style={styles.requestsText}>
+        <TouchableOpacity style={[styles.requestsBanner, { backgroundColor: colors.backgroundTertiary }]} onPress={onNavigateToRequests}>
+          <Text style={[styles.requestsText, { color: colors.primary }]}>
             {pendingCount} pending friend request{pendingCount > 1 ? 's' : ''}
           </Text>
-          <Text style={styles.requestsArrow}>›</Text>
+          <Text style={[styles.requestsArrow, { color: colors.primary }]}>›</Text>
         </TouchableOpacity>
       )}
 
@@ -239,7 +241,7 @@ export function FriendsScreen({ onNavigateToSearch, onNavigateToRequests }: Frie
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={friends.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primaryHover} />
         }
       />
     </SafeAreaView>

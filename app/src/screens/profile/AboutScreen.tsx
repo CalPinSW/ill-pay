@@ -9,54 +9,56 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import { useTheme } from '@/theme';
 
 interface AboutScreenProps {
   onGoBack: () => void;
 }
 
 export function AboutScreen({ onGoBack }: AboutScreenProps) {
+  const { colors } = useTheme();
   const appVersion = Constants.expoConfig?.version || '1.0.0';
   const buildNumber = Constants.expoConfig?.ios?.buildNumber || '1';
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onGoBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Back</Text>
+          <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>About</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>About</Text>
         <View style={styles.headerButton} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.logoSection}>
           <Text style={styles.appIcon}>🧾</Text>
-          <Text style={styles.appName}>I'll Pay</Text>
-          <Text style={styles.appTagline}>Split bills with friends, effortlessly</Text>
+          <Text style={[styles.appName, { color: colors.text }]}>I'll Pay</Text>
+          <Text style={[styles.appTagline, { color: colors.textSecondary }]}>Split bills with friends, effortlessly</Text>
         </View>
 
         <View style={styles.infoSection}>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Version</Text>
-            <Text style={styles.infoValue}>{appVersion}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Version</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>{appVersion}</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Build</Text>
-            <Text style={styles.infoValue}>{buildNumber}</Text>
+            <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Build</Text>
+            <Text style={[styles.infoValue, { color: colors.text }]}>{buildNumber}</Text>
           </View>
         </View>
 
         <View style={styles.linksSection}>
           <TouchableOpacity 
-            style={styles.linkItem}
+            style={[styles.linkItem, { backgroundColor: colors.surface, borderColor: colors.border }]}
             onPress={() => Linking.openURL('https://github.com/CalPinSW/ill-pay')}
           >
-            <Text style={styles.linkText}>View on GitHub</Text>
-            <Text style={styles.linkArrow}>›</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>View on GitHub</Text>
+            <Text style={[styles.linkArrow, { color: colors.textSecondary }]}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.copyright}>
+        <Text style={[styles.copyright, { color: colors.textTertiary }]}>
           © {new Date().getFullYear()} I'll Pay. All rights reserved.
         </Text>
       </ScrollView>

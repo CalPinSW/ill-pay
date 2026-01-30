@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme } from '@/theme';
 
 interface EmptyStateProps {
   icon?: string;
@@ -16,13 +17,15 @@ export function EmptyState({
   actionLabel, 
   onAction 
 }: EmptyStateProps) {
+  const { colors } = useTheme();
+  
   return (
     <View style={styles.container}>
       <Text style={styles.icon}>{icon}</Text>
-      <Text style={styles.title}>{title}</Text>
-      {message && <Text style={styles.message}>{message}</Text>}
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+      {message && <Text style={[styles.message, { color: colors.textSecondary }]}>{message}</Text>}
       {actionLabel && onAction && (
-        <TouchableOpacity style={styles.button} onPress={onAction}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={onAction}>
           <Text style={styles.buttonText}>{actionLabel}</Text>
         </TouchableOpacity>
       )}

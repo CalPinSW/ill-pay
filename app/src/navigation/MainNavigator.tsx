@@ -5,6 +5,7 @@ import { Text, Alert, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useTheme } from '@/theme';
 
 import { HomeScreen } from '@/screens/home';
 import { ScanScreen, ReceiptReviewScreen, RateLimitScreen } from '@/screens/scan';
@@ -145,6 +146,7 @@ function HomeStack() {
 }
 
 function ScanStack() {
+  const { colors } = useTheme();
   const [screen, setScreen] = useState<'camera' | 'parsing' | 'review' | 'rate_limit'>('camera');
   const [capturedImageUri, setCapturedImageUri] = useState<string | null>(null);
   const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
@@ -237,10 +239,10 @@ function ScanStack() {
 
   if (screen === 'parsing') {
     return (
-      <View style={scanStyles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4F46E5" />
-        <Text style={scanStyles.loadingText}>Analyzing receipt...</Text>
-        <Text style={scanStyles.loadingSubtext}>This may take a few seconds</Text>
+      <View style={[scanStyles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[scanStyles.loadingText, { color: colors.text }]}>Analyzing receipt...</Text>
+        <Text style={[scanStyles.loadingSubtext, { color: colors.textSecondary }]}>This may take a few seconds</Text>
       </View>
     );
   }
@@ -335,10 +337,10 @@ function ProfileStack() {
   );
 }
 
-function FriendsTabIcon({ pendingCount }: { pendingCount: number }) {
+function FriendsTabIcon({ pendingCount, color }: { pendingCount: number; color: string }) {
   return (
     <View style={{ position: 'relative' }}>
-      <MaterialIcons name="groups" size={24} color="black" />
+      <MaterialIcons name="groups" size={24} color={color} />
       {pendingCount > 0 && (
         <View style={badgeStyles.badge}>
           <Text style={badgeStyles.badgeText}>
@@ -371,6 +373,7 @@ const badgeStyles = StyleSheet.create({
 });
 
 export function MainNavigator() {
+  const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [newReceiptId, setNewReceiptId] = useState<string | null>(null);
@@ -418,11 +421,12 @@ export function MainNavigator() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#4F46E5',
-          tabBarInactiveTintColor: '#999',
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textTertiary,
           tabBarStyle: {
+            backgroundColor: colors.surface,
             borderTopWidth: 1,
-            borderTopColor: '#eee',
+            borderTopColor: colors.border,
           },
         }}
       >
@@ -431,7 +435,7 @@ export function MainNavigator() {
           component={HomeStack}
           options={{
             tabBarLabel: 'Home',
-            tabBarIcon: ({ color }) => <MaterialIcons name="home" size={24} color="black" />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="home" size={24} color={color} />,
           }}
         />
         <Tab.Screen
@@ -439,7 +443,7 @@ export function MainNavigator() {
           component={ScanStack}
           options={{
             tabBarLabel: 'Scan Receipt',
-            tabBarIcon: ({ color }) => <MaterialIcons name="document-scanner" size={24} color="black" />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="document-scanner" size={24} color={color} />,
           }}
         />
         <Tab.Screen
@@ -447,7 +451,7 @@ export function MainNavigator() {
           component={FriendsStack}
           options={{
             tabBarLabel: 'Friends',
-            tabBarIcon: () => <FriendsTabIcon pendingCount={pendingRequestCount} />,
+            tabBarIcon: ({ color }) => <FriendsTabIcon pendingCount={pendingRequestCount} color={color} />,
           }}
         />
         <Tab.Screen
@@ -455,7 +459,7 @@ export function MainNavigator() {
           component={ProfileStack}
           options={{
             tabBarLabel: 'Profile',
-            tabBarIcon: ({ color }) => <MaterialIcons name="person" size={24} color="black" />,
+            tabBarIcon: ({ color }) => <MaterialIcons name="person" size={24} color={color} />,
           }}
         />
       </Tab.Navigator>

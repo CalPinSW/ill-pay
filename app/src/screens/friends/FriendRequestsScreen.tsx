@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { useAuthStore } from '@/store/authStore';
 import { Profile } from '@/types/auth';
+import { useTheme } from '@/theme';
 
 interface FriendRequest {
   id: string;
@@ -29,6 +30,7 @@ interface FriendRequestsScreenProps {
 }
 
 export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
+  const { colors } = useTheme();
   const user = useAuthStore((state) => state.user);
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,32 +129,32 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
   };
 
   const renderRequest = ({ item }: { item: FriendRequest }) => (
-    <View style={styles.requestItem}>
+    <View style={[styles.requestItem, { borderBottomColor: colors.border }]}>
       {item.requester?.avatar_url ? (
         <Image source={{ uri: item.requester.avatar_url }} style={styles.avatar} />
       ) : (
-        <View style={styles.avatarPlaceholder}>
+        <View style={[styles.avatarPlaceholder, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>{getInitials(item.requester)}</Text>
         </View>
       )}
       <View style={styles.requestInfo}>
-        <Text style={styles.requestName}>
+        <Text style={[styles.requestName, { color: colors.text }]}>
           {item.requester?.display_name || item.requester?.username}
         </Text>
-        <Text style={styles.requestUsername}>@{item.requester?.username}</Text>
+        <Text style={[styles.requestUsername, { color: colors.textSecondary }]}>@{item.requester?.username}</Text>
       </View>
       <View style={styles.actions}>
         <TouchableOpacity
-          style={styles.acceptButton}
+          style={[styles.acceptButton, { backgroundColor: colors.primary }]}
           onPress={() => acceptRequest(item.id)}
         >
           <Text style={styles.acceptButtonText}>Accept</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.declineButton}
+          style={[styles.declineButton, { backgroundColor: colors.backgroundTertiary }]}
           onPress={() => declineRequest(item.id)}
         >
-          <Text style={styles.declineButtonText}>✕</Text>
+          <Text style={[styles.declineButtonText, { color: colors.error }]}>✕</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -160,8 +162,8 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No pending requests</Text>
-      <Text style={styles.emptySubtext}>
+      <Text style={[styles.emptyText, { color: colors.text }]}>No pending requests</Text>
+      <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
         When someone sends you a friend request, it will appear here
       </Text>
     </View>
@@ -169,28 +171,28 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <TouchableOpacity onPress={onGoBack}>
-            <Text style={styles.backButton}>← Back</Text>
+            <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Friend Requests</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Friend Requests</Text>
           <View style={styles.placeholder} />
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4F46E5" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onGoBack}>
-          <Text style={styles.backButton}>← Back</Text>
+          <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>Friend Requests</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Friend Requests</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -201,7 +203,7 @@ export function FriendRequestsScreen({ onGoBack }: FriendRequestsScreenProps) {
         ListEmptyComponent={renderEmpty}
         contentContainerStyle={requests.length === 0 ? styles.emptyList : styles.list}
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={colors.primaryHover} />
         }
       />
     </SafeAreaView>

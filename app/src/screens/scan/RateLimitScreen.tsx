@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '@/theme';
 
 interface RateLimitScreenProps {
   limit: number;
@@ -9,16 +10,18 @@ interface RateLimitScreenProps {
 }
 
 export function RateLimitScreen({ limit, count, onBack }: RateLimitScreenProps) {
+  const { colors } = useTheme();
+  
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={styles.content}>
-        <Text style={styles.title}>Daily limit reached</Text>
-        <Text style={styles.subtitle}>
+        <Text style={[styles.title, { color: colors.text }]}>Daily limit reached</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           You have used {count} of {limit} receipt scans today.
         </Text>
-        <Text style={styles.subtitle}>Try again tomorrow.</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Try again tomorrow.</Text>
 
-        <TouchableOpacity style={styles.button} onPress={onBack}>
+        <TouchableOpacity style={[styles.button, { backgroundColor: colors.primary }]} onPress={onBack}>
           <Text style={styles.buttonText}>Back to Scan</Text>
         </TouchableOpacity>
       </View>

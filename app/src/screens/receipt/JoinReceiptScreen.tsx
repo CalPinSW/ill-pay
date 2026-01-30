@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getReceiptByShareCode, joinReceipt } from '@/services/sharingService';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useTheme } from '@/theme';
 
 interface JoinReceiptScreenProps {
   onBack: () => void;
@@ -22,6 +23,7 @@ interface JoinReceiptScreenProps {
 }
 
 export function JoinReceiptScreen({ onBack, onJoinSuccess, onScanQR, initialCode = '' }: JoinReceiptScreenProps) {
+  const { colors } = useTheme();
   const [shareCode, setShareCode] = useState(initialCode);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,12 +57,12 @@ export function JoinReceiptScreen({ onBack, onJoinSuccess, onScanQR, initialCode
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Back</Text>
+          <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Join Receipt</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Join Receipt</Text>
         <View style={styles.headerButton} />
       </View>
 
@@ -69,23 +71,23 @@ export function JoinReceiptScreen({ onBack, onJoinSuccess, onScanQR, initialCode
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={styles.form}>
-          <Text style={styles.label}>Enter Share Code</Text>
+          <Text style={[styles.label, { color: colors.text }]}>Enter Share Code</Text>
           <TextInput
-            style={styles.codeInput}
+            style={[styles.codeInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
             value={shareCode}
             onChangeText={(text) => setShareCode(text.toUpperCase())}
             placeholder="ABC123"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.inputPlaceholder}
             autoCapitalize="characters"
             autoCorrect={false}
             maxLength={6}
           />
-          <Text style={styles.hint}>
+          <Text style={[styles.hint, { color: colors.textSecondary }]}>
             Ask your friend for their 6-character share code
           </Text>
 
           <TouchableOpacity
-            style={[styles.joinButton, shareCode.length !== 6 && styles.joinButtonDisabled]}
+            style={[styles.joinButton, { backgroundColor: colors.primary }, shareCode.length !== 6 && styles.joinButtonDisabled]}
             onPress={handleJoin}
             disabled={isLoading || shareCode.length !== 6}
           >
@@ -99,14 +101,14 @@ export function JoinReceiptScreen({ onBack, onJoinSuccess, onScanQR, initialCode
           {onScanQR && (
             <>
               <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+                <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or</Text>
+                <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
               </View>
 
-              <TouchableOpacity style={styles.scanButton} onPress={onScanQR}>
-                <MaterialIcons style={styles.scanButtonIcon} name="document-scanner" size={24} color="black" />
-                <Text style={styles.scanButtonText}>Scan QR Code</Text>
+              <TouchableOpacity style={[styles.scanButton, { backgroundColor: colors.backgroundTertiary }]} onPress={onScanQR}>
+                <MaterialIcons style={styles.scanButtonIcon} name="document-scanner" size={24} color={colors.primary} />
+                <Text style={[styles.scanButtonText, { color: colors.primary }]}>Scan QR Code</Text>
               </TouchableOpacity>
             </>
           )}

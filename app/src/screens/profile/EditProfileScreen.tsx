@@ -19,12 +19,14 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
 import { UsernameInput, validateUsername, DisplayNameInput } from '@/components/form';
+import { useTheme } from '@/theme';
 
 interface EditProfileScreenProps {
   onGoBack: () => void;
 }
 
 export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
+  const { colors } = useTheme();
   const profile = useAuthStore((state) => state.profile);
   const updateProfile = useAuthStore((state) => state.updateProfile);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -168,7 +170,7 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -176,9 +178,9 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <TouchableOpacity onPress={onGoBack}>
-              <Text style={styles.backButton}>← Back</Text>
+              <Text style={[styles.backButton, { color: colors.primary }]}>← Back</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>Edit Profile</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Edit Profile</Text>
             <View style={styles.placeholder} />
           </View>
 
@@ -192,9 +194,9 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
             )}
             <TouchableOpacity style={styles.changePhotoButton} onPress={handleChangePhoto} disabled={isUploading}>
               {isUploading ? (
-                <ActivityIndicator color="#4F46E5" />
+                <ActivityIndicator color={colors.primary} />
               ) : (
-                <Text style={styles.changePhotoText}>Change Photo</Text>
+                <Text style={[styles.changePhotoText, { color: colors.primary }]}>Change Photo</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -216,7 +218,7 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
           </View>
 
           <TouchableOpacity
-            style={[styles.saveButton, isLoading && styles.saveButtonDisabled]}
+            style={[styles.saveButton, { backgroundColor: colors.primary }, isLoading && styles.saveButtonDisabled]}
             onPress={handleSave}
             disabled={isLoading}
           >

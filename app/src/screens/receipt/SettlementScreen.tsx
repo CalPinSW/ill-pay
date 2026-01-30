@@ -17,6 +17,7 @@ import {
   DistributionType,
   DistributionOptions,
 } from '@/services/billCalculationService';
+import { useTheme } from '@/theme';
 
 interface SettlementScreenProps {
   receiptId: string;
@@ -24,6 +25,7 @@ interface SettlementScreenProps {
 }
 
 export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
+  const { colors } = useTheme();
   const [breakdown, setBreakdown] = useState<BillBreakdown | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -107,9 +109,9 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -117,7 +119,7 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
 
   if (!breakdown) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Failed to load bill breakdown</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchBreakdown}>
@@ -129,47 +131,47 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Back</Text>
+          <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>Settlement</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>Settlement</Text>
         <View style={styles.headerButton} />
       </View>
 
       <ScrollView
         style={styles.content}
         refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={fetchBreakdown} />
+          <RefreshControl refreshing={isLoading} onRefresh={fetchBreakdown} tintColor={colors.primary} />
         }
       >
-        <View style={styles.summaryCard}>
-          <Text style={styles.restaurantName}>{receiptName}</Text>
+        <View style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.restaurantName, { color: colors.text }]}>{receiptName}</Text>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(breakdown.subtotal)}</Text>
+            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Subtotal</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(breakdown.subtotal)}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Tax</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(breakdown.tax)}</Text>
+            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tax</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(breakdown.tax)}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Tip</Text>
-            <Text style={styles.summaryValue}>{formatCurrency(breakdown.tip)}</Text>
+            <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tip</Text>
+            <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(breakdown.tip)}</Text>
           </View>
-          <View style={[styles.summaryRow, styles.totalRow]}>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>{formatCurrency(breakdown.total)}</Text>
+          <View style={[styles.summaryRow, styles.totalRow, { borderTopColor: colors.border }]}>
+            <Text style={[styles.totalLabel, { color: colors.text }]}>Total</Text>
+            <Text style={[styles.totalValue, { color: colors.text }]}>{formatCurrency(breakdown.total)}</Text>
           </View>
         </View>
 
         {breakdown.unclaimed_total > 0 && (
-          <View style={styles.warningCard}>
-            <Text style={styles.warningText}>
+          <View style={[styles.warningCard, { backgroundColor: colors.errorBackground }]}>
+            <Text style={[styles.warningText, { color: colors.error }]}>
               ⚠️ {formatCurrency(breakdown.unclaimed_total)} in unclaimed items
             </Text>
-            <Text style={styles.warningSubtext}>
+            <Text style={[styles.warningSubtext, { color: colors.error }]}>
               Unclaimed items will be split equally among all participants
             </Text>
           </View>
@@ -245,8 +247,8 @@ export function SettlementScreen({ receiptId, onBack }: SettlementScreenProps) {
 
         <View style={styles.participantsSection}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Who Owes What</Text>
-            {isRefreshing && <ActivityIndicator size="small" color="#007AFF" />}
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Who Owes What</Text>
+            {isRefreshing && <ActivityIndicator size="small" color={colors.primary} />}
           </View>
           
           {breakdown.participants.map((participant) => (

@@ -13,12 +13,14 @@ import {
 } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
 import { UsernameInput, validateUsername, DisplayNameInput } from '@/components/form';
+import { useTheme } from '@/theme';
 
 interface SignUpScreenProps {
   onNavigateToSignIn: () => void;
 }
 
 export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
+  const { colors } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -73,7 +75,7 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
@@ -81,17 +83,17 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join I'll Pay to split bills with friends</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Create Account</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Join I'll Pay to split bills with friends</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Email *</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
               placeholder="you@example.com"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.inputPlaceholder}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -116,11 +118,11 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           />
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Password *</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
               placeholder="At least 6 characters"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.inputPlaceholder}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -129,11 +131,11 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Confirm Password *</Text>
+            <Text style={[styles.label, { color: colors.text }]}>Confirm Password *</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
               placeholder="Re-enter your password"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.inputPlaceholder}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -142,7 +144,7 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, isLoading && styles.buttonDisabled]}
+            style={[styles.button, { backgroundColor: colors.primary }, isLoading && styles.buttonDisabled]}
             onPress={handleSignUp}
             disabled={isLoading || socialLoading !== null}
           >
@@ -154,14 +156,14 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
           </TouchableOpacity>
 
           <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or sign up with</Text>
-            <View style={styles.dividerLine} />
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+            <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or sign up with</Text>
+            <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
           </View>
 
           <View style={styles.socialButtons}>
             <TouchableOpacity
-              style={[styles.socialButton, socialLoading === 'google' && styles.buttonDisabled]}
+              style={[styles.socialButton, { backgroundColor: colors.surface, borderColor: colors.border }, socialLoading === 'google' && styles.buttonDisabled]}
               onPress={async () => {
                 setSocialLoading('google');
                 const { error } = await signInWithSocial('google');
@@ -171,9 +173,9 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
               disabled={isLoading || socialLoading !== null}
             >
               {socialLoading === 'google' ? (
-                <ActivityIndicator color="#1a1a1a" />
+                <ActivityIndicator color={colors.text} />
               ) : (
-                <Text style={styles.socialButtonText}>Google</Text>
+                <Text style={[styles.socialButtonText, { color: colors.text }]}>Google</Text>
               )}
             </TouchableOpacity>
 
@@ -199,9 +201,9 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account?</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Already have an account?</Text>
           <TouchableOpacity onPress={onNavigateToSignIn}>
-            <Text style={styles.linkText}>Sign In</Text>
+            <Text style={[styles.linkText, { color: colors.primary }]}>Sign In</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

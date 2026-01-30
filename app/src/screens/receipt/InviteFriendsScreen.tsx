@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/services/supabase';
 import { inviteFriendToReceipt, getReceiptParticipants } from '@/services/sharingService';
+import { useTheme } from '@/theme';
 
 interface InviteFriendsScreenProps {
   receiptId: string;
@@ -26,6 +27,7 @@ interface Friend {
 }
 
 export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenProps) {
+  const { colors } = useTheme();
   const [friends, setFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [invitingId, setInvitingId] = useState<string | null>(null);
@@ -94,25 +96,25 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
   };
 
   const renderFriend = ({ item }: { item: Friend }) => (
-    <View style={styles.friendRow}>
-      <View style={styles.avatar}>
+    <View style={[styles.friendRow, { borderBottomColor: colors.border }]}>
+      <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
         <Text style={styles.avatarText}>
           {(item.display_name || item.username || '?')[0].toUpperCase()}
         </Text>
       </View>
       <View style={styles.friendInfo}>
-        <Text style={styles.friendName}>
+        <Text style={[styles.friendName, { color: colors.text }]}>
           {item.display_name || item.username}
         </Text>
-        <Text style={styles.friendUsername}>@{item.username}</Text>
+        <Text style={[styles.friendUsername, { color: colors.textSecondary }]}>@{item.username}</Text>
       </View>
       {item.isInvited ? (
-        <View style={styles.invitedBadge}>
-          <Text style={styles.invitedText}>Invited</Text>
+        <View style={[styles.invitedBadge, { backgroundColor: colors.backgroundTertiary }]}>
+          <Text style={[styles.invitedText, { color: colors.textSecondary }]}>Invited</Text>
         </View>
       ) : (
         <TouchableOpacity
-          style={styles.inviteButton}
+          style={[styles.inviteButton, { backgroundColor: colors.primary }]}
           onPress={() => handleInvite(item.id)}
           disabled={invitingId === item.id}
         >
@@ -128,26 +130,26 @@ export function InviteFriendsScreen({ receiptId, onBack }: InviteFriendsScreenPr
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No friends yet</Text>
-      <Text style={styles.emptySubtext}>
+      <Text style={[styles.emptyText, { color: colors.text }]}>No friends yet</Text>
+      <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
         Add friends to invite them to split receipts
       </Text>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <View style={[styles.header, { borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Back</Text>
+          <Text style={[styles.headerButtonText, { color: colors.primary }]}>← Back</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Invite Friends</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Invite Friends</Text>
         <View style={styles.headerButton} />
       </View>
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       ) : (
         <FlatList
