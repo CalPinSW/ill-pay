@@ -12,6 +12,7 @@ import {
   Alert,
 } from 'react-native';
 import { useAuthStore } from '@/store/authStore';
+import { UsernameInput, validateUsername, DisplayNameInput } from '@/components/form';
 
 interface SignUpScreenProps {
   onNavigateToSignIn: () => void;
@@ -23,6 +24,7 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [usernameError, setUsernameError] = useState('');
 
   const signUp = useAuthStore((state) => state.signUp);
   const signInWithSocial = useAuthStore((state) => state.signInWithSocial);
@@ -45,8 +47,9 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
       return;
     }
 
-    if (username.length < 3) {
-      Alert.alert('Error', 'Username must be at least 3 characters');
+    const usernameValidationError = validateUsername(username);
+    if (usernameValidationError) {
+      setUsernameError(usernameValidationError);
       return;
     }
 
@@ -97,30 +100,20 @@ export function SignUpScreen({ onNavigateToSignIn }: SignUpScreenProps) {
             />
           </View>
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Username *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Choose a unique username"
-              placeholderTextColor="#999"
-              value={username}
-              onChangeText={setUsername}
-              autoCapitalize="none"
-              autoComplete="username"
-            />
-          </View>
+          <UsernameInput
+            value={username}
+            onChangeText={(text) => {
+              setUsername(text);
+              setUsernameError('');
+            }}
+            error={usernameError}
+            required
+          />
 
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Display Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="How friends will see you"
-              placeholderTextColor="#999"
-              value={displayName}
-              onChangeText={setDisplayName}
-              autoComplete="name"
-            />
-          </View>
+          <DisplayNameInput
+            value={displayName}
+            onChangeText={setDisplayName}
+          />
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password *</Text>

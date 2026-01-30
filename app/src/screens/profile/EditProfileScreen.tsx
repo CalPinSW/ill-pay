@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -19,6 +18,7 @@ import { supabase } from '@/services/supabase';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
+import { UsernameInput, validateUsername, DisplayNameInput } from '@/components/form';
 
 interface EditProfileScreenProps {
   onGoBack: () => void;
@@ -30,8 +30,10 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
   const isLoading = useAuthStore((state) => state.isLoading);
 
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
+  const [username, setUsername] = useState(profile?.username || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url || '');
   const [isUploading, setIsUploading] = useState(false);
+  const [usernameError, setUsernameError] = useState('');
 
   const getInitials = () => {
     if (displayName) {
@@ -46,13 +48,31 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
   };
 
   const handleSave = async () => {
-    const { error } = await updateProfile({
+    // Validate username
+    const usernameValidationError = validateUsername(username);
+    if (usernameValidationError) {
+      setUsernameError(usernameValidationError);
+      return;
+    }
+
+    const updates: any = {
       display_name: displayName || null,
       avatar_url: avatarUrl || null,
-    });
+    };
+
+    // Only include username if it changed
+    if (username !== profile?.username) {
+      updates.username = username;
+    }
+
+    const { error } = await updateProfile(updates);
 
     if (error) {
-      Alert.alert('Error', error.message);
+      if (error.message.includes('duplicate') || error.message.includes('unique')) {
+        setUsernameError('This username is already taken');
+      } else {
+        Alert.alert('Error', error.message);
+      }
     } else {
       Alert.alert('Success', 'Profile updated successfully', [
         { text: 'OK', onPress: onGoBack },
@@ -180,28 +200,19 @@ export function EditProfileScreen({ onGoBack }: EditProfileScreenProps) {
           </View>
 
           <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Username</Text>
-              <TextInput
-                style={[styles.input, styles.inputDisabled]}
-                value={profile?.username}
-                editable={false}
-              />
-              <Text style={styles.hint}>Username cannot be changed</Text>
-            </View>
+            <UsernameInput
+              value={username}
+              onChangeText={(text) => {
+                setUsername(text);
+                setUsernameError('');
+              }}
+              error={usernameError}
+            />
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Display Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="How friends see you"
-                placeholderTextColor="#999"
-                value={displayName}
-                onChangeText={setDisplayName}
-                autoComplete="name"
-              />
-            </View>
-
+            <DisplayNameInput
+              value={displayName}
+              onChangeText={setDisplayName}
+            />
           </View>
 
           <TouchableOpacity
@@ -285,32 +296,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 24,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  inputDisabled: {
-    backgroundColor: '#eee',
-    color: '#666',
-  },
-  hint: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
   },
   saveButton: {
     backgroundColor: '#4F46E5',

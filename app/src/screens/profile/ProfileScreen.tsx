@@ -98,7 +98,6 @@ export function ProfileScreen({ onEditProfile, onAbout }: ProfileScreenProps) {
             {profile?.display_name || profile?.username || 'User'}
           </Text>
           <Text style={styles.username}>@{profile?.username}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
         </View>
 
         <View style={styles.section}>
@@ -272,11 +271,7 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 4,
-  },
-  email: {
-    fontSize: 14,
-    color: '#999',
+    marginBottom: 16,
   },
   section: {
     marginBottom: 24,
