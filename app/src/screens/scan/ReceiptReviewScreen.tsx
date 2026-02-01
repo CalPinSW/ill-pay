@@ -29,16 +29,22 @@ export function ReceiptReviewScreen({
   onCancel,
   isSubmitting = false,
 }: ReceiptReviewScreenProps) {
-  const { colors } = useTheme();
+  const { colors, theme } = useTheme();
   const [restaurantName, setRestaurantName] = useState(parsedReceipt.restaurant_name || '');
   const [date, setDate] = useState<Date>(() => {
     const candidate = parsedReceipt.date ? new Date(parsedReceipt.date) : new Date();
     return Number.isNaN(candidate.getTime()) ? new Date() : candidate;
   });
-  const [items, setItems] = useState<ReceiptItem[]>(parsedReceipt.items || []);
+  const [items, setItems] = useState<ReceiptItem[]>(
+    (parsedReceipt.items || []).map((item) => ({
+      ...item,
+      quantity: Math.ceil(item.quantity || 1),
+      total_price: Math.ceil(item.quantity || 1) * (item.unit_price || 0),
+    }))
+  );
   const [itemDrafts, setItemDrafts] = useState<{ quantity: string; unit_price: string }[]>(
     (parsedReceipt.items || []).map((item) => ({
-      quantity: item.quantity?.toString?.() ?? '0',
+      quantity: Math.ceil(item.quantity || 1).toString(),
       unit_price:
         typeof item.unit_price === 'number' && Number.isFinite(item.unit_price)
           ? item.unit_price.toFixed(2)
@@ -175,10 +181,17 @@ export function ReceiptReviewScreen({
       return;
     }
 
+    // Ensure all quantities are integers
+    const validatedItems = items.map((item) => ({
+      ...item,
+      quantity: Math.ceil(item.quantity),
+      total_price: Math.ceil(item.quantity) * item.unit_price,
+    }));
+
     const updatedReceipt: ParsedReceipt = {
       restaurant_name: restaurantName || undefined,
       date: date.toISOString().split('T')[0] || undefined,
-      items,
+      items: validatedItems,
       subtotal: computedSubtotal,
       tax: Number.isFinite(parsedTax) ? parsedTax : undefined,
       tip: Number.isFinite(parsedTip) ? parsedTip : undefined,
@@ -230,7 +243,8 @@ export function ReceiptReviewScreen({
                 <RNDateTimePicker
                   value={date}
                   mode="date"
-                display={'default'}
+                  themeVariant={theme}
+                  display={'default'}
                   onChange={(event, nextDate) => {
                     if (event.type === 'dismissed' || !nextDate) return;
                     setDate(nextDate);
@@ -252,7 +266,7 @@ export function ReceiptReviewScreen({
                 key={index}
                 style={[
                   styles.itemCard,
-                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  { backgroundColor: colors.background, borderColor: colors.border },
                 ]}
               >
                 <View style={styles.itemHeader}>
@@ -494,7 +508,9 @@ const styles = StyleSheet.create({
   },
   itemNameInput: {
     flex: 1,
-    fontSize: 16,
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
     fontWeight: '500',
     marginRight: 8,
   },

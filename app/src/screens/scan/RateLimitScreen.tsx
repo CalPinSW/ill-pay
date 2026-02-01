@@ -7,9 +7,10 @@ interface RateLimitScreenProps {
   limit: number;
   count: number;
   onBack: () => void;
+  onManualEntry: () => void;
 }
 
-export function RateLimitScreen({ limit, count, onBack }: RateLimitScreenProps) {
+export function RateLimitScreen({ limit, count, onBack, onManualEntry }: RateLimitScreenProps) {
   const { colors } = useTheme();
 
   return (
@@ -22,13 +23,22 @@ export function RateLimitScreen({ limit, count, onBack }: RateLimitScreenProps) 
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
           You have used {count} of {limit} receipt scans today.
         </Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Try again tomorrow.</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          You can still enter receipts manually.
+        </Text>
 
         <TouchableOpacity
           style={[styles.button, { backgroundColor: colors.primary }]}
+          onPress={onManualEntry}
+        >
+          <Text style={styles.buttonText}>Enter Manually</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.secondaryButton, { borderColor: colors.border }]}
           onPress={onBack}
         >
-          <Text style={styles.buttonText}>Back to Scan</Text>
+          <Text style={[styles.secondaryButtonText, { color: colors.text }]}>Back to Scan</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -69,6 +79,17 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  secondaryButton: {
+    marginTop: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  secondaryButtonText: {
     fontSize: 16,
     fontWeight: '600',
   },

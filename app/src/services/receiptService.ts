@@ -15,6 +15,13 @@ export class RateLimitExceededError extends Error {
   }
 }
 
+export class NoReceiptFoundError extends Error {
+  constructor(message: string = 'No receipt found in image') {
+    super(message);
+    this.name = 'NoReceiptFoundError';
+  }
+}
+
 async function compressImage(uri: string): Promise<string> {
   const result = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1200 } }], {
     compress: 0.7,
@@ -55,16 +62,23 @@ export async function parseReceiptImage(imageUri: string): Promise<ParsedReceipt
   });
 
   if (error) {
-    const maybeContext = (error as any)?.context;
-    const status = maybeContext?.status;
-    const body = maybeContext?.body;
+    const context = (error as any)?.context;
+    if (context?.status === 429) {
+      const body = await context.json();
+      if (body?.code === 'RATE_LIMIT_EXCEEDED') {
+        throw new RateLimitExceededError(
+          body?.error || 'Daily receipt parsing limit reached',
+          Number(body?.limit) || 2,
+          Number(body?.count) || 0
+        );
+      }
+    }
 
-    if (status === 429 && body?.code === 'RATE_LIMIT_EXCEEDED') {
-      throw new RateLimitExceededError(
-        body?.error || 'Daily receipt parsing limit reached',
-        Number(body?.limit) || 2,
-        Number(body?.count) || 0
-      );
+    if (context?.status === 422) {
+      const body = await context.json();
+      if (body?.code === 'NO_RECEIPT_FOUND') {
+        throw new NoReceiptFoundError(body?.error || 'No receipt found in image');
+      }
     }
 
     throw error;

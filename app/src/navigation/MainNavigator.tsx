@@ -261,6 +261,7 @@ function ScanStack() {
         limit={rateLimitInfo.limit}
         count={rateLimitInfo.count}
         onBack={handleRateLimitBack}
+        onManualEntry={handleManualEntry}
       />
     );
   }

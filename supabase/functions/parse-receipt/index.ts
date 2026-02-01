@@ -104,7 +104,8 @@ Important rules:
 4. Extract ALL line items from the receipt
 5. If you cannot determine a value, use null
 6. Return ONLY valid JSON, no additional text or explanation
-7. Be precise with decimal places for prices`;
+7. Be precise with decimal places for prices
+8. If the image does not appear to be a receipt, return null`;
 
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -122,6 +123,9 @@ serve(async (req: Request) => {
 
     const usage = await enforceRateLimit(req, userId);
     if (!usage.allowed) {
+      // Consume the request body to prevent the handler from hanging
+      await req.text().catch(() => {});
+      
       return new Response(
         JSON.stringify({
           error: "Daily receipt parsing limit reached",
@@ -175,17 +179,41 @@ serve(async (req: Request) => {
     ]);
 
     const response = result.response;
-    const text = response.text();
+    const text = response.text().trim();
+
+    // Check if Gemini returned null (no receipt found)
+    if (text === "null" || text.toLowerCase() === "null") {
+      return new Response(
+        JSON.stringify({
+          error: "No receipt found in image",
+          code: "NO_RECEIPT_FOUND",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 422 }
+      );
+    }
 
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error("Failed to extract JSON from response");
+      return new Response(
+        JSON.stringify({
+          error: "No receipt found in image",
+          code: "NO_RECEIPT_FOUND",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 422 }
+      );
     }
 
     const parsedReceipt: ParsedReceipt = JSON.parse(jsonMatch[0]);
 
-    if (!parsedReceipt.items || !Array.isArray(parsedReceipt.items)) {
-      parsedReceipt.items = [];
+    // If no items were found, treat as no receipt
+    if (!parsedReceipt.items || !Array.isArray(parsedReceipt.items) || parsedReceipt.items.length === 0) {
+      return new Response(
+        JSON.stringify({
+          error: "No receipt items found in image",
+          code: "NO_RECEIPT_FOUND",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 422 }
+      );
     }
 
     parsedReceipt.items = parsedReceipt.items.map((item) => ({

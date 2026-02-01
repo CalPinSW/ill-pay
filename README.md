@@ -233,6 +233,15 @@ supabase functions deploy
 
 > **Note:** Make sure your `.env` file in the `supabase/` directory contains the necessary secrets (like `GEMINI_API_KEY`) before deploying.
 
+#### parse-receipt Configuration
+
+The `parse-receipt` function has `verify_jwt = false` configured in `supabase/functions/parse-receipt/.supabase/config.toml`. This disables gateway-level JWT verification because:
+- The function needs to verify the user's JWT and extract the user ID
+- It then uses that user ID to call RPC functions with proper auth context
+- Gateway verification would prevent the function from accessing the JWT payload
+
+The function still performs authentication internally, so this is secure.
+
 ### Mobile App Builds
 
 For development builds with physical devices:
